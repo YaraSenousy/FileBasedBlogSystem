@@ -8,6 +8,10 @@ public static class GetPosts
     {
         app.MapGet("/", GetHomePage);
     }
+    /*
+    Handles getting the home page
+    Reads all posts, paginates them, and returns posts ordered by publish time as JSON.
+    */
     public static IResult GetHomePage(HttpContext context)
     {
         var page = int.TryParse(context.Request.Query["page"], out var p) ? p : 1;

@@ -5,6 +5,11 @@ namespace FileBlogSystem.Features.Render.HomePage;
 
 public static class PostReader
 {
+    /*
+    Reads a single post from a folder by loading and parsing `meta.json` and `content.md`.
+    Converts markdown to HTML. by taking absolute path to the post folder
+    returns Post object if valid, otherwise null
+    */
     public static Post? ReadPostFromFolder(string folderPath)
     {
         var metaPath = Path.Combine(folderPath, "meta.json");
@@ -12,17 +17,25 @@ public static class PostReader
 
         if (!File.Exists(metaPath) || !File.Exists(contentPath)) return null;
 
-        var metaJson = File.ReadAllText(metaPath);
-        var options = new JsonSerializerOptions
+        try
         {
-            PropertyNameCaseInsensitive = true
-        };
+            var metaJson = File.ReadAllText(metaPath);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
 
-        var post = JsonSerializer.Deserialize<Post>(metaJson, options);
+            var post = JsonSerializer.Deserialize<Post>(metaJson, options);
 
-        var markdown = File.ReadAllText(contentPath);
-        post!.HtmlContent = Markdown.ToHtml(markdown);
+            var markdown = File.ReadAllText(contentPath);
+            post!.HtmlContent = Markdown.ToHtml(markdown);
 
-        return post;
+            return post;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ReadPostFromFolder] Error reading {folderPath}: {ex.Message}");
+            return null;
+        }
     }
 }

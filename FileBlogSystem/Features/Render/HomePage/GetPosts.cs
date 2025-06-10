@@ -18,7 +18,7 @@ public static class GetPosts
         var allPosts = postDirs
             .Select(folder => PostReader.ReadPostFromFolder(folder))
             .Where(p => p != null)
-            .OrderByDescending(p => p!.published)
+            .OrderByDescending(p => p!.Published)
             .ToList();
 
         var paged = allPosts

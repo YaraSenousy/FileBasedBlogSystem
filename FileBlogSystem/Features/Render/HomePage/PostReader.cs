@@ -2,6 +2,7 @@ using Markdig;
 using System.Text.Json;
 
 namespace FileBlogSystem.Features.Render.HomePage;
+
 public static class PostReader
 {
     public static Post? ReadPostFromFolder(string folderPath)
@@ -12,10 +13,15 @@ public static class PostReader
         if (!File.Exists(metaPath) || !File.Exists(contentPath)) return null;
 
         var metaJson = File.ReadAllText(metaPath);
-        var post = JsonSerializer.Deserialize<Post>(metaJson);
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
+        var post = JsonSerializer.Deserialize<Post>(metaJson, options);
 
         var markdown = File.ReadAllText(contentPath);
-        post!.htmlContent = Markdown.ToHtml(markdown);
+        post!.HtmlContent = Markdown.ToHtml(markdown);
 
         return post;
     }

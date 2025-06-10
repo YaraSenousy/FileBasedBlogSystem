@@ -1,8 +1,7 @@
 using Markdig;
 using System.Text.Json;
 
-namespace FileBlogSystem.Features.Posting;
-
+namespace FileBlogSystem.Features.Render.HomePage;
 public static class PostReader
 {
     public static Post? ReadPostFromFolder(string folderPath)
@@ -16,7 +15,7 @@ public static class PostReader
         var post = JsonSerializer.Deserialize<Post>(metaJson);
 
         var markdown = File.ReadAllText(contentPath);
-        post!.HtmlContent = Markdown.ToHtml(markdown);
+        post!.htmlContent = Markdown.ToHtml(markdown);
 
         return post;
     }

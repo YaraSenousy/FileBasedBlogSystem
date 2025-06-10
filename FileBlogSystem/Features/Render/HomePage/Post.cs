@@ -2,11 +2,11 @@ namespace FileBlogSystem.Features.Render.HomePage;
 
 public class Post
 {
-    public string Title { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public string Slug { get; set; } = string.Empty;
-    public DateTime Published { get; set; }
-    public List<string>? Tags { get; set; } = [];
-    public List<string>? Categories { get; set; } = [];
-    public string HtmlContent { get; set; } = string.Empty;
+    public string title { get; set; } = string.Empty;
+    public string description { get; set; } = string.Empty;
+    public string slug { get; set; } = string.Empty;
+    public DateTime published { get; set; }
+    public List<string>? tags { get; set; } = [];
+    public List<string>? categories { get; set; } = [];
+    public string htmlContent { get; set; } = string.Empty;
 }

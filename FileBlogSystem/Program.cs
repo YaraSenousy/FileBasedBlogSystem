@@ -1,6 +1,7 @@
 using FileBlogSystem.Features.Render.HomePage;
 using FileBlogSystem.Features.Render.Categories;
 using FileBlogSystem.Features.Render.Tags;
+using FileBlogSystem.Features.Render.Search;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.FileProviders;
 
@@ -20,5 +21,6 @@ app.MapHomePageEndpoints();
 app.MapCategoryListEndpoint();
 app.MapTagListEndpoint();
 app.MapCategoryPostsEndpoint();
+app.MapSearchEndpoint();
 
 app.Run();

@@ -68,6 +68,7 @@ async function loadCategories() {
 }
 
 function loadPosts() {
+  document.getElementById("tag-filter").style.display = "block";
   const selected = document.getElementById("category-dropdown").value;
   if (selected) {
     loadPostsByCategory(selected);
@@ -92,6 +93,10 @@ async function loadPostsByCategory(slug) {
 function renderPosts(posts) {
   const container = document.getElementById("posts-container");
   container.innerHTML = "";
+
+  if (posts.length <= 0){
+    container.innerHTML = "<h4>No results</h4>"
+  }
 
   posts.forEach(post => {
     const postEl = document.createElement("article");
@@ -130,6 +135,25 @@ function renderPosts(posts) {
 function resetFilters(){
   window.location.reload();
 }
+
+function onSearch() {
+  const term = document.getElementById("search-box").value.trim();
+  if (term) {
+    currentPage = 1;
+    document.getElementById("search-box").value = "";
+    document.getElementById("tag-filter").style.display = "none";
+    loadSearchResults(term);
+  } else {
+    loadPosts();
+  }
+}
+
+async function loadSearchResults(query) {
+  const res = await fetch(`/search?q=${encodeURIComponent(query)}&page=${currentPage}&limit=${limit}`);
+  const posts = await res.json();
+  renderPosts(posts);
+}
+
 
 window.onload = () => {
   loadCategories();

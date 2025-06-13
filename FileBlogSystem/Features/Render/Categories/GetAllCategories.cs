@@ -1,5 +1,4 @@
 using System.Text.Json;
-
 namespace FileBlogSystem.Features.Render.Categories;
 
 public static class GetAllCategories
@@ -9,7 +8,7 @@ public static class GetAllCategories
         app.MapGet("/categories", GetCategories);
     }
 
-    /// Returns all available categories from /content/categories
+    /// Returns a list of all available categories from /content/categories
     public static IResult GetCategories()
     {
         var path = Path.Combine(Directory.GetCurrentDirectory(), "content", "categories");
@@ -25,7 +24,7 @@ public static class GetAllCategories
                     PropertyNameCaseInsensitive = true
                 };
 
-                return JsonSerializer.Deserialize<CategoryMeta>(categoryJson, options);
+                return JsonSerializer.Deserialize<Category>(categoryJson, options);
             })
             .Where(c => c != null)
             .ToList();

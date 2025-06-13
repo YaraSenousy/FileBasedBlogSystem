@@ -8,7 +8,7 @@ async function loadTags() {
   const container = document.getElementById("tag-checkboxes");
   currentPage = 1;
 
-  tags.forEach(tag => {
+  tags.forEach((tag) => {
     const label = document.createElement("label");
     const input = document.createElement("input");
 
@@ -25,20 +25,21 @@ async function loadTags() {
   });
 }
 
-
 function getTagFilterParam() {
   return activeTags.size > 0 ? `&tags=${[...activeTags].join(",")}` : "";
 }
 
 async function loadAllPosts() {
-  const res = await fetch(`/?page=${currentPage}&limit=${limit}${getTagFilterParam()}`);
+  const res = await fetch(
+    `/?page=${currentPage}&limit=${limit}${getTagFilterParam()}`
+  );
   const posts = await res.json();
   renderPosts(posts);
 }
 
-
 function nextPage() {
   currentPage++;
+  document.getElementById("prev-page").style.visibility = "visible";
   loadPosts();
 }
 
@@ -46,6 +47,9 @@ function prevPage() {
   if (currentPage > 1) {
     currentPage--;
     loadPosts();
+  } 
+  if (currentPage == 1) {
+    document.getElementById("prev-page").style.visibility = "hidden";
   }
 }
 
@@ -73,7 +77,7 @@ function loadPosts() {
   if (selected) {
     loadPostsByCategory(selected);
   } else {
-    loadAllPosts(); 
+    loadAllPosts();
   }
 }
 
@@ -91,37 +95,45 @@ async function loadPostsByCategory(slug) {
 }
 
 function renderPosts(posts) {
+  document.getElementById("next-page").style.visibility = "visible";
   const container = document.getElementById("posts-container");
   container.innerHTML = "";
 
-  if (posts.length <= 0){
-    container.innerHTML = "<h4>No results</h4>"
+  if (posts.length <= 0) {
+    container.innerHTML = "<h4>No results</h4>";
+    document.getElementById("next-page").style.visibility = "hidden";
   }
 
-  posts.forEach(post => {
+  posts.forEach((post) => {
     const postEl = document.createElement("article");
 
-    const tags = (post.tags || []).map(t => `<span>${t}</span>`).join("");
-    const cats = (post.categories || []).map(c => `<span>${c}</span>`).join("");
+    const tags = (post.tags || []).map((t) => `<span>${t}</span>`).join("");
+    const cats = (post.categories || [])
+      .map((c) => `<span>${c}</span>`)
+      .join("");
 
     postEl.innerHTML = `
       <h2>${post.title}</h2>
       <div class="post-meta">
         Published: ${new Date(post.published).toLocaleDateString()}
       </div>
-      <div class="post-description"><span>Decription: </span>${post.description}</div>
+      <div class="post-description"><span>Decription: </span>${
+        post.description
+      }</div>
       <div class="post-categories"><strong>Categories:</strong> ${cats}</div>
       <div class="post-tags"><strong>Tags:</strong> ${tags}</div>
-      <div class="post-details"><a href="/post.html?slug=${post.slug}">Continue Reading</a></div>
+      <div class="post-details"><a href="/post.html?slug=${
+        post.slug
+      }">Continue Reading</a></div>
     `;
-    
+
     container.appendChild(postEl);
   });
 
   document.getElementById("page-number").textContent = `Page ${currentPage}`;
 }
 
-function resetFilters(){
+function resetFilters() {
   window.location.reload();
 }
 
@@ -138,11 +150,12 @@ function onSearch() {
 }
 
 async function loadSearchResults(query) {
-  const res = await fetch(`/search?q=${encodeURIComponent(query)}&page=${currentPage}&limit=${limit}`);
+  const res = await fetch(
+    `/search?q=${encodeURIComponent(query)}&page=${currentPage}&limit=${limit}`
+  );
   const posts = await res.json();
   renderPosts(posts);
 }
-
 
 window.onload = () => {
   loadCategories();

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Blog Post</title>
+  <link rel="stylesheet" href="/styles/main.css" />
+</head>
+<body>
+  <main id="post-container">Loading...</main>
+  <script>
+    const slug = new URLSearchParams(location.search).get("slug");
+
+    fetch(`/posts/${slug}`)
+      .then(res => res.json())
+      .then(post => {
+        document.getElementsByName("title").innerHTML = post.title;
+        const container = document.getElementById("post-container");
+        container.innerHTML = `
+          <article>
+            <h1>${post.title}</h1>
+            <p><i>${new Date(post.published).toLocaleDateString()}</i></p>
+            <div>${post.htmlContent}</div>
+            <div><strong>Categories:</strong> ${post.categories?.join(", ")}</div>
+            <div><strong>Tags:</strong> ${post.tags?.join(", ")}</div>
+          </article>
+        `;
+        if (post.mediaUrls && post.mediaUrls.length > 0) {
+            container.innerHTML += `
+                <div class="post-media">
+                ${post.mediaUrls.map(url => {
+                    return url.match(/\.(jpg|jpeg|png|webp)$/)
+                    ? `<img src="${url}?width=400" alt="media" />`
+                    : `<a href="${url}" target="_blank">${url.split("/").pop()}</a>`;
+                }).join("<br>")}
+                </div>
+            `;
+        }
+      });
+  </script>
+</body>
+</html>

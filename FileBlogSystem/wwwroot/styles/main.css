@@ -68,9 +68,11 @@ article h2 {
 }
 
 .post-tags,
-.post-categories {
+.post-categories,
+.post-description span {
     font-size: 0.8rem;
     margin-top: 0.5rem;
+    font-weight: 500;
 }
 
 .post-tags span,

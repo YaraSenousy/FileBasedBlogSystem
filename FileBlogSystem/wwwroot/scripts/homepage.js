@@ -109,22 +109,11 @@ function renderPosts(posts) {
       <div class="post-meta">
         Published: ${new Date(post.published).toLocaleDateString()}
       </div>
-      <div class="post-content">${post.htmlContent}</div>
+      <div class="post-description"><span>Decription: </span>${post.description}</div>
       <div class="post-categories"><strong>Categories:</strong> ${cats}</div>
       <div class="post-tags"><strong>Tags:</strong> ${tags}</div>
+      <div class="post-details"><a href="/post.html?slug=${post.slug}">Continue Reading</a></div>
     `;
-
-    if (post.mediaUrls && post.mediaUrls.length > 0) {
-      postEl.innerHTML += `
-        <div class="post-media">
-          ${post.mediaUrls.map(url => {
-            return url.match(/\.(jpg|jpeg|png|webp)$/)
-              ? `<img src="${url}?width=400" alt="media" />`
-              : `<a href="${url}" target="_blank">${url.split("/").pop()}</a>`;
-          }).join("<br>")}
-        </div>
-      `;
-    }
     
     container.appendChild(postEl);
   });

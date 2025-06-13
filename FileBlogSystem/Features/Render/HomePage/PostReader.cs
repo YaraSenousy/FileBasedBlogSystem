@@ -30,6 +30,18 @@ public static class PostReader
             var markdown = File.ReadAllText(contentPath);
             post!.HtmlContent = Markdown.ToHtml(markdown);
 
+            var assetsPath = Path.Combine(folderPath, "assets");
+            if (Directory.Exists(assetsPath))
+            {
+                var mediaFiles = Directory.GetFiles(assetsPath)
+                    .Select(f => Path.GetFileName(f)) 
+                    .Select(file => $"/content/posts/{post!.Slug}/assets/{file}")
+                    .ToList();
+
+                post.MediaUrls = mediaFiles;
+            }
+
+
             return post;
         }
         catch (Exception ex)

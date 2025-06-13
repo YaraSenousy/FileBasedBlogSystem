@@ -9,4 +9,5 @@ public class Post
     public List<string>? Tags { get; set; } = [];
     public List<string>? Categories { get; set; } = [];
     public string HtmlContent { get; set; } = string.Empty;
+    public List<string>? MediaUrls { get; set; }
 }

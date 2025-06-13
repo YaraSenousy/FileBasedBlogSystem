@@ -109,6 +109,18 @@ function renderPosts(posts) {
       <div class="post-tags"><strong>Tags:</strong> ${tags}</div>
     `;
 
+    if (post.mediaUrls && post.mediaUrls.length > 0) {
+      postEl.innerHTML += `
+        <div class="post-media">
+          ${post.mediaUrls.map(url => {
+            return url.match(/\.(jpg|jpeg|png|webp)$/)
+              ? `<img src="${url}?width=400" alt="media" />`
+              : `<a href="${url}" target="_blank">${url.split("/").pop()}</a>`;
+          }).join("<br>")}
+        </div>
+      `;
+    }
+    
     container.appendChild(postEl);
   });
 

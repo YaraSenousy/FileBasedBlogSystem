@@ -86,3 +86,14 @@ article h2 {
     text-align: center;
     margin: 1rem;
 }
+
+.post-media {
+    margin-top: 1rem;
+}
+
+.post-media img {
+    max-width: 100%;
+    border: 1px solid #ccc;
+    margin-top: 0.3rem;
+    border-radius: 4px;
+}

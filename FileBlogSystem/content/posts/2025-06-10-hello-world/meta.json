@@ -2,7 +2,7 @@
   "title": "Hello World",
   "description": "hello to everyone",
   "published": "2025-06-10T10:00:00Z",
-  "slug": "hello-world",
+  "slug": "2025-06-10-hello-world",
   "categories": ["technology","design"],
   "tags": ["greetings", "welcome"]
 }

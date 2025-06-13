@@ -8,7 +8,7 @@ public static class GetAllCategories
         app.MapGet("/categories", GetCategories);
     }
 
-    /// Returns a list of all available categories from /content/categories
+    // Returns a list of all available categories from /content/categories
     public static IResult GetCategories()
     {
         var path = Path.Combine(Directory.GetCurrentDirectory(), "content", "categories");

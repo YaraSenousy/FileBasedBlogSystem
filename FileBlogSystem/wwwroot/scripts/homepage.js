@@ -1,26 +1,41 @@
 let currentPage = 1;
 const limit = 5;
+let activeTags = new Set();
 
-async function loadPosts() {
-  const res = await fetch(`/?page=${currentPage}&limit=${limit}`);
-  const posts = await res.json();
+async function loadTags() {
+  const res = await fetch("/tags");
+  const tags = await res.json();
+  const container = document.getElementById("tag-checkboxes");
+  currentPage = 1;
 
-  const container = document.getElementById("posts-container");
-  container.innerHTML = "";
+  tags.forEach(tag => {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
 
-  posts.forEach(post => {
-    const postEl = document.createElement("article");
-    postEl.innerHTML = `
-      <h2>${post.title}</h2>
-      <p><i>${new Date(post.published).toLocaleDateString()}</i></p>
-      <div>${post.htmlContent}</div>
-      <hr/>
-    `;
-    container.appendChild(postEl);
+    input.type = "checkbox";
+    input.value = tag.slug;
+    input.onchange = () => {
+      input.checked ? activeTags.add(tag.slug) : activeTags.delete(tag.slug);
+      loadPosts();
+    };
+
+    label.appendChild(input);
+    label.append(` ${tag.name}`);
+    container.appendChild(label);
   });
-
-  document.getElementById("page-number").textContent = `Page ${currentPage}`;
 }
+
+
+function getTagFilterParam() {
+  return activeTags.size > 0 ? `&tags=${[...activeTags].join(",")}` : "";
+}
+
+async function loadAllPosts() {
+  const res = await fetch(`/?page=${currentPage}&limit=${limit}${getTagFilterParam()}`);
+  const posts = await res.json();
+  renderPosts(posts);
+}
+
 
 function nextPage() {
   currentPage++;
@@ -34,4 +49,78 @@ function prevPage() {
   }
 }
 
-window.onload = loadPosts;
+async function loadCategories() {
+  const dropdown = document.getElementById("category-dropdown");
+
+  try {
+    const res = await fetch("/categories");
+    const categories = await res.json();
+
+    categories.forEach((cat) => {
+      const option = document.createElement("option");
+      option.value = cat.slug;
+      option.textContent = cat.name;
+      dropdown.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Failed to load categories:", err.message);
+  }
+}
+
+function loadPosts() {
+  const selected = document.getElementById("category-dropdown").value;
+  if (selected) {
+    loadPostsByCategory(selected);
+  } else {
+    loadAllPosts(); 
+  }
+}
+
+async function loadPostsByCategory(slug) {
+  try {
+    const res = await fetch(
+      `/categories/${slug}?page=${currentPage}&limit=${limit}${getTagFilterParam()}`
+    );
+    const posts = await res.json();
+
+    renderPosts(posts);
+  } catch (err) {
+    console.log("Failed to load the posts: " + err.message);
+  }
+}
+
+function renderPosts(posts) {
+  const container = document.getElementById("posts-container");
+  container.innerHTML = "";
+
+  posts.forEach(post => {
+    const postEl = document.createElement("article");
+
+    const tags = (post.tags || []).map(t => `<span>${t}</span>`).join("");
+    const cats = (post.categories || []).map(c => `<span>${c}</span>`).join("");
+
+    postEl.innerHTML = `
+      <h2>${post.title}</h2>
+      <div class="post-meta">
+        Published: ${new Date(post.published).toLocaleDateString()}
+      </div>
+      <div class="post-content">${post.htmlContent}</div>
+      <div class="post-categories"><strong>Categories:</strong> ${cats}</div>
+      <div class="post-tags"><strong>Tags:</strong> ${tags}</div>
+    `;
+
+    container.appendChild(postEl);
+  });
+
+  document.getElementById("page-number").textContent = `Page ${currentPage}`;
+}
+
+function resetFilters(){
+  window.location.reload();
+}
+
+window.onload = () => {
+  loadCategories();
+  loadTags();
+  loadPosts();
+};

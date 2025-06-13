@@ -2,19 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Blog System</title>
+  <title>File Blog</title>
+  <link rel="stylesheet" href="/styles/main.css" />
 </head>
 <body>
-  <main>
-    <h1>Recent Blogs</h1>
-    <div id="posts-container"></div>
+  <header>
+    <h1>Lets Blog</h1>
+    <nav>
+      <a href="#" onclick="resetFilters()">Home</a>
+      <select id="category-dropdown" onchange="loadPosts()">
+        <option value="">Categories</option>
+      </select>
+    </nav>
+  </header>
 
+  <section id="tag-filter">
+    <strong>Filter by Tags:</strong>
+    <div id="tag-checkboxes"></div>
+  </section>
+
+  <main>
+    <div id="error-message" class="error"></div>
+    <div id="posts-container"></div>
     <div id="pagination">
       <button onclick="prevPage()">Previous</button>
       <span id="page-number">Page 1</span>
       <button onclick="nextPage()">Next</button>
     </div>
   </main>
+
   <script src="/scripts/homepage.js"></script>
 </body>
 </html>

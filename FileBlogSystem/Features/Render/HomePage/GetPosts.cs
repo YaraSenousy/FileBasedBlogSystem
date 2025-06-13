@@ -10,20 +10,35 @@ public static class GetPosts
     }
     /*
     Handles getting the home page
-    Reads all posts, paginates them, and returns posts ordered by publish time as JSON.
+    Reads all posts and filter by tags
+    paginates them, and returns posts ordered by publish time as JSON.
     */
     public static IResult GetHomePage(HttpContext context)
     {
         var page = int.TryParse(context.Request.Query["page"], out var p) ? p : 1;
         var limit = int.TryParse(context.Request.Query["limit"], out var l) ? l : 5;
 
-        var postDirs = Directory.GetDirectories("content/posts");
+        var selectedTags = context.Request.Query["tags"].ToString()
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        var allPosts = postDirs
+        var postsDir = Path.Combine(Directory.GetCurrentDirectory(), "content", "posts");
+        if (!Directory.Exists(postsDir))
+            return Results.Problem("Posts folder missing", statusCode: 500);
+
+        var allPosts = Directory
+            .GetDirectories(postsDir)
             .Select(folder => PostReader.ReadPostFromFolder(folder))
             .Where(p => p != null)
             .OrderByDescending(p => p!.Published)
             .ToList();
+
+        if (selectedTags.Count > 0)
+        {
+            allPosts = allPosts
+                .Where(p => p!.Tags != null && selectedTags.All(tag => p.Tags.Contains(tag)))
+                .ToList();
+        }
 
         var paged = allPosts
             .Skip((page - 1) * limit)

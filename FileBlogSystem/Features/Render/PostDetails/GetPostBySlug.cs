@@ -1,4 +1,4 @@
-using FileBlogSystem.Features.Render.HomePage;
+using FileBlogSystem.Features.Posting;
 
 namespace FileBlogSystem.Features.Render.PostDetails;
 

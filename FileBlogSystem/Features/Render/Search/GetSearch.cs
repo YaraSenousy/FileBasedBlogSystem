@@ -1,4 +1,4 @@
-using FileBlogSystem.Features.Render.HomePage;
+using FileBlogSystem.Features.Posting;
 
 namespace FileBlogSystem.Features.Render.Search;
 
@@ -11,7 +11,7 @@ public static class GetSearch
 
     /* 
     GET /search?q=term&page=1&limit=5
-    Handles searching posts by title, description, or content
+    Handles searching publshed posts by title, description, or content
     paginates them, and returns posts ordered by publish time as JSON.
     */
     public static IResult HandleSearch(HttpContext context)
@@ -27,7 +27,7 @@ public static class GetSearch
 
         var posts = postDirs
             .Select(PostReader.ReadPostFromFolder)
-            .Where(p => p != null)
+            .Where(p => p != null && p.Status == "published")
             .Where(p =>
                 p!.Title.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 p.Description.Contains(q, StringComparison.OrdinalIgnoreCase) ||

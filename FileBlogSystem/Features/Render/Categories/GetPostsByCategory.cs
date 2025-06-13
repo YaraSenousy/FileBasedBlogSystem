@@ -1,4 +1,6 @@
-namespace FileBlogSystem.Features.Render.HomePage;
+using FileBlogSystem.Features.Posting;
+
+namespace FileBlogSystem.Features.Render.Categories;
 
 public static class GetPostsByCategory
 {
@@ -9,7 +11,7 @@ public static class GetPostsByCategory
 
     /*
     Handles getting the posts by category
-    Reads posts that contain the categories slug
+    Reads published posts that contain the categories slug
     filter by the tags
     paginates them, and returns posts ordered by publish time as JSON.
     */
@@ -29,7 +31,7 @@ public static class GetPostsByCategory
         var allPosts = Directory
             .GetDirectories(postsDir)
             .Select(folder => PostReader.ReadPostFromFolder(folder))
-            .Where(p => p != null && p!.Categories?.Contains(slug, StringComparer.OrdinalIgnoreCase) == true)
+            .Where(p => p != null && p.Status == "published" && p!.Categories?.Contains(slug, StringComparer.OrdinalIgnoreCase) == true)
             .OrderByDescending(p => p!.Published)
             .ToList();
 

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using FileBlogSystem.Features.Posting;
 
 namespace FileBlogSystem.Features.Render.HomePage;
 
@@ -10,7 +11,7 @@ public static class GetPosts
     }
     /*
     Handles getting the home page
-    Reads all posts and filter by tags
+    Reads all published posts and filter by tags
     paginates them, and returns posts ordered by publish time as JSON.
     */
     public static IResult GetHomePage(HttpContext context)
@@ -29,7 +30,7 @@ public static class GetPosts
         var allPosts = Directory
             .GetDirectories(postsDir)
             .Select(folder => PostReader.ReadPostFromFolder(folder))
-            .Where(p => p != null)
+            .Where(p => p != null && p.Status == "published")
             .OrderByDescending(p => p!.Published)
             .ToList();
 

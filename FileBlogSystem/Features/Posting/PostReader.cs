@@ -1,7 +1,7 @@
 using Markdig;
 using System.Text.Json;
 
-namespace FileBlogSystem.Features.Render.HomePage;
+namespace FileBlogSystem.Features.Posting;
 
 public static class PostReader
 {

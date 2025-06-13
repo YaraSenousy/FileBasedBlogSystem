@@ -1,4 +1,4 @@
-namespace FileBlogSystem.Features.Render.HomePage;
+namespace FileBlogSystem.Features.Posting;
 
 public class Post
 {
@@ -6,6 +6,7 @@ public class Post
     public string Description { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
     public DateTime Published { get; set; }
+    public string Status { get; set; } = "draft"; // published | draft | scheduled
     public List<string>? Tags { get; set; } = [];
     public List<string>? Categories { get; set; } = [];
     public string HtmlContent { get; set; } = string.Empty;

@@ -3,11 +3,14 @@ using FileBlogSystem.Features.Render.Categories;
 using FileBlogSystem.Features.Render.Tags;
 using FileBlogSystem.Features.Render.Search;
 using FileBlogSystem.Features.Render.PostDetails;
+using FileBlogSystem.Features.Posting;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.FileProviders;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHostedService<ScheduledPostPublisher>();
 
 var app = builder.Build();
 
@@ -24,5 +27,6 @@ app.MapTagListEndpoint();
 app.MapCategoryPostsEndpoint();
 app.MapSearchEndpoint();
 app.MapPostDetailsEndpoint();
+app.MapPostCreationEndpoint();
 
 app.Run();

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Create Blog Post</title>
+    <link rel="stylesheet" href="/styles/main.css" />
+</head>
+
+<body>
+    <main style="max-width: 600px; margin: auto;">
+        <h1>Create Post</h1>
+        <form id="postForm">
+            <input name="title" placeholder="Title" required /><br />
+            <textarea name="description" placeholder="Short Description" required></textarea><br />
+            <textarea name="content" placeholder="Markdown content" required></textarea><br />
+            <input name="categories" placeholder="Comma-separated categories" /><br />
+            <input name="tags" placeholder="Comma-separated tags" /><br />
+            <input name="published" type="datetime-local" required /><br />
+            <select name="status">
+                <option value="draft">Draft</option>
+                <option value="published">Publish</option>
+                <option value="scheduled">Scheduled</option>
+            </select><br />
+            <button type="submit">Create</button>
+        </form>
+        <div id="result"></div>
+    </main>
+    <script>
+        const form = document.getElementById('postForm');
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const res = await fetch("/posts", {
+                method: "POST",
+                body: formData
+            });
+            const data = await res.json();
+            document.getElementById("result").textContent = `Created slug: ${data.slug}`;
+        };
+    </script>
+</body>
+
+</html>

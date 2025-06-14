@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FileBlogSystem.Features.Posting;
+using FileBlogSystem.Features.Render.Feed;
 
 public class ScheduledPostPublisher : BackgroundService
 {
@@ -38,6 +39,7 @@ public class ScheduledPostPublisher : BackgroundService
                         Console.WriteLine($"[Scheduler] Published: {meta.Slug}");
                     }
 
+                    RssWriter.WriteRssFile("http://localhost:5188");
                 }
                 catch (Exception ex)
                 {

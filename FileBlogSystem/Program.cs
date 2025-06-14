@@ -4,6 +4,8 @@ using FileBlogSystem.Features.Render.Tags;
 using FileBlogSystem.Features.Render.Search;
 using FileBlogSystem.Features.Render.PostDetails;
 using FileBlogSystem.Features.Posting;
+using FileBlogSystem.Features.Render.Feed;
+
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.FileProviders;
 using SixLabors.ImageSharp.Web.DependencyInjection;
@@ -34,5 +36,6 @@ app.MapPostDetailsEndpoint();
 app.MapPostCreationEndpoint();
 app.MapMediaUploadEndpoint();
 app.MapPublishEndpoints();
+app.MapRssFeed();
 
 app.Run();

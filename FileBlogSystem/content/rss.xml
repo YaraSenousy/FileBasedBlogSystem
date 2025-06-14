@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<rss version="2.0">
+<channel>
+<title>File Blog</title>
+<link>http://localhost:5188</link>
+<description>Latest blog posts</description>
+<item>
+  <title>rt</title>
+  <link>http://localhost:5188/post.html?slug=2025-06-14-rt</link>
+  <pubDate>Sat, 14 Jun 2025 09:20:48 GMT</pubDate>
+  <description>rtt</description>
+</item>
+<item>
+  <title>blog 5</title>
+  <link>http://localhost:5188/post.html?slug=2025-06-14-blog-5</link>
+  <pubDate>Sat, 14 Jun 2025 03:59:00 GMT</pubDate>
+  <description>testing </description>
+</item>
+<item>
+  <title>blog 4</title>
+  <link>http://localhost:5188/post.html?slug=2025-06-14-blog-4</link>
+  <pubDate>Sat, 14 Jun 2025 03:57:00 GMT</pubDate>
+  <description>testing </description>
+</item>
+<item>
+  <title>blog 3</title>
+  <link>http://localhost:5188/post.html?slug=2025-06-14-blog-3</link>
+  <pubDate>Sat, 14 Jun 2025 03:47:00 GMT</pubDate>
+  <description>testing schedule</description>
+</item>
+<item>
+  <title>Hello World</title>
+  <link>http://localhost:5188/post.html?slug=2025-06-10-hello-world</link>
+  <pubDate>Tue, 10 Jun 2025 10:00:00 GMT</pubDate>
+  <description>hello to everyone</description>
+</item>
+<item>
+  <title>First Blog</title>
+  <link>http://localhost:5188/post.html?slug=2025-06-9-first-blog</link>
+  <pubDate>Mon, 09 Jun 2025 10:00:00 GMT</pubDate>
+  <description>My first blog post</description>
+</item>
+</channel>
+</rss>

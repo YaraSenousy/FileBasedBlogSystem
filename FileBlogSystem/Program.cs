@@ -5,13 +5,14 @@ using FileBlogSystem.Features.Render.Search;
 using FileBlogSystem.Features.Render.PostDetails;
 using FileBlogSystem.Features.Posting;
 using FileBlogSystem.Features.Render.Feed;
+using FileBlogSystem.config;
 
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.FileProviders;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 
-
 var builder = WebApplication.CreateBuilder(args);
+SiteConfig.Load();
 
 builder.Services.AddHostedService<ScheduledPostPublisher>();
 builder.Services.AddImageSharp(); 

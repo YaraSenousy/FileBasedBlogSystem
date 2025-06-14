@@ -25,7 +25,7 @@ public static class PublishPost
             WriteIndented = true
         }));
 
-        RssWriter.WriteRssFile("http://localhost:5188");
+        RssWriter.WriteRssFile();
 
         return Results.Ok();
     }

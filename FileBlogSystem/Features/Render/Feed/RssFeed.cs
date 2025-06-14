@@ -12,7 +12,7 @@ public static class RssFeed
 
     public static async Task<IResult> GetRss()
     {
-        var xml = RssWriter.GenerateRssXml("http://localhost:5188"); // TODO: read from site.json
+        var xml = RssWriter.GenerateRssXml(); 
         return Results.Text(xml, "application/rss+xml", Encoding.UTF8);
     }
 }

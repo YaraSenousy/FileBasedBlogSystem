@@ -3,12 +3,12 @@
 <channel>
 <title>File Blog</title>
 <link>http://localhost:5188</link>
-<description>Latest blog posts</description>
+<description>Latest blog posts from FileBlogSystem</description>
 <item>
-  <title>rt</title>
-  <link>http://localhost:5188/post.html?slug=2025-06-14-rt</link>
-  <pubDate>Sat, 14 Jun 2025 09:20:48 GMT</pubDate>
-  <description>rtt</description>
+  <title>dd</title>
+  <link>http://localhost:5188/post.html?slug=2025-06-14-dd</link>
+  <pubDate>Sat, 14 Jun 2025 20:23:00 GMT</pubDate>
+  <description>dd</description>
 </item>
 <item>
   <title>blog 5</title>

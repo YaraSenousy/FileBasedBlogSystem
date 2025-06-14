@@ -131,7 +131,7 @@ function renderPosts(posts) {
   document.getElementById("page-number").textContent = `Page ${currentPage}`;
 }
 
-function resetFilters() {
+function refresh() {
   window.location.reload();
 }
 

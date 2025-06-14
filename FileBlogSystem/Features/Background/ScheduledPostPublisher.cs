@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FileBlogSystem.Features.Posting;
 using FileBlogSystem.Features.Render.Feed;
+using FileBlogSystem.config;
 
 public class ScheduledPostPublisher : BackgroundService
 {
@@ -39,7 +40,7 @@ public class ScheduledPostPublisher : BackgroundService
                         Console.WriteLine($"[Scheduler] Published: {meta.Slug}");
                     }
 
-                    RssWriter.WriteRssFile("http://localhost:5188");
+                    RssWriter.WriteRssFile();
                 }
                 catch (Exception ex)
                 {
@@ -48,7 +49,7 @@ public class ScheduledPostPublisher : BackgroundService
 
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(SiteConfig.SchedulerIntervalSeconds), stoppingToken);
         }
     }
 }

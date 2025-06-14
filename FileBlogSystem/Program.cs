@@ -1,4 +1,4 @@
-using FileBlogSystem.Features.Render.HomePage;
+using FileBlogSystem.Features.Render.Posts;
 using FileBlogSystem.Features.Render.Categories;
 using FileBlogSystem.Features.Render.Tags;
 using FileBlogSystem.Features.Render.Search;
@@ -38,5 +38,6 @@ app.MapPostCreationEndpoint();
 app.MapMediaUploadEndpoint();
 app.MapPublishEndpoints();
 app.MapRssFeed();
+app.MapPostEditEndpoint();
 
 app.Run();

@@ -5,28 +5,10 @@
 <link>http://localhost:5188</link>
 <description>Latest blog posts from FileBlogSystem</description>
 <item>
-  <title>dd</title>
-  <link>http://localhost:5188/post.html?slug=2025-06-14-dd</link>
-  <pubDate>Sat, 14 Jun 2025 20:23:00 GMT</pubDate>
-  <description>dd</description>
-</item>
-<item>
-  <title>blog 5</title>
-  <link>http://localhost:5188/post.html?slug=2025-06-14-blog-5</link>
-  <pubDate>Sat, 14 Jun 2025 03:59:00 GMT</pubDate>
-  <description>testing </description>
-</item>
-<item>
   <title>blog 4</title>
   <link>http://localhost:5188/post.html?slug=2025-06-14-blog-4</link>
   <pubDate>Sat, 14 Jun 2025 03:57:00 GMT</pubDate>
   <description>testing </description>
-</item>
-<item>
-  <title>blog 3</title>
-  <link>http://localhost:5188/post.html?slug=2025-06-14-blog-3</link>
-  <pubDate>Sat, 14 Jun 2025 03:47:00 GMT</pubDate>
-  <description>testing schedule</description>
 </item>
 <item>
   <title>Hello World</title>

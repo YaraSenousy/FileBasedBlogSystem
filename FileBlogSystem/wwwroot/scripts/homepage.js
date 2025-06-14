@@ -29,9 +29,27 @@ function getTagFilterParam() {
   return activeTags.size > 0 ? `&tags=${[...activeTags].join(",")}` : "";
 }
 
-async function loadAllPosts() {
+async function loadPublishedPosts() {
   const res = await fetch(
     `/?page=${currentPage}&limit=${limit}${getTagFilterParam()}`
+  );
+  const posts = await res.json();
+  renderPosts(posts);
+}
+
+async function loadDrafts() {
+  document.getElementById("tag-filter").style.display = "none";
+  const res = await fetch(
+    `/drafts?page=${currentPage}&limit=${limit}`
+  );
+  const posts = await res.json();
+  renderPosts(posts);
+}
+
+async function loadScheduledPosts() {
+  document.getElementById("tag-filter").style.display = "none";
+  const res = await fetch(
+    `/scheduled?page=${currentPage}&limit=${limit}`
   );
   const posts = await res.json();
   renderPosts(posts);
@@ -77,7 +95,7 @@ function loadPosts() {
   if (selected) {
     loadPostsByCategory(selected);
   } else {
-    loadAllPosts();
+    loadPublishedPosts();
   }
 }
 

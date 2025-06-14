@@ -9,16 +9,22 @@ public static class GetPostBySlug
         app.MapGet("/posts/{slug}", HandleGetPostBySlug);
     }
 
-    public static IResult HandleGetPostBySlug(string slug)
+    public static IResult HandleGetPostBySlug(string slug, HttpRequest req)
     {
-        var path = Path.Combine("content", "posts");
-        var folder = Directory.GetDirectories(path)
-            .FirstOrDefault(d => Path.GetFileName(d).EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+        var previewMode = req.Query.ContainsKey("preview") && req.Query["preview"] == "true";
 
-        if (folder == null)
-            return Results.NotFound("Post not found");
+        var folder = Directory.GetDirectories("content/posts")
+            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+
+        if (folder == null) return Results.NotFound();
 
         var post = PostReader.ReadPostFromFolder(folder);
-        return post != null ? Results.Ok(post) : Results.NotFound("Invalid post data");
+        if (post == null) return Results.NotFound();
+
+        if (!previewMode && (!string.Equals(post.Status, "published", StringComparison.OrdinalIgnoreCase) || post.Published > DateTime.UtcNow))
+            return Results.NotFound(); 
+
+        return Results.Ok(post);
     }
+
 }

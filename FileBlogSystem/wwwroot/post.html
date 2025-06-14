@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Blog Post</title>
   <link rel="stylesheet" href="/styles/main.css" />
 </head>
+
 <body>
   <main id="post-container">Loading...</main>
   <script>
-    const slug = new URLSearchParams(location.search).get("slug");
+    const url = new URLSearchParams(location.search);
+    const slug = url.get("slug");
+    const preview = url.get("preview");
 
-    fetch(`/posts/${slug}`)
-      .then(res => res.json())
+    fetch(`/posts/${slug}${preview ? "?preview=true" : ""}`)
+      .then(res => res.ok ? res.json() : Promise.reject("Not found"))
       .then(post => {
-        document.getElementsByName("title").innerHTML = post.title;
-        const container = document.getElementById("post-container");
-        container.innerHTML = `
+        document.getElementById("post-container").innerHTML = `
           <article>
             <h1>${post.title}</h1>
             <p><i>${new Date(post.published).toLocaleDateString()}</i></p>
@@ -24,18 +26,24 @@
             <div><strong>Tags:</strong> ${post.tags?.join(", ")}</div>
           </article>
         `;
+
         if (post.mediaUrls && post.mediaUrls.length > 0) {
-            container.innerHTML += `
+          document.getElementById("post-container").innerHTML += `
                 <div class="post-media">
                 ${post.mediaUrls.map(url => {
-                    return url.match(/\.(jpg|jpeg|png|webp)$/)
-                    ? `<img src="${url}?width=400" alt="media" />`
-                    : `<a href="${url}" target="_blank">${url.split("/").pop()}</a>`;
-                }).join("<br>")}
+            return url.match(/\.(jpg|jpeg|png|webp)$/)
+              ? `<img src="${url}?width=400" alt="media" />`
+              : `<a href="${url}" target="_blank">${url.split("/").pop()}</a>`;
+          }).join("<br>")}
                 </div>
             `;
         }
+      })
+      .catch(err => {
+        document.getElementById("post-container").textContent = "⚠️ Post not found or unavailable.";
       });
+
   </script>
 </body>
+
 </html>

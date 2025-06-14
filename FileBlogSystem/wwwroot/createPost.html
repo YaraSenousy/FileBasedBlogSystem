@@ -10,51 +10,78 @@
 <body>
     <main style="max-width: 600px; margin: auto;">
         <h1>Create Post</h1>
-        <form id="postForm">
+        <form id="postForm" enctype="multipart/form-data">
             <input name="title" placeholder="Title" required /><br />
             <textarea name="description" placeholder="Short Description" required></textarea><br />
             <textarea name="content" placeholder="Markdown content" required></textarea><br />
             <input name="categories" placeholder="Comma-separated categories" /><br />
             <input name="tags" placeholder="Comma-separated tags" /><br />
-            <input name="published" type="datetime-local" required /><br />
-            <select name="status">
-                <option value="draft">Draft</option>
-                <option value="published">Publish</option>
-                <option value="scheduled">Scheduled</option>
-            </select><br />
-            <button type="submit">Create</button>
+            <input type="file" name="file" multiple required />
+            <button type="submit">Save Draft</button>
         </form>
         <div id="result"></div>
-        <form id="mediaForm" enctype="multipart/form-data">
-            <input type="file" name="file" multiple required />
-            <button type="submit">Upload</button>
-        </form>
+        <div id="preview-section"></div>
     </main>
     <script>
         const form = document.getElementById('postForm');
         form.onsubmit = async (e) => {
             e.preventDefault();
-            const formData = new FormData(form);
-            const res = await fetch("/posts", {
+
+            const postFormData = new FormData();
+            const fields = ["title", "description", "content", "categories", "tags"];
+            for (const name of fields) {
+                const el = form.querySelector(`[name="${name}"]`);
+                postFormData.append(name, el.value);
+            }
+
+            const createRes = await fetch("/posts", {
                 method: "POST",
-                body: formData
+                body: postFormData
             });
-            const data = await res.json();
-            document.getElementById("result").textContent = `Created slug: ${data.slug}`;
-        };
 
-        document.getElementById('mediaForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const fileInput = e.target.querySelector('input');
+            const created = await createRes.json();
+            const slug = created.slug;
+            document.getElementById("result").textContent = `Draft created: ${slug}`;
+
+            const mediaFormData = new FormData();
+            const fileInput = form.querySelector('input[type="file"]');
             const files = fileInput.files;
-            const formData = new FormData();
-            for (const f of files) formData.append("file", f);
+            for (const f of files) mediaFormData.append("file", f);
 
-            const slug = document.getElementById("result").textContent.split(": ")[1];
-            const res = await fetch(`/posts/${slug}/media`, { method: "POST", body: formData });
-            const result = await res.json();
-            alert("Uploaded:\n" + result.join("\n"));
+            const mediaRes = await fetch(`/posts/${slug}/media`, {
+                method: "POST",
+                body: mediaFormData
+            });
+
+            const uploaded = await mediaRes.json();
+            alert("Uploaded:\n" + uploaded.join("\n"));
+
+            document.getElementById("preview-section").innerHTML = `
+                <h2>Preview:</h2>
+                <iframe src="/post.html?slug=${slug}&preview=true" style="width:100%; height:500px;"></iframe>
+                <br/>
+                <button onclick="publishNow('${slug}')">Publish Now</button>
+                <button onclick="schedulePost('${slug}')">Schedule Post</button>
+                <input type="datetime-local" id="schedule-time" />
+            `;
         };
+
+        async function publishNow(slug) {
+            await fetch(`/posts/${slug}/publish`, { method: "POST" });
+            alert("Published!");
+        }
+
+        async function schedulePost(slug) {
+            const time = document.getElementById("schedule-time").value;
+            if (!time) return alert("⏱ Please select a time.");
+            await fetch(`/posts/${slug}/schedule`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ published: time })
+            });
+            alert("Scheduled!");
+        }
+
     </script>
 </body>
 

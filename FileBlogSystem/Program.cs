@@ -33,5 +33,6 @@ app.MapSearchEndpoint();
 app.MapPostDetailsEndpoint();
 app.MapPostCreationEndpoint();
 app.MapMediaUploadEndpoint();
+app.MapPublishEndpoints();
 
 app.Run();

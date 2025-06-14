@@ -14,7 +14,7 @@ public static class PublishPost
             var metaPath = Path.Combine(folder, "meta.json");
             var meta = JsonSerializer.Deserialize<Post>(File.ReadAllText(metaPath));
             meta!.Status = "published";
-            meta.Published = DateTime.UtcNow;
+            meta.Published = DateTime.Now;
 
             File.WriteAllText(metaPath, JsonSerializer.Serialize(meta, new JsonSerializerOptions
             {

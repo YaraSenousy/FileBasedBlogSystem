@@ -21,25 +21,29 @@ public class ScheduledPostPublisher : BackgroundService
                     var json = File.ReadAllText(metaPath);
                     var meta = JsonSerializer.Deserialize<PostMeta>(json, new JsonSerializerOptions
                     {
-                        PropertyNameCaseInsensitive = true
+                        PropertyNameCaseInsensitive = true,
+                        Converters = { new UtcDateTimeConverter() }
                     });
 
-                    if (meta == null || meta.Status != "scheduled") continue;
 
-                    if (meta.Published <= DateTime.UtcNow)
+                    if (!string.Equals(meta.Status, "scheduled", StringComparison.OrdinalIgnoreCase)) continue;
+
+                    if (meta.Published <= DateTime.Now)
                     {
-                        meta.Status = "published"; 
-
+                        meta.Status = "published";
                         File.WriteAllText(metaPath, JsonSerializer.Serialize(meta, new JsonSerializerOptions
                         {
                             WriteIndented = true
                         }));
+                        Console.WriteLine($"[Scheduler] Published: {meta.Slug}");
                     }
+
                 }
-                catch
+                catch (Exception ex)
                 {
-                    continue;
+                    Console.WriteLine($"[Scheduler Error] {ex.Message}");
                 }
+
             }
 
             await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
@@ -47,13 +51,3 @@ public class ScheduledPostPublisher : BackgroundService
     }
 }
 
-public class PostMeta
-{
-    public string Title { get; set; } = "";
-    public string Description { get; set; } = "";
-    public string Slug { get; set; } = "";
-    public DateTime Published { get; set; }
-    public string Status { get; set; } = "draft";
-    public List<string>? Tags { get; set; } = [];
-    public List<string>? Categories { get; set; } = [];
-}

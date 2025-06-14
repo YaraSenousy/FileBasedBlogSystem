@@ -30,7 +30,7 @@ public static class CreatePost
         var postPath = Path.Combine("content", "posts", folderName);
         Directory.CreateDirectory(postPath);
 
-        var meta = new Post
+        var meta = new PostMeta
         {
             Title = title!,
             Description = description!,

@@ -6,13 +6,17 @@ using FileBlogSystem.Features.Render.PostDetails;
 using FileBlogSystem.Features.Posting;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.FileProviders;
+using SixLabors.ImageSharp.Web.DependencyInjection;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHostedService<ScheduledPostPublisher>();
+builder.Services.AddImageSharp(); 
 
 var app = builder.Build();
+
+app.UseImageSharp();
 
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
@@ -28,5 +32,6 @@ app.MapCategoryPostsEndpoint();
 app.MapSearchEndpoint();
 app.MapPostDetailsEndpoint();
 app.MapPostCreationEndpoint();
+app.MapMediaUploadEndpoint();
 
 app.Run();

@@ -47,7 +47,7 @@ function prevPage() {
   if (currentPage > 1) {
     currentPage--;
     loadPosts();
-  } 
+  }
   if (currentPage == 1) {
     document.getElementById("prev-page").style.visibility = "hidden";
   }
@@ -122,9 +122,7 @@ function renderPosts(posts) {
       }</div>
       <div class="post-categories"><strong>Categories:</strong> ${cats}</div>
       <div class="post-tags"><strong>Tags:</strong> ${tags}</div>
-      <div class="post-details"><a href="/post.html?slug=${
-        post.slug
-      }">Continue Reading</a></div>
+      <div class="post-details"><a href="/post.html?slug=${post.slug}">Continue Reading</a></div>
     `;
 
     container.appendChild(postEl);

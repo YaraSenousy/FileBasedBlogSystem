@@ -9,6 +9,7 @@ public static class PublishPost
     {
         app.MapPost("/posts/{slug}/publish", PublishNow);
         app.MapPost("/posts/{slug}/schedule", SchedulePublish);
+        app.MapPost("/posts/{slug}/draft", SaveAsDraft);
     }
     public static IResult PublishNow(string slug)
     {
@@ -51,6 +52,24 @@ public static class PublishPost
         return Results.Ok();
     }
 
+    public static async Task<IResult> SaveAsDraft(string slug)
+    {
+        var folder = FindPostFolder(slug);
+        if (folder == null) return Results.NotFound();
+
+        var metaPath = Path.Combine(folder, "meta.json");
+        var meta = JsonSerializer.Deserialize<PostMeta>(File.ReadAllText(metaPath));
+        meta!.Status = "draft";
+
+        File.WriteAllText(metaPath, JsonSerializer.Serialize(meta, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        }));
+
+        RssWriter.WriteRssFile();
+
+        return Results.Ok();
+    }
     private static string? FindPostFolder(string slug)
     {
         return Directory.GetDirectories("content/posts")

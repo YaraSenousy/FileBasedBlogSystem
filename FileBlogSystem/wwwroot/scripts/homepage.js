@@ -39,18 +39,14 @@ async function loadPublishedPosts() {
 
 async function loadDrafts() {
   document.getElementById("tag-filter").style.display = "none";
-  const res = await fetch(
-    `/drafts?page=${currentPage}&limit=${limit}`
-  );
+  const res = await fetch(`/drafts?page=${currentPage}&limit=${limit}`);
   const posts = await res.json();
   renderPosts(posts);
 }
 
 async function loadScheduledPosts() {
   document.getElementById("tag-filter").style.display = "none";
-  const res = await fetch(
-    `/scheduled?page=${currentPage}&limit=${limit}`
-  );
+  const res = await fetch(`/scheduled?page=${currentPage}&limit=${limit}`);
   const posts = await res.json();
   renderPosts(posts);
 }
@@ -130,23 +126,86 @@ function renderPosts(posts) {
       .map((c) => `<span>${c}</span>`)
       .join("");
 
+    const status = post.status?.toLowerCase() || "published";
+
     postEl.innerHTML = `
-      <h2>${post.title}</h2>
-      <div class="post-meta">
-        Published: ${new Date(post.published).toLocaleDateString()}
-      </div>
-      <div class="post-description"><span>Decription: </span>${
-        post.description
-      }</div>
-      <div class="post-categories"><strong>Categories:</strong> ${cats}</div>
-      <div class="post-tags"><strong>Tags:</strong> ${tags}</div>
-      <div class="post-details"><a href="/post.html?slug=${post.slug}">Continue Reading</a></div>
-    `;
+        <h2>${post.title}</h2>
+        <div class="post-meta">
+          Published: ${new Date(post.published).toLocaleDateString()}
+        </div>
+        <div class="post-description"><span>Description: </span>${
+          post.description
+        }</div>
+        <div class="post-categories"><strong>Categories:</strong> ${cats}</div>
+        <div class="post-tags"><strong>Tags:</strong> ${tags}</div>
+        <div class="post-details">
+          <a href="/post.html?slug=${post.slug}">Continue Reading</a>
+          <a href="/createPost.html?slug=${
+            post.slug
+          }" style="margin-left:1em;">✏️ Edit</a>
+        </div>
+      `;
+
+    const actions = document.createElement("div");
+    actions.className = "post-actions";
+
+    if (status === "draft" || status === "scheduled") {
+      const publishBtn = document.createElement("button");
+      publishBtn.textContent = "Publish Now";
+      publishBtn.onclick = () => publishNow(post.slug);
+      actions.appendChild(publishBtn);
+
+      const scheduleInput = document.createElement("input");
+      scheduleInput.type = "datetime-local";
+      scheduleInput.id = `schedule-${post.slug}`;
+
+      const scheduleBtn = document.createElement("button");
+      scheduleBtn.textContent = "Schedule";
+      scheduleBtn.onclick = () => {
+        const time = document.getElementById(`schedule-${post.slug}`).value;
+        if (!time) return alert("Please choose a time");
+        schedulePost(post.slug, time);
+      };
+
+      actions.appendChild(scheduleInput);
+      actions.appendChild(scheduleBtn);
+    }
+
+    if (status === "scheduled" || status === "published") {
+      const draftBtn = document.createElement("button");
+      draftBtn.textContent = "Save as Draft";
+      draftBtn.onclick = () => saveAsDraft(post.slug);
+      actions.appendChild(draftBtn);
+    }
+
+    postEl.appendChild(actions);
 
     container.appendChild(postEl);
   });
 
   document.getElementById("page-number").textContent = `Page ${currentPage}`;
+}
+
+async function publishNow(slug) {
+  await fetch(`/posts/${slug}/publish`, { method: "POST" });
+  alert("✅ Published");
+  loadPosts();
+}
+
+async function schedulePost(slug, time) {
+  await fetch(`/posts/${slug}/schedule`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ published: time }),
+  });
+  alert("📅 Scheduled");
+  loadPosts();
+}
+
+async function saveAsDraft(slug) {
+  await fetch(`/posts/${slug}/draft`, { method: "POST" });
+  alert("💾 Saved as Draft");
+  loadPosts();
 }
 
 function refresh() {

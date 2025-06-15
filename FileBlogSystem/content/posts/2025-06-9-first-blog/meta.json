@@ -1,9 +1,16 @@
 {
-  "title": "First Blog",
-  "description": "My first blog post",
-  "published": "2025-06-09T10:00:00Z",
-  "slug": "2025-06-9-first-blog",
-  "status": "published",
-  "categories": ["technology"],
-  "tags": ["introduction", "welcome"]
+  "Title": "First Blog",
+  "Description": "My first blog post",
+  "Slug": "",
+  "Published": "0001-01-01T00:00:00",
+  "ModificationDate": "2025-06-15T05:31:43.9101932+03:00",
+  "Status": "draft",
+  "Tags": [
+    "greetings",
+    "welcome"
+  ],
+  "Categories": [
+    "design",
+    "technology"
+  ]
 }

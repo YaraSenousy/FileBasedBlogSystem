@@ -16,11 +16,5 @@
   <pubDate>Tue, 10 Jun 2025 10:00:00 GMT</pubDate>
   <description>hello to everyone</description>
 </item>
-<item>
-  <title>First Blog</title>
-  <link>http://localhost:5188/post.html?slug=2025-06-9-first-blog</link>
-  <pubDate>Mon, 09 Jun 2025 10:00:00 GMT</pubDate>
-  <description>My first blog post</description>
-</item>
 </channel>
 </rss>

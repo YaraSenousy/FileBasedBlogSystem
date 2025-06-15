@@ -36,6 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (slug) {
             await fetch(`/posts/${slug}/edit`, { method: "POST", body: formData });
+            await uploadMedia(slug);
             alert("Updated!");
         } else {
             const postRes = await fetch("/posts", { method: "POST", body: formData });

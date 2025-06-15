@@ -5,18 +5,6 @@
 <link>http://localhost:5188</link>
 <description>Latest blog posts from FileBlogSystem</description>
 <item>
-  <title>sds</title>
-  <link>http://localhost:5188/post.html?slug=2025-06-15-sds</link>
-  <pubDate>Sun, 15 Jun 2025 04:53:28 GMT</pubDate>
-  <description>dd</description>
-</item>
-<item>
-  <title>fd</title>
-  <link>http://localhost:5188/post.html?slug=2025-06-15-fd</link>
-  <pubDate>Sun, 15 Jun 2025 04:39:11 GMT</pubDate>
-  <description>dklkf</description>
-</item>
-<item>
   <title>blog 4</title>
   <link>http://localhost:5188/post.html?slug=2025-06-14-blog-4</link>
   <pubDate>Sat, 14 Jun 2025 03:57:00 GMT</pubDate>

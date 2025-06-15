@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const slug = new URLSearchParams(window.location.search).get("slug");
     if (slug) {
+        document.getElementById("submit-button").innerHTML = "Save Edits"
         // Load existing post for editing
         const post = await fetch(`/posts/${slug}?preview=true`).then(res => res.json());
         document.querySelector("input[name='title']").value = post.title;

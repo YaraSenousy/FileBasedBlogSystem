@@ -21,7 +21,7 @@ public static class GetPostBySlug
         var post = PostReader.ReadPostFromFolder(folder);
         if (post == null) return Results.NotFound();
 
-        if (!previewMode && (!string.Equals(post.Status, "published", StringComparison.OrdinalIgnoreCase) || post.Published > DateTime.UtcNow))
+        if (!previewMode && (!string.Equals(post.Status, "published", StringComparison.OrdinalIgnoreCase)))
             return Results.NotFound(); 
 
         return Results.Ok(post);

@@ -16,7 +16,7 @@ public static class PublishPost
         if (folder == null) return Results.NotFound();
 
         var metaPath = Path.Combine(folder, "meta.json");
-        var meta = JsonSerializer.Deserialize<Post>(File.ReadAllText(metaPath));
+        var meta = JsonSerializer.Deserialize<PostMeta>(File.ReadAllText(metaPath));
         meta!.Status = "published";
         meta.Published = DateTime.Now;
 
@@ -39,7 +39,7 @@ public static class PublishPost
         if (folder == null) return Results.NotFound();
 
         var metaPath = Path.Combine(folder, "meta.json");
-        var meta = JsonSerializer.Deserialize<Post>(File.ReadAllText(metaPath));
+        var meta = JsonSerializer.Deserialize<PostMeta>(File.ReadAllText(metaPath));
         meta!.Status = "scheduled";
         meta.Published = publishAt;
 

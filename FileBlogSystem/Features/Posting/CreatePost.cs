@@ -18,7 +18,7 @@ public static class CreatePost
         var tags = form["tags"].ToString().Split(',', StringSplitOptions.RemoveEmptyEntries);
         var content = form["content"];
         var status = "draft";
-        var publishDate = DateTime.UtcNow;
+        var publishDate = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
 
         if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(description) || string.IsNullOrEmpty(content))
         {

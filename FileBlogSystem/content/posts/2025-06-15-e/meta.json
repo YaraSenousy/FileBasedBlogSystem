@@ -1,10 +1,14 @@
 {
-  "Title": "e",
+  "Title": "scheduled",
   "Description": "e",
   "Slug": "2025-06-15-e",
-  "Published": "2025-06-15T13:36:30.0651555+03:00",
-  "ModificationDate": "0001-01-01T00:00:00",
-  "Status": "published",
-  "Tags": [],
-  "Categories": []
+  "Published": "2025-06-15T19:42:00",
+  "ModificationDate": "2025-06-15T13:42:17.6710669+03:00",
+  "Status": "scheduled",
+  "Tags": [
+    ""
+  ],
+  "Categories": [
+    ""
+  ]
 }

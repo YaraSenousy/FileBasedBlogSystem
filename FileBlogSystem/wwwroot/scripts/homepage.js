@@ -39,14 +39,14 @@ async function loadPublishedPosts() {
 
 async function loadDrafts() {
   document.getElementById("tag-filter").style.display = "none";
-  const res = await fetch(`/drafts?page=${currentPage}&limit=${limit}`);
+  const res = await fetch(`/drafts?page=${currentPage}&limit=${limit}`,{credentials: "include"});
   const posts = await res.json();
   renderPosts(posts);
 }
 
 async function loadScheduledPosts() {
   document.getElementById("tag-filter").style.display = "none";
-  const res = await fetch(`/scheduled?page=${currentPage}&limit=${limit}`);
+  const res = await fetch(`/scheduled?page=${currentPage}&limit=${limit}`,{credentials: "include"});
   const posts = await res.json();
   renderPosts(posts);
 }
@@ -196,14 +196,14 @@ function renderPosts(posts) {
 
 async function deletePost(slug, title) {
   if (confirm(`Are you sure you want to delete: ${title}`)) {
-    await fetch(`/posts/${slug}/delete`, { method: "POST" });
+    await fetch(`/posts/${slug}/delete`, { method: "POST", credentials: "include"});
     alert("🗑️ Deleted Post Successfully");
     loadPosts();
   }
 }
 
 async function publishNow(slug) {
-  await fetch(`/posts/${slug}/publish`, { method: "POST" });
+  await fetch(`/posts/${slug}/publish`, { method: "POST", credentials: "include"});
   alert("✅ Published");
   loadPosts();
 }
@@ -213,13 +213,14 @@ async function schedulePost(slug, time) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ published: time }),
+    credentials: "include"
   });
   alert("📅 Scheduled");
   loadPosts();
 }
 
 async function saveAsDraft(slug) {
-  await fetch(`/posts/${slug}/draft`, { method: "POST" });
+  await fetch(`/posts/${slug}/draft`, { method: "POST", credentials: "include"});
   alert("💾 Saved as Draft");
   loadPosts();
 }

@@ -19,7 +19,7 @@
     const slug = url.get("slug");
     const preview = url.get("preview");
 
-    fetch(`/posts/${slug}${preview ? "?preview=true" : ""}`)
+    fetch(preview ? `/posts/${slug}/preview` : `/posts/${slug}`)
       .then(res => res.ok ? res.json() : Promise.reject("Not found"))
       .then(post => {
         document.getElementById("post-container").innerHTML = `

@@ -23,7 +23,10 @@ public static class Login
             return Results.Unauthorized();
 
         var token = JwtHelper.GenerateToken(user);
-        return Results.Ok(new { token });
 
+        request.Headers.Append("Set-Cookie",
+            $"auth={token}; HttpOnly; Secure; SameSite=Strict; Path=/; Expires={DateTime.UtcNow.AddDays(7):R}");
+
+        return Results.Ok(new { success = true });
     }
 }

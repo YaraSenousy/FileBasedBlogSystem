@@ -6,7 +6,7 @@ public static class EditPost
 {
     public static void MapPostEditEndpoint(this WebApplication app)
     {
-        app.MapPost("/posts/{slug}/edit", HandleEditPost);
+        app.MapPost("/posts/{slug}/edit", HandleEditPost).RequireAuthorization("EditorLevel");
     }
 
     //Handles editing the posts

@@ -6,7 +6,7 @@ public static class CreatePost
 {
     public static void MapPostCreationEndpoint(this WebApplication app)
     {
-        app.MapPost("/posts", HandleCreatePost);
+        app.MapPost("/posts", HandleCreatePost).RequireAuthorization("AdminAuthor");
     }
 
     public static async Task<IResult> HandleCreatePost(HttpRequest request)

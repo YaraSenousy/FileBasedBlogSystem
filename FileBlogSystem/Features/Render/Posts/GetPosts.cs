@@ -8,8 +8,8 @@ public static class GetPosts
     public static void MapHomePageEndpoints(this WebApplication app)
     {
         app.MapGet("/", GetHomePage);
-        app.MapGet("/drafts", GetDrafts);
-        app.MapGet("/scheduled", GetScheduled);
+        app.MapGet("/drafts", GetDrafts).RequireAuthorization("EditorLevel");
+        app.MapGet("/scheduled", GetScheduled).RequireAuthorization("EditorLevel");
     }
     /*
     Handles getting the home page

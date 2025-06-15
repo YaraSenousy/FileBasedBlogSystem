@@ -4,7 +4,7 @@ public static class UploadMedia
 {
     public static void MapMediaUploadEndpoint(this WebApplication app)
     {
-        app.MapPost("/posts/{slug}/media", HandleMediaUpload);
+        app.MapPost("/posts/{slug}/media", HandleMediaUpload).RequireAuthorization("EditorLevel");
     }
     public static async Task<IResult> HandleMediaUpload(HttpRequest request, string slug)
     {

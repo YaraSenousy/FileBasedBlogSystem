@@ -7,10 +7,10 @@ public static class PublishPost
 {
     public static void MapPublishEndpoints(this WebApplication app)
     {
-        app.MapPost("/posts/{slug}/publish", PublishNow);
-        app.MapPost("/posts/{slug}/schedule", SchedulePublish);
-        app.MapPost("/posts/{slug}/draft", SaveAsDraft);
-        app.MapPost("/posts/{slug}/delete", DeletePost);
+        app.MapPost("/posts/{slug}/publish", PublishNow).RequireAuthorization("EditorLevel");
+        app.MapPost("/posts/{slug}/schedule", SchedulePublish).RequireAuthorization("EditorLevel");
+        app.MapPost("/posts/{slug}/draft", SaveAsDraft).RequireAuthorization("EditorLevel");
+        app.MapPost("/posts/{slug}/delete", DeletePost).RequireAuthorization("AdminLevel");
     }
 
     // publish a given post using its slug

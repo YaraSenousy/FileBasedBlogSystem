@@ -12,6 +12,10 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.FileProviders;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 SiteConfig.Load();
@@ -19,12 +23,35 @@ SiteConfig.Load();
 builder.Services.AddHostedService<ScheduledPostPublisher>();
 builder.Services.AddImageSharp();
 
-builder.Services.AddAuthentication("Bearer")
-    .AddJwtBearer("Bearer", options =>
-    {
-        options.TokenValidationParameters = JwtHelper.GetValidationParameters();
-    });
 
+
+var jwtKey ="ThisIsA256BitSuperSecretKey!1234"; 
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var cookie = context.Request.Cookies["auth"];
+                if (!string.IsNullOrWhiteSpace(cookie))
+                    context.Token = cookie;
+
+                return Task.CompletedTask;
+            }
+        };
+    });
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminAuthor", policy =>

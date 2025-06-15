@@ -10,7 +10,10 @@ public static class PublishPost
         app.MapPost("/posts/{slug}/publish", PublishNow);
         app.MapPost("/posts/{slug}/schedule", SchedulePublish);
         app.MapPost("/posts/{slug}/draft", SaveAsDraft);
+        app.MapPost("/posts/{slug}/delete", DeletePost);
     }
+
+    // publish a given post using its slug
     public static IResult PublishNow(string slug)
     {
         var folder = FindPostFolder(slug);
@@ -31,6 +34,7 @@ public static class PublishPost
         return Results.Ok();
     }
 
+    // schedule publish time of a given post using its slug and a given time
     public static async Task<IResult> SchedulePublish(HttpRequest req, string slug)
     {
         var body = await JsonSerializer.DeserializeAsync<JsonElement>(req.Body);
@@ -52,6 +56,7 @@ public static class PublishPost
         return Results.Ok();
     }
 
+    // save a given post as a draft using its slug
     public static async Task<IResult> SaveAsDraft(string slug)
     {
         var folder = FindPostFolder(slug);
@@ -68,6 +73,16 @@ public static class PublishPost
 
         RssWriter.WriteRssFile();
 
+        return Results.Ok();
+    }
+
+    // delete a given post using its slug
+    public static async Task<IResult> DeletePost(string slug)
+    {
+        var folder = FindPostFolder(slug);
+        if (folder == null) return Results.NotFound();
+
+        Directory.Delete(folder, true);
         return Results.Ok();
     }
     private static string? FindPostFolder(string slug)

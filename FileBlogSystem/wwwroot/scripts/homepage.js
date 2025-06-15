@@ -141,9 +141,6 @@ function renderPosts(posts) {
         <div class="post-tags"><strong>Tags:</strong> ${tags}</div>
         <div class="post-details">
           <a href="/post.html?slug=${post.slug}">Continue Reading</a>
-          <a href="/createPost.html?slug=${
-            post.slug
-          }" style="margin-left:1em;">✏️ Edit</a>
         </div>
       `;
     

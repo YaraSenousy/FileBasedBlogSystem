@@ -61,5 +61,6 @@ app.MapMediaUploadEndpoint();
 app.MapPublishEndpoints();
 app.MapRssFeed();
 app.MapPostEditEndpoint();
+app.MapLoginEndpoint();
 
 app.Run();

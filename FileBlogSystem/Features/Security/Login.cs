@@ -18,14 +18,33 @@ public static class Login
         var path = Path.Combine("content", "users", username, "profile.json");
         if (!File.Exists(path)) return Results.Unauthorized();
 
-        var user = JsonSerializer.Deserialize<User>(await File.ReadAllTextAsync(path));
-        if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+        var userJson = await File.ReadAllTextAsync(path);
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        var user = JsonSerializer.Deserialize<User?>(userJson, options);
+
+        if (user == null)
+            return Results.BadRequest("User profile is invalid or corrupt.");
+
+        if (string.IsNullOrWhiteSpace(user.PasswordHash))
+            return Results.BadRequest("Password not set for this user");
+
+        if (!BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
             return Results.Unauthorized();
+
 
         var token = JwtHelper.GenerateToken(user);
 
-        request.Headers.Append("Set-Cookie",
-            $"auth={token}; HttpOnly; Secure; SameSite=Strict; Path=/; Expires={DateTime.UtcNow.AddDays(7):R}");
+        request.HttpContext.Response.Cookies.Append("auth", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        });
+
 
         return Results.Ok(new { success = true });
     }

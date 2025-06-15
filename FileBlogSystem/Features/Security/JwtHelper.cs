@@ -7,7 +7,7 @@ namespace FileBlogSystem.Features.Security;
 
 public static class JwtHelper
 {
-    private static string Key = "YourSuperSecretKey123!"; // TODO: move to config
+    private static string Key = "ThisIsA256BitSuperSecretKey!1234"; // TODO: move to env
 
     public static string GenerateToken(User user)
     {

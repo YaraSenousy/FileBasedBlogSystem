@@ -31,4 +31,15 @@ public static class RouteMapper
         var json = JsonSerializer.Serialize(_map, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(path, json);
     }
+
+    public static void RemoveRoute(string slug)
+    {
+        if (_map == null || !_map.ContainsKey(slug)) return;
+
+        _map.Remove(slug);
+
+        var path = Path.Combine("config", "routes.json");
+        var json = JsonSerializer.Serialize(_map, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(path, json);
+    }
 }

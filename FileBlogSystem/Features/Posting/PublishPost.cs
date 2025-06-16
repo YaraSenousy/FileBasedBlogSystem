@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FileBlogSystem.Features.Render.Feed;
+using FileBlogSystem.config;
 
 namespace FileBlogSystem.Features.Posting;
 
@@ -83,6 +84,7 @@ public static class PublishPost
         if (folder == null) return Results.NotFound();
 
         Directory.Delete(folder, true);
+        RouteMapper.RemoveRoute(slug);
         return Results.Ok();
     }
 }

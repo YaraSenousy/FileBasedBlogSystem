@@ -140,7 +140,7 @@ function renderPosts(posts) {
         <div class="post-categories"><strong>Categories:</strong> ${cats}</div>
         <div class="post-tags"><strong>Tags:</strong> ${tags}</div>
         <div class="post-details">
-          <a href="/post.html?slug=${post.slug}">Continue Reading</a>
+          <a href="/post.html?slug=${post.slug}&preview=${post.status != "published"}">Continue Reading</a>
         </div>
       `;
     

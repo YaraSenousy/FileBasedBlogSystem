@@ -4,7 +4,7 @@ public class PostMeta
     public string Description { get; set; } = "";
     public string Slug { get; set; } = "";
     public DateTime Published { get; set; }
-    public DateTime ModificationDate { get; set; }
+    public DateTime Modified { get; set; }
     public string Status { get; set; } = "draft";
     public List<string>? Tags { get; set; } = [];
     public List<string>? Categories { get; set; } = [];

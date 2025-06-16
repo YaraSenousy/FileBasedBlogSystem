@@ -132,7 +132,7 @@ function renderPosts(posts) {
         <h2>${post.title}</h2>
         <div class="post-meta">
           Published: ${new Date(post.published).toLocaleDateString()}
-          ${post.modificationDate != "0001-01-01T00:00:00"? "Modified:" + new Date(post.modificationDate).toLocaleDateString() : ""}
+          ${post.modified != "0001-01-01T00:00:00"? "Modified:" + new Date(post.modified).toLocaleDateString() : ""}
         </div>
         <div class="post-description"><span>Description: </span>${
           post.description
@@ -146,7 +146,7 @@ function renderPosts(posts) {
     
     const editBtn = document.createElement("button");
     editBtn.textContent = "Edit Post";
-    editBtn.onclick = () => {open(`/createPost.html?slug=${post.slug}`,"_self")};
+    editBtn.onclick = () => {open(`/create.html?slug=${post.slug}`,"_self")};
     postEl.appendChild(editBtn);
 
     const deleteBtn = document.createElement("button");

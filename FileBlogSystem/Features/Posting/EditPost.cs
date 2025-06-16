@@ -32,7 +32,7 @@ public static class EditPost
         meta.Description = form["description"];
         meta.Tags = form["tags"].ToString().Split(',').Select(x => x.Trim()).ToList();
         meta.Categories = form["categories"].ToString().Split(',').Select(x => x.Trim()).ToList();
-        meta.ModificationDate = DateTime.Now;
+        meta.Modified = DateTime.Now;
 
         var markdown = form["content"];
         File.WriteAllText(metaPath, JsonSerializer.Serialize(meta, new JsonSerializerOptions { WriteIndented = true }));

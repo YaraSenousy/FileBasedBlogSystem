@@ -18,8 +18,7 @@ public static class EditPost
     public static async Task<IResult> HandleEditPost(HttpRequest request, string slug)
     {
         var form = await request.ReadFormAsync();
-        var folder = Directory.GetDirectories("content/posts")
-            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+        var folder = PostReader.FindPostFolder(slug);
         if (folder == null) return Results.NotFound();
 
         var metaPath = Path.Combine(folder, "meta.json");

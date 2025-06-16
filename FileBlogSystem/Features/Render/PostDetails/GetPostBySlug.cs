@@ -17,8 +17,7 @@ public static class GetPostBySlug
 
     private static IResult PublicView(string slug)
     {
-        var folder = Directory.GetDirectories("content/posts")
-            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+        var folder = PostReader.FindPostFolder(slug);
         if (folder == null) return Results.NotFound();
 
         var post = PostReader.ReadPostFromFolder(folder);
@@ -29,8 +28,7 @@ public static class GetPostBySlug
 
     private static IResult SecurePreviewView(string slug)
     {
-        var folder = Directory.GetDirectories("content/posts")
-            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+        var folder = PostReader.FindPostFolder(slug);
         if (folder == null) return Results.NotFound();
 
         var post = PostReader.ReadPostFromFolder(folder);

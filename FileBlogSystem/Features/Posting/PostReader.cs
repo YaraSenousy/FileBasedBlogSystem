@@ -35,7 +35,7 @@ public static class PostReader
             if (Directory.Exists(assetsPath))
             {
                 var mediaFiles = Directory.GetFiles(assetsPath)
-                    .Select(f => Path.GetFileName(f)) 
+                    .Select(f => Path.GetFileName(f))
                     .Select(file => $"{assetsPath}/{file}")
                     .ToList();
 
@@ -50,5 +50,19 @@ public static class PostReader
             Console.WriteLine($"[ReadPostFromFolder] Error reading {folderPath}: {ex.Message}");
             return null;
         }
+    }
+    
+    /*
+    returns the folder path of a post using its slug
+    */
+    public static string? FindPostFolder(string slug)
+    {
+        var root = Path.Combine("content", "posts");
+
+        return Directory.GetDirectories(root).FirstOrDefault(folder =>
+        {
+            var name = Path.GetFileName(folder);
+            return name.EndsWith($"-{slug}", StringComparison.OrdinalIgnoreCase);
+        });
     }
 }

@@ -15,8 +15,7 @@ public static class UploadMedia
 
         if (files.Count == 0) return Results.BadRequest("No files");
 
-        var postDir = Directory.GetDirectories("content/posts")
-            .FirstOrDefault(dir => dir.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
+        var postDir = PostReader.FindPostFolder(slug);
         if (postDir == null) return Results.NotFound("Post not found");
 
         var assetsDir = Path.Combine(postDir, "assets");

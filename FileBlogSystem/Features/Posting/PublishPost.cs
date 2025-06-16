@@ -16,7 +16,7 @@ public static class PublishPost
     // changes the status of a given post to published and sets the Publish Date
     public static IResult PublishNow(string slug)
     {
-        var folder = FindPostFolder(slug);
+        var folder = PostReader.FindPostFolder(slug);
         if (folder == null) return Results.NotFound();
 
         var metaPath = Path.Combine(folder, "meta.json");
@@ -40,7 +40,7 @@ public static class PublishPost
         var body = await JsonSerializer.DeserializeAsync<JsonElement>(req.Body);
         var publishAt = DateTime.Parse(body.GetProperty("published").GetString()!);
 
-        var folder = FindPostFolder(slug);
+        var folder = PostReader.FindPostFolder(slug);
         if (folder == null) return Results.NotFound();
 
         var metaPath = Path.Combine(folder, "meta.json");
@@ -59,7 +59,7 @@ public static class PublishPost
     // changes the status of a given post to draft
     public static async Task<IResult> SaveAsDraft(string slug)
     {
-        var folder = FindPostFolder(slug);
+        var folder = PostReader.FindPostFolder(slug);
         if (folder == null) return Results.NotFound();
 
         var metaPath = Path.Combine(folder, "meta.json");
@@ -79,15 +79,10 @@ public static class PublishPost
     // delete a given post
     public static async Task<IResult> DeletePost(string slug)
     {
-        var folder = FindPostFolder(slug);
+        var folder = PostReader.FindPostFolder(slug);
         if (folder == null) return Results.NotFound();
 
         Directory.Delete(folder, true);
         return Results.Ok();
-    }
-    private static string? FindPostFolder(string slug)
-    {
-        return Directory.GetDirectories("content/posts")
-            .FirstOrDefault(d => d.EndsWith(slug, StringComparison.OrdinalIgnoreCase));
     }
 }

@@ -88,7 +88,7 @@ async function schedulePost(slug) {
 async function uploadMedia(slug) {
     const mediaFormData = new FormData();
     const files = document.querySelector('input[type="file"]').files;
-    if (files >= 1)
+    if (files.length >= 1)
     {
         for (const f of files) mediaFormData.append("file", f);
         await fetch(`/posts/${slug}/media`, { method: "POST", body: mediaFormData, credentials: "include" });

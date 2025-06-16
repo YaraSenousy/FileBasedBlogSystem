@@ -249,6 +249,12 @@ async function loadSearchResults(query) {
   renderPosts(posts);
 }
 
+async function logout() {
+  await fetch("/logout", { method: "POST" });
+  alert("Logged out");
+  location.href = "/login.html";
+}
+
 window.onload = () => {
   loadCategories();
   loadTags();

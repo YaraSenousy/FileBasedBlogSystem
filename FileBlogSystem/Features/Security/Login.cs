@@ -7,6 +7,7 @@ public static class Login
     public static void MapLoginEndpoint(this WebApplication app)
     {
         app.MapPost("/login", HandleLogin);
+        app.MapPost("/logout", HandleLogout);
     }
 
     public static async Task<IResult> HandleLogin(HttpRequest request)
@@ -45,6 +46,20 @@ public static class Login
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
 
+
+        return Results.Ok(new { success = true });
+    }
+
+    public static async Task<IResult> HandleLogout(HttpContext context)
+    {
+        context.Response.Cookies.Append("auth", "", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = context.Request.IsHttps,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(-1),
+            Path = "/"
+        });
 
         return Results.Ok(new { success = true });
     }

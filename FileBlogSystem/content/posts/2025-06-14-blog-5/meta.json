@@ -1,9 +1,9 @@
 {
   "Title": "blog 5",
   "Description": "testing ",
-  "Slug": "2025-06-14-blog-5",
+  "Slug": "blog-5",
   "Published": "2025-06-15T08:31:00",
-  "ModificationDate": "0001-01-01T00:00:00Z",
+  "Modified": "0001-01-01T00:00:00Z",
   "Status": "draft",
   "Tags": [
     "welcome"

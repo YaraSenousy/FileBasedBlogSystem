@@ -31,9 +31,9 @@ public static class CreatePost
         {
             return Results.BadRequest("Post data incomplete");
         }
-        var slug = SlugGenerator.GenerateSlug(title!, publishDate);
+        var slug = SlugGenerator.GenerateSlug(title!);
 
-        var folderName = $"{slug}";
+        var folderName = $"{publishDate:yyyy-MM-dd}-{slug}";
         var postPath = Path.Combine("content", "posts", folderName);
         Directory.CreateDirectory(postPath);
 

@@ -1,9 +1,9 @@
 {
   "Title": "First Blog",
   "Description": "My first blog post",
-  "Slug": "2025-06-9-first-blog",
+  "Slug": "first-blog",
   "Published": "2025-06-15T08:35:30.5054826+03:00",
-  "ModificationDate": "2025-06-15T09:17:48.358746+03:00",
+  "Modified": "2025-06-15T09:17:48.358746+03:00",
   "Status": "published",
   "Tags": [
     "greetings",

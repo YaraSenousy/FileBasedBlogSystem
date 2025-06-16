@@ -32,7 +32,7 @@ public static class UploadMedia
             using var stream = new FileStream(path, FileMode.Create);
             await file.CopyToAsync(stream);
 
-            uploadedUrls.Add($"/content/posts/{slug}/assets/{safeFileName}");
+            uploadedUrls.Add($"/content/posts/{postDir}/assets/{safeFileName}");
         }
 
         return Results.Ok(uploadedUrls);

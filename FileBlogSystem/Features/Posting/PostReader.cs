@@ -36,7 +36,7 @@ public static class PostReader
             {
                 var mediaFiles = Directory.GetFiles(assetsPath)
                     .Select(f => Path.GetFileName(f)) 
-                    .Select(file => $"/content/posts/{post!.Slug}/assets/{file}")
+                    .Select(file => $"{assetsPath}/{file}")
                     .ToList();
 
                 post.MediaUrls = mediaFiles;

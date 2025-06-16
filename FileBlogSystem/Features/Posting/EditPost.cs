@@ -9,7 +9,12 @@ public static class EditPost
         app.MapPost("/posts/{slug}/edit", HandleEditPost).RequireAuthorization("EditorLevel");
     }
 
-    //Handles editing the posts
+    /*
+    Handles editing a post
+    searching for a post using its slug
+    rewrting its content and meta data 
+    edits the modification date
+    */
     public static async Task<IResult> HandleEditPost(HttpRequest request, string slug)
     {
         var form = await request.ReadFormAsync();

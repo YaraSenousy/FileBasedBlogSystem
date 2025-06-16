@@ -13,7 +13,7 @@ public static class PublishPost
         app.MapPost("/posts/{slug}/delete", DeletePost).RequireAuthorization("AdminLevel");
     }
 
-    // publish a given post using its slug
+    // changes the status of a given post to published and sets the Publish Date
     public static IResult PublishNow(string slug)
     {
         var folder = FindPostFolder(slug);
@@ -56,7 +56,7 @@ public static class PublishPost
         return Results.Ok();
     }
 
-    // save a given post as a draft using its slug
+    // changes the status of a given post to draft
     public static async Task<IResult> SaveAsDraft(string slug)
     {
         var folder = FindPostFolder(slug);
@@ -76,7 +76,7 @@ public static class PublishPost
         return Results.Ok();
     }
 
-    // delete a given post using its slug
+    // delete a given post
     public static async Task<IResult> DeletePost(string slug)
     {
         var folder = FindPostFolder(slug);

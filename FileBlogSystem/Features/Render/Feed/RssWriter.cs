@@ -16,7 +16,7 @@ public static class RssWriter
 
         var posts = Directory.GetDirectories(postDir)
             .Select(PostReader.ReadPostFromFolder)
-            .Where(p => p != null && p.Status == "published" && p.Published <= DateTime.Now)
+            .Where(p => p != null && p.Status == "published")
             .OrderByDescending(p => p.Published)
             .ToList();
 

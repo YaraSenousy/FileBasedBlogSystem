@@ -7,7 +7,8 @@ namespace FileBlogSystem.Features.Security;
 
 public static class JwtHelper
 {
-    private static string Key = "ThisIsA256BitSuperSecretKey!1234"; // TODO: move to env
+    private static string Key = Environment.GetEnvironmentVariable("JWT_SECRET") 
+             ?? throw new Exception("Missing JWT_SECRET in .env");
 
     public static string GenerateToken(User user)
     {

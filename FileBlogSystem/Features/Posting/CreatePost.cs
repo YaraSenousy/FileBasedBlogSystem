@@ -9,6 +9,13 @@ public static class CreatePost
         app.MapPost("/posts", HandleCreatePost).RequireAuthorization("AdminAuthor");
     }
 
+    /*
+    Handles creating a new post
+    generated a new slug using the post's title and creates a new folder for the post
+    ensures no duplicate titles and takes content as markdown
+    sets status to draft and publish date to now
+    return the generated slug
+    */
     public static async Task<IResult> HandleCreatePost(HttpRequest request)
     {
         var form = await request.ReadFormAsync();

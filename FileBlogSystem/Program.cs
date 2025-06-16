@@ -23,9 +23,9 @@ SiteConfig.Load();
 builder.Services.AddHostedService<ScheduledPostPublisher>();
 builder.Services.AddImageSharp();
 
-
-
-var jwtKey ="ThisIsA256BitSuperSecretKey!1234"; 
+DotNetEnv.Env.Load();
+var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET") 
+             ?? throw new Exception("Missing JWT_SECRET in .env");
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -52,6 +52,7 @@ builder.Services
             }
         };
     });
+    
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminAuthor", policy =>
@@ -61,7 +62,6 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminLevel", policy =>
         policy.RequireRole("admin"));
 });
-
 
 
 var app = builder.Build();

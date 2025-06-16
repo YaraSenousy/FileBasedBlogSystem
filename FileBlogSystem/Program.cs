@@ -85,7 +85,7 @@ app.MapCategoryPostsEndpoint();
 app.MapSearchEndpoint();
 app.MapPostDetailsEndpoint();
 app.MapPostCreationEndpoint();
-app.MapMediaUploadEndpoint();
+app.MapMediaEndpoint();
 app.MapPublishEndpoints();
 app.MapRssFeed();
 app.MapPostEditEndpoint();

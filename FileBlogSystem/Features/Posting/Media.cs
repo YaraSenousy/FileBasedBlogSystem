@@ -1,10 +1,13 @@
+using FileBlogSystem.config;
+
 namespace FileBlogSystem.Features.Posting;
 
-public static class UploadMedia
+public static class Media
 {
-    public static void MapMediaUploadEndpoint(this WebApplication app)
+    public static void MapMediaEndpoint(this WebApplication app)
     {
         app.MapPost("/posts/{slug}/media", HandleMediaUpload).RequireAuthorization("EditorLevel");
+        app.MapDelete("/posts/{slug}/media/{filename}", HandleMediaDelete).RequireAuthorization("EditorLevel");
     }
     public static async Task<IResult> HandleMediaUpload(HttpRequest request, string slug)
     {
@@ -36,5 +39,16 @@ public static class UploadMedia
 
         return Results.Ok(uploadedUrls);
     }
-}
 
+    public static async Task<IResult> HandleMediaDelete(string slug, string filename)
+    {
+        var folder = PostReader.FindPostFolder(slug);
+        if (folder == null) return Results.NotFound();
+
+        var path = Path.Combine(folder, "assets", filename);
+        if (!File.Exists(path)) return Results.NotFound();
+
+        File.Delete(path);
+        return Results.Ok(new { deleted = filename });
+    }
+}

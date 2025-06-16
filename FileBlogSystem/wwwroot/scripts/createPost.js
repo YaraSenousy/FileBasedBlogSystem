@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const slug = new URLSearchParams(window.location.search).get("slug");
     if (slug) {
+        document.querySelector("h1").innerHTML = "Edit Post";
         document.getElementById("submit-button").innerHTML = "Save Edits"
         // Load existing post for editing
         const post = await fetch(`/posts/${slug}/preview`,{
@@ -16,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         post.tags?.forEach(t => document.querySelector(`.tag-checkbox[value="${t}"]`)?.click());
         post.categories?.forEach(c => document.querySelector(`.cat-checkbox[value="${c}"]`)?.click());
 
-        document.getElementById("result").textContent = `Editing: ${slug}`;
+        showMedia(post);         
     }
 
     // Form submission
@@ -39,12 +40,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (slug) {
             await fetch(`/posts/${slug}/edit`, { method: "POST", body: formData, credentials: "include"});
             await uploadMedia(slug);
-            alert("Updated!");
+            window.location.reload();
         } else {
             const postRes = await fetch("/posts", { method: "POST", body: formData, credentials: "include" });
-            const result = await postRes.json();
-            await uploadMedia(result.slug);
-            showPreview(result.slug);
+            const createdPost = await postRes.json();
+            await uploadMedia(createdPost.slug);
+            open(`/create.html?slug=${createdPost.slug}`,"_self");
         }
     };
 });
@@ -94,7 +95,6 @@ async function uploadMedia(slug) {
         await fetch(`/posts/${slug}/media`, { method: "POST", body: mediaFormData, credentials: "include" });
     }
 }
-
 function showPreview(slug) {
     document.getElementById("preview-section").innerHTML = `
         <h2>Preview:</h2>
@@ -104,4 +104,39 @@ function showPreview(slug) {
         <button onclick="schedulePost('${slug}')">Schedule Post</button>
         <input type="datetime-local" id="schedule-time" />
     `;
+}
+
+function showMedia(post) {
+    const section = document.getElementById("preview-section");
+    section.innerHTML = `<h3>Uploaded Media:</h3>`;
+    if (post.mediaUrls && post.mediaUrls.length > 0) {
+        post.mediaUrls.forEach(url => {
+          const fileName = url.split("/").pop();
+          const div = document.createElement("div");
+          const isImage = /\.(png|jpe?g|webp|gif)$/i.test(url);
+      
+          div.innerHTML = `
+            ${isImage ? `<img src="${url}?width=100" alt="${fileName}" />` : `<a href="${url}" target="_blank">${fileName}</a>`}
+            <button onclick="deleteMedia('${post.slug}', '${fileName}')">Delete</button>
+          `;
+          section.appendChild(div);
+        });
+    }
+}
+
+async function deleteMedia(slug, filename) {
+    const confirmDelete = confirm(`Delete file: ${filename}?`);
+    if (!confirmDelete) return;
+  
+    const res = await fetch(`/posts/${slug}/media/${filename}`, {
+      method: "DELETE",
+      credentials: "include"
+    });
+  
+    if (res.ok) {
+      alert("Deleted.");
+      window.location.reload();
+    } else {
+      alert("Delete failed.");
+    }
 }

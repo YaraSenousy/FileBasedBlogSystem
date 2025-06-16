@@ -19,6 +19,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 SiteConfig.Load();
+RouteMapper.LoadRoutes();
 
 builder.Services.AddHostedService<ScheduledPostPublisher>();
 builder.Services.AddImageSharp();

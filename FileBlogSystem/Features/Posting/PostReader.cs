@@ -1,5 +1,6 @@
 using Markdig;
 using System.Text.Json;
+using FileBlogSystem.config;
 
 namespace FileBlogSystem.Features.Posting;
 
@@ -51,18 +52,16 @@ public static class PostReader
             return null;
         }
     }
-    
+
     /*
-    returns the folder path of a post using its slug
+    returns the folder path of a post using route mapper
     */
     public static string? FindPostFolder(string slug)
     {
-        var root = Path.Combine("content", "posts");
+        var resolved = RouteMapper.ResolveSlug(slug);
+        if (resolved == null) return null;
 
-        return Directory.GetDirectories(root).FirstOrDefault(folder =>
-        {
-            var name = Path.GetFileName(folder);
-            return name.EndsWith($"-{slug}", StringComparison.OrdinalIgnoreCase);
-        });
+        var folder = Path.Combine("content", "posts", resolved);
+        return Directory.Exists(folder) ? folder : null;
     }
 }

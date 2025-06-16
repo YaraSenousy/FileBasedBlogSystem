@@ -1,4 +1,5 @@
 using System.Text.Json;
+using FileBlogSystem.config;
 
 namespace FileBlogSystem.Features.Posting;
 
@@ -11,7 +12,8 @@ public static class CreatePost
 
     /*
     Handles creating a new post
-    generated a new slug using the post's title and creates a new folder for the post
+    generated a new slug using the post's title 
+    creates a new folder for the post and adds its route in routes.json
     ensures no duplicate titles and takes content as markdown
     sets status to draft and publish date to now
     return the generated slug
@@ -55,6 +57,8 @@ public static class CreatePost
 
         await File.WriteAllTextAsync(Path.Combine(postPath, "meta.json"), metaJson);
         await File.WriteAllTextAsync(Path.Combine(postPath, "content.md"), content!);
+
+        RouteMapper.AddRoute(slug, folderName);
 
         return Results.Created($"/posts/{slug}", new { slug });
     }

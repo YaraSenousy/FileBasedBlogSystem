@@ -1,0 +1,7 @@
+{
+  "username": "auth",
+  "passwordHash": "$2a$11$OOTYAUHqOpm/GpuVAeXT6O7VjuNwoFvIfZbVem2.gltYSuiz4HG9a",
+  "roles": [
+    "author"
+  ]
+}

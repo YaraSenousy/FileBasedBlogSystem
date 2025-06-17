@@ -37,20 +37,6 @@ async function loadPublishedPosts() {
   renderPosts(posts);
 }
 
-async function loadDrafts() {
-  document.getElementById("tag-filter").style.display = "none";
-  const res = await fetch(`/drafts?page=${currentPage}&limit=${limit}`,{credentials: "include"});
-  const posts = await res.json();
-  renderPosts(posts);
-}
-
-async function loadScheduledPosts() {
-  document.getElementById("tag-filter").style.display = "none";
-  const res = await fetch(`/scheduled?page=${currentPage}&limit=${limit}`,{credentials: "include"});
-  const posts = await res.json();
-  renderPosts(posts);
-}
-
 function nextPage() {
   currentPage++;
   document.getElementById("prev-page").style.visibility = "visible";
@@ -143,86 +129,11 @@ function renderPosts(posts) {
           <a href="/post.html?slug=${post.slug}&preview=${post.status != "published"}">Continue Reading</a>
         </div>
       `;
-    
-    const editBtn = document.createElement("button");
-    editBtn.textContent = "Edit Post";
-    editBtn.onclick = () => {open(`/create.html?slug=${post.slug}`,"_self")};
-    postEl.appendChild(editBtn);
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "Delete Post";
-    deleteBtn.onclick = () => deletePost(post.slug, post.title);
-    postEl.appendChild(deleteBtn);
-
-    const actions = document.createElement("div");
-    actions.className = "post-actions";
-
-    if (status === "draft" || status === "scheduled") {
-      const publishBtn = document.createElement("button");
-      publishBtn.textContent = "Publish Now";
-      publishBtn.onclick = () => publishNow(post.slug);
-      actions.appendChild(publishBtn);
-
-      const scheduleInput = document.createElement("input");
-      scheduleInput.type = "datetime-local";
-      scheduleInput.id = `schedule-${post.slug}`;
-
-      const scheduleBtn = document.createElement("button");
-      scheduleBtn.textContent = "Schedule";
-      scheduleBtn.onclick = () => {
-        const time = document.getElementById(`schedule-${post.slug}`).value;
-        if (!time) return alert("Please choose a time");
-        schedulePost(post.slug, time);
-      };
-
-      actions.appendChild(scheduleInput);
-      actions.appendChild(scheduleBtn);
-    }
-
-    if (status === "scheduled" || status === "published") {
-      const draftBtn = document.createElement("button");
-      draftBtn.textContent = "Save as Draft";
-      draftBtn.onclick = () => saveAsDraft(post.slug);
-      actions.appendChild(draftBtn);
-    }
-
-    postEl.appendChild(actions);
 
     container.appendChild(postEl);
   });
 
   document.getElementById("page-number").textContent = `Page ${currentPage}`;
-}
-
-async function deletePost(slug, title) {
-  if (confirm(`Are you sure you want to delete: ${title}`)) {
-    await fetch(`/posts/${slug}/delete`, { method: "POST", credentials: "include"});
-    alert("🗑️ Deleted Post Successfully");
-    loadPosts();
-  }
-}
-
-async function publishNow(slug) {
-  await fetch(`/posts/${slug}/publish`, { method: "POST", credentials: "include"});
-  alert("✅ Published");
-  loadPosts();
-}
-
-async function schedulePost(slug, time) {
-  await fetch(`/posts/${slug}/schedule`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ published: time }),
-    credentials: "include"
-  });
-  alert("📅 Scheduled");
-  loadPosts();
-}
-
-async function saveAsDraft(slug) {
-  await fetch(`/posts/${slug}/draft`, { method: "POST", credentials: "include"});
-  alert("💾 Saved as Draft");
-  loadPosts();
 }
 
 function refresh() {
@@ -247,12 +158,6 @@ async function loadSearchResults(query) {
   );
   const posts = await res.json();
   renderPosts(posts);
-}
-
-async function logout() {
-  await fetch("/logout", { method: "POST" });
-  alert("Logged out");
-  location.href = "/login.html";
 }
 
 window.onload = () => {

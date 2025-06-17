@@ -1,4 +1,4 @@
-// dotnet run --project tools/CreateUserTool.csproj admin 123456 admin,editor
+// dotnet run --project tools/CreateUserTool.csproj admin 123456 admin
 using System.Text.Json;
 using BCrypt.Net;
 

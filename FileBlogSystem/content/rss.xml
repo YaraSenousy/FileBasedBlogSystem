@@ -5,18 +5,6 @@
 <link>http://localhost:5188</link>
 <description>Latest blog posts from FileBlogSystem</description>
 <item>
-  <title>routes</title>
-  <link>http://localhost:5188/post.html?slug=routes</link>
-  <pubDate>Mon, 16 Jun 2025 16:38:29 GMT</pubDate>
-  <description>routes in routes.json</description>
-</item>
-<item>
-  <title>d</title>
-  <link>http://localhost:5188/post.html?slug=d</link>
-  <pubDate>Mon, 16 Jun 2025 16:12:02 GMT</pubDate>
-  <description>dd</description>
-</item>
-<item>
   <title>Hello World</title>
   <link>http://localhost:5188/post.html?slug=hello-world</link>
   <pubDate>Mon, 16 Jun 2025 15:22:00 GMT</pubDate>

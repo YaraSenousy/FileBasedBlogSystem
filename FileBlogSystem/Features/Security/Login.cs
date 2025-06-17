@@ -46,15 +46,32 @@ public static class Login
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
 
+        request.HttpContext.Response.Cookies.Append("user-role", user.Roles[0], new CookieOptions
+        {
+            HttpOnly = false,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(7),
+            Path = "/"
+        });
 
         return Results.Ok(new { success = true });
     }
 
-    public static async Task<IResult> HandleLogout(HttpContext context)
+    public static IResult HandleLogout(HttpContext context)
     {
         context.Response.Cookies.Append("auth", "", new CookieOptions
         {
             HttpOnly = true,
+            Secure = context.Request.IsHttps,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(-1),
+            Path = "/"
+        });
+
+        context.Response.Cookies.Append("user-role", "", new CookieOptions
+        {
+            HttpOnly = false,
             Secure = context.Request.IsHttps,
             SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddDays(-1),

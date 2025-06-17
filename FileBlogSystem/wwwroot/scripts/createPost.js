@@ -108,8 +108,8 @@ function showPreview(slug) {
 
 function showMedia(post) {
     const section = document.getElementById("preview-section");
-    section.innerHTML = `<h3>Uploaded Media:</h3>`;
     if (post.mediaUrls && post.mediaUrls.length > 0) {
+        section.innerHTML = `<h3>Uploaded Media:</h3>`;
         post.mediaUrls.forEach(url => {
           const fileName = url.split("/").pop();
           const div = document.createElement("div");

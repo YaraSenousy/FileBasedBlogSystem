@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>File Blog</title>
+    <link rel="stylesheet" href="/styles/main.css" />
+</head>
+
+<body>
+    <header>
+        <h1>Lets Blog</h1>
+        <nav>
+            <a href="/dashboard.html">Home</a>
+            <select id="category-dropdown" onchange="loadPostsByCategory()">
+                <option value="">Categories</option>
+            </select>
+            <a href="#" onclick="loadDrafts()">Drafts</a>
+            <a href="#" onclick="loadScheduledPosts()">Scheduled Posts</a>
+            <a id="create" href="/create.html">Create Post</a>
+            <a onclick="logout()">Logout</a>
+            <div id="search-part">
+                <input type="text" id="search-box" placeholder="Search posts..." />
+                <button id="search" onclick="onSearch()">Search</button>
+            </div>
+        </nav>
+    </header>
+
+    <section id="tag-filter">
+        <strong>Filter by Tags:</strong>
+        <div id="tag-checkboxes"></div>
+    </section>
+
+    <main>
+        <div id="error-message" class="error"></div>
+        <div id="posts-container"></div>
+        <div id="pagination">
+            <button id="prev-page" style="visibility: hidden;" onclick="prevPage()">Previous</button>
+            <span id="page-number">Page 1</span>
+            <button id="next-page" onclick="nextPage()">Next</button>
+        </div>
+    </main>
+
+    <script src="/scripts/dashboard.js"></script>
+</body>
+
+</html>

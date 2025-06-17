@@ -1,5 +1,5 @@
 document.getElementById("loginForm").onsubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
     const form = new FormData(e.target);
     const res = await fetch("/login", {
       method: "POST",
@@ -13,6 +13,6 @@ document.getElementById("loginForm").onsubmit = async (e) => {
   
     const data = await res.json();
     alert("Logged in!");
-    window.location.href = "/index.html";
+    window.location.href = "/dashboard.html";
   };
   

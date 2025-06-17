@@ -118,7 +118,7 @@ function renderPosts(posts) {
         <h2>${post.title}</h2>
         <div class="post-meta">
           Published: ${new Date(post.published).toLocaleDateString()}
-          ${post.modified != "0001-01-01T00:00:00"? "Modified:" + new Date(post.modified).toLocaleDateString() : ""}
+          ${post.modified != "0001-01-01T00:00:00Z"? "Modified:" + new Date(post.modified).toLocaleDateString() : ""}
         </div>
         <div class="post-description"><span>Description: </span>${
           post.description

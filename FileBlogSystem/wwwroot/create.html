@@ -14,21 +14,35 @@
         </nav>
     </header>
     <main style="max-width: 600px; margin: auto;">
-        <h1 id="">Create Post</h1>
-        <form id="postForm" enctype="multipart/form-data">
-            <input name="title" placeholder="Title" required /><br />
-            <textarea name="description" placeholder="Short Description" required></textarea><br />
-            <textarea name="content" placeholder="Markdown content" required></textarea><br />
-            <div id="categories-list"><strong>Categories:</strong><br /></div>
-            <div id="tags-list"><strong>Tags:</strong><br /></div>
-            <input type="file" name="file" multiple />
-            <button id="submit-button" type="submit">Save Draft</button>
-        </form>
-        <div id="result"></div>
-        <div id="preview-section"></div>
-    </main>
+        <div id="step-form">
+            <h1 id="form-heading">Create Post</h1>
+            <form id="postForm">
+                <input name="title" placeholder="Title" required /><br />
+                <textarea name="description" placeholder="Short Description" required></textarea><br />
+                <textarea name="content" placeholder="Markdown content" required></textarea><br />
+                <div id="categories-list"><strong>Categories:</strong><br /></div>
+                <div id="tags-list"><strong>Tags:</strong><br /></div>
+                <input type="file" id="media" multiple />
+                <div id="uploaded-media"></div>
+                <button type="button" onclick="goToPreview()">Continue</button>
+            </form>
+        </div>
 
+        <div id="step-preview" style="display: none;">
+            <h2>Preview:</h2>
+            <div id="preview-container"></div>
+
+            <div id="media-preview"></div>
+
+            <button onclick="goToForm()">Back</button>
+            <button id="save-draft" onclick="saveAsDraft()">Save Draft</button>
+            <button onclick="publishNow()">Publish Now</button>
+            <input type="datetime-local" id="schedule-time" />
+            <button onclick="schedulePost()">Schedule</button>
+        </div>
+    </main>
     <script src="/scripts/createPost.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>
 
 </html>

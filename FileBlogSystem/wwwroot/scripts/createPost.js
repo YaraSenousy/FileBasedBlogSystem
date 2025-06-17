@@ -1,113 +1,191 @@
-document.addEventListener("DOMContentLoaded", async () => {
-    await loadTagsAndCategories();
+let postSlug = null;
 
-    const slug = new URLSearchParams(window.location.search).get("slug");
-    if (slug) {
-        document.querySelector("h1").innerHTML = "Edit Post";
-        document.getElementById("submit-button").innerHTML = "Save Edits"
-        // Load existing post for editing
-        const post = await fetch(`/posts/${slug}/preview`,{
-            method: "Get",
-            credentials: "include"}).then(res => res.json());
-        document.querySelector("input[name='title']").value = post.title;
-        document.querySelector("textarea[name='description']").value = post.description;
-        document.querySelector("textarea[name='content']").value = post.rawMarkdown;
+async function goToPreview() {
+  if (postSlug)
+  {
+    document.getElementById("save-draft").innerHTML = "Save Edits"
+  }
+  const title = document.querySelector("input[name='title']").value;
+  const description = document.querySelector(
+    "textarea[name='description']"
+  ).value;
+  const content = document.querySelector("textarea[name='content']").value;
 
-        // Check tags and categories
-        post.tags?.forEach(t => document.querySelector(`.tag-checkbox[value="${t}"]`)?.click());
-        post.categories?.forEach(c => document.querySelector(`.cat-checkbox[value="${c}"]`)?.click());
+  const tags = [...document.querySelectorAll(".tag-checkbox:checked")].map(
+    (cb) => cb.value
+  );
+  const cats = [...document.querySelectorAll(".cat-checkbox:checked")].map(
+    (cb) => cb.value
+  );
 
-        showMedia(post);         
+  const markedContent = window.marked ? marked.parse(content) : content;
+
+  document.getElementById("preview-container").innerHTML = `
+    <h3>${title}</h3>
+    <p><em>${description}</em></p>
+    <div>${markedContent}</div>
+    <p><strong>Tags:</strong> ${tags.join(", ")}</p>
+    <p><strong>Categories:</strong> ${cats.join(", ")}</p>
+  `;
+
+  const files = document.getElementById("media").files;
+  const mediaPreview = document.getElementById("media-preview");
+  mediaPreview.innerHTML = `<h4>Media:</h4>`;
+  [...files].forEach((f) => {
+    const url = URL.createObjectURL(f);
+    if (/\.(jpe?g|png|webp|gif)$/i.test(f.name)) {
+      mediaPreview.innerHTML += `<img src="${url}" style="width: 100px; margin: 5px;" />`;
+    } else {
+      mediaPreview.innerHTML += `<a href="${url}" target="_blank">${f.name}</a><br/>`;
     }
+  });
 
-    // Form submission
-    const form = document.getElementById("postForm");
-    form.onsubmit = async (e) => {
-        e.preventDefault();
-
-        const formData = new FormData();
-        ["title", "description", "content"].forEach(name => {
-            const el = form.querySelector(`[name="${name}"]`);
-            formData.append(name, el.value);
-        });
-
-        const selectedTags = [...document.querySelectorAll('.tag-checkbox:checked')].map(cb => cb.value);
-        const selectedCats = [...document.querySelectorAll('.cat-checkbox:checked')].map(cb => cb.value);
-
-        formData.append("tags", selectedTags.join(","));
-        formData.append("categories", selectedCats.join(","));
-
-        if (slug) {
-            await fetch(`/posts/${slug}/edit`, { method: "POST", body: formData, credentials: "include"});
-            await uploadMedia(slug);
-            window.location.reload();
-        } else {
-            const postRes = await fetch("/posts", { method: "POST", body: formData, credentials: "include" });
-            const createdPost = await postRes.json();
-            await uploadMedia(createdPost.slug);
-            open(`/create.html?slug=${createdPost.slug}`,"_self");
-        }
-    };
-});
-
-
-async function loadTagsAndCategories() {
-    const tagBox = document.getElementById("tags-list");
-    const catBox = document.getElementById("categories-list");
-
-    const tags = await fetch("/tags").then(r => r.json());
-    const cats = await fetch("/categories").then(r => r.json());
-
-    tagBox.innerHTML += tags.map(tag => `
-        <label><input type="checkbox" class="tag-checkbox" value="${tag.slug}"> ${tag.name}</label><br/>
-    `).join("");
-
-    catBox.innerHTML += cats.map(cat => `
-        <label><input type="checkbox" class="cat-checkbox" value="${cat.slug}"> ${cat.name}</label><br/>
-    `).join("");
+  switchToPreview();
 }
 
-async function publishNow(slug) {
-    await fetch(`/posts/${slug}/publish`, { method: "POST", credentials: "include" });
-    alert("Published!");
-    window.location.reload();
+function switchToPreview() {
+  document.getElementById("step-form").style.display = "none";
+  document.getElementById("step-preview").style.display = "block";
 }
 
-async function schedulePost(slug) {
-    const time = document.getElementById("schedule-time").value;
-    if (!time) return alert("Please pick a time");
-    await fetch(`/posts/${slug}/schedule`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ published: time }),
-        credentials: "include"
-    });
-    alert("Scheduled!");
-    window.location.reload();
+function goToForm() {
+  document.getElementById("step-preview").style.display = "none";
+  document.getElementById("step-form").style.display = "block";
+}
+
+async function prepareFormData() {
+  const form = document.getElementById("postForm");
+  const formData = new FormData(form);
+  const tags = [...document.querySelectorAll(".tag-checkbox:checked")].map(
+    (cb) => cb.value
+  );
+  const cats = [...document.querySelectorAll(".cat-checkbox:checked")].map(
+    (cb) => cb.value
+  );
+  formData.append("tags", tags.join(","));
+  formData.append("categories", cats.join(","));
+  return formData;
+}
+
+async function saveAsDraft() {
+  const formData = await prepareFormData();
+  const endpoint = postSlug ? `/posts/${postSlug}/edit` : `/posts`;
+  const method = postSlug ? "POST" : "POST";
+
+  const res = await fetch(endpoint, {
+    method,
+    body: formData,
+    credentials: "include",
+  });
+
+  const data = await res.json();
+  postSlug = postSlug || data.slug;
+  await uploadMedia(postSlug);
+  alert(postSlug ? "Edits saved" : "Saved");
+}
+
+async function publishNow() {
+  await saveAsDraft();
+  await fetch(`/posts/${postSlug}/publish`, {
+    method: "POST",
+    credentials: "include",
+  });
+  alert("✅ Published");
+  location.href = "/dashboard.html";
+}
+
+async function schedulePost() {
+  const time = document.getElementById("schedule-time").value;
+  if (!time) return alert("Select time");
+
+  await saveAsDraft();
+  await fetch(`/posts/${postSlug}/schedule`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ published: time }),
+    credentials: "include",
+  });
+
+  alert("Scheduled");
+  location.href = "/dashboard.html";
 }
 
 async function uploadMedia(slug) {
-    const mediaFormData = new FormData();
-    const files = document.querySelector('input[type="file"]').files;
-    if (files.length >= 1)
-    {
-        for (const f of files) mediaFormData.append("file", f);
-        await fetch(`/posts/${slug}/media`, { method: "POST", body: mediaFormData, credentials: "include" });
-    }
+  const mediaForm = new FormData();
+  const files = document.getElementById("media").files;
+  [...files].forEach((f) => mediaForm.append("file", f));
+  if (files.length > 0) {
+    await fetch(`/posts/${slug}/media`, {
+      method: "POST",
+      body: mediaForm,
+      credentials: "include",
+    });
+  }
 }
-function showPreview(slug) {
-    document.getElementById("preview-section").innerHTML = `
-        <h2>Preview:</h2>
-        <iframe src="/post.html?slug=${slug}&preview=true" style="width:100%; height:500px;"></iframe>
-        <br/>
-        <button onclick="publishNow('${slug}')">Publish Now</button>
-        <button onclick="schedulePost('${slug}')">Schedule Post</button>
-        <input type="datetime-local" id="schedule-time" />
-    `;
+async function deleteMedia(slug, filename) {
+  const confirmDelete = confirm(`Delete file: ${filename}?`);
+  if (!confirmDelete) return;
+
+  const res = await fetch(`/posts/${slug}/media/${filename}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+
+  if (res.ok) {
+    alert("Deleted.");
+    window.location.reload();
+  } else {
+    alert("Delete failed.");
+  }
+}
+
+async function loadTagsAndCategories() {
+  const tagBox = document.getElementById("tags-list");
+  const catBox = document.getElementById("categories-list");
+
+  const tags = await fetch("/tags").then((r) => r.json());
+  const cats = await fetch("/categories").then((r) => r.json());
+
+  tagBox.innerHTML += tags
+    .map(
+      (tag) => `
+        <label><input type="checkbox" class="tag-checkbox" value="${tag.slug}"> ${tag.name}</label><br/>
+    `
+    )
+    .join("");
+
+  catBox.innerHTML += cats
+    .map(
+      (cat) => `
+        <label><input type="checkbox" class="cat-checkbox" value="${cat.slug}"> ${cat.name}</label><br/>
+    `
+    )
+    .join("");
+}
+
+async function loadExistingPost(slug) {
+  const post = await fetch(`/posts/${slug}/preview`, {
+    credentials: "include",
+  }).then((res) => res.json());
+
+  document.querySelector("input[name='title']").value = post.title;
+  document.querySelector("textarea[name='description']").value =
+    post.description;
+  document.querySelector("textarea[name='content']").value = post.rawMarkdown;
+
+  post.tags?.forEach((t) =>
+    document.querySelector(`.tag-checkbox[value="${t}"]`)?.click()
+  );
+  post.categories?.forEach((c) =>
+    document.querySelector(`.cat-checkbox[value="${c}"]`)?.click()
+  );
+
+  postSlug = slug;
+  showMedia(post);
 }
 
 function showMedia(post) {
-    const section = document.getElementById("preview-section");
+    const section = document.getElementById("uploaded-media");
     if (post.mediaUrls && post.mediaUrls.length > 0) {
         section.innerHTML = `<h3>Uploaded Media:</h3>`;
         post.mediaUrls.forEach(url => {
@@ -124,19 +202,8 @@ function showMedia(post) {
     }
 }
 
-async function deleteMedia(slug, filename) {
-    const confirmDelete = confirm(`Delete file: ${filename}?`);
-    if (!confirmDelete) return;
-  
-    const res = await fetch(`/posts/${slug}/media/${filename}`, {
-      method: "DELETE",
-      credentials: "include"
-    });
-  
-    if (res.ok) {
-      alert("Deleted.");
-      window.location.reload();
-    } else {
-      alert("Delete failed.");
-    }
-}
+window.onload = async () => {
+  await loadTagsAndCategories();
+  const slug = new URLSearchParams(location.search).get("slug");
+  if (slug) await loadExistingPost(slug);
+};

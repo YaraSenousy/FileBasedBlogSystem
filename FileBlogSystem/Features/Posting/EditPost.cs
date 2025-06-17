@@ -37,6 +37,6 @@ public static class EditPost
         File.WriteAllText(metaPath, JsonSerializer.Serialize(meta, new JsonSerializerOptions { WriteIndented = true }));
         File.WriteAllText(contentPath, markdown);
 
-        return Results.Ok();
+        return Results.Created($"/posts/{slug}", new { slug });
     }
 }

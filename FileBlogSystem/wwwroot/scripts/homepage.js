@@ -10,8 +10,10 @@ async function loadTags() {
 
   tags.forEach((tag) => {
     const label = document.createElement("label");
+    label.className = "form-check-label";
     const input = document.createElement("input");
 
+    input.className = "form-check-input"
     input.type = "checkbox";
     input.value = tag.slug;
     input.onchange = () => {
@@ -112,8 +114,7 @@ function renderPosts(posts) {
       .map((c) => `<span>${c}</span>`)
       .join("");
 
-    const status = post.status?.toLowerCase() || "published";
-
+    const preview = (post.htmlContent || "").slice(0, 20) + "...";
     postEl.innerHTML = `
         <h2>${post.title}</h2>
         <div class="post-meta">
@@ -123,11 +124,12 @@ function renderPosts(posts) {
         <div class="post-description"><span>Description: </span>${
           post.description
         }</div>
+        <div class="post-preview">${preview}</div>
+        <div class="post-details">
+          <a href="/post.html?slug=${post.slug}">Continue Reading</a>
+        </div>
         <div class="post-categories"><strong>Categories:</strong> ${cats}</div>
         <div class="post-tags"><strong>Tags:</strong> ${tags}</div>
-        <div class="post-details">
-          <a href="/post.html?slug=${post.slug}&preview=${post.status != "published"}">Continue Reading</a>
-        </div>
       `;
 
     container.appendChild(postEl);

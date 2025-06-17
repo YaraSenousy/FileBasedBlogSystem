@@ -13,7 +13,7 @@ async function loadTags() {
     label.className = "form-check-label";
     const input = document.createElement("input");
 
-    input.className = "form-check-input"
+    input.className = "form-check-input";
     input.type = "checkbox";
     input.value = tag.slug;
     input.onchange = () => {

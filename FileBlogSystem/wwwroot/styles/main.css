@@ -12,6 +12,10 @@ header {
     border-bottom: 1px solid #ccc;
 }
 
+button {
+    margin: 0.5rem;
+}
+
 header h1 {
     color: black;
     margin: 0;
@@ -72,6 +76,7 @@ article h2 {
 .post-description span {
     font-size: 0.8rem;
     margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
     font-weight: 500;
 }
 
@@ -98,4 +103,8 @@ article h2 {
     border: 1px solid #ccc;
     margin-top: 0.3rem;
     border-radius: 4px;
+}
+
+.post-actions {
+    margin-top: 0.5rem;
 }

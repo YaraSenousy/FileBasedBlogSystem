@@ -81,14 +81,14 @@ async function saveAsDraft() {
   });
 
   if (!res.ok) {
-    alert("Save failed.");
+    showToast("Save failed.", "danger");
     return;
   }
 
   const data = await res.json();
   postSlug = data.slug || postSlug;
   await uploadMedia(postSlug);
-  alert(postSlug ? "Edits saved" : "Saved");
+  showToast("Saved", "success");
   document.getElementById("save-draft").innerHTML = "Save Edits"
 }
 
@@ -99,16 +99,16 @@ async function publishNow() {
     credentials: "include",
   });
   if (res.ok) {
-    alert("Published");
+    showToast("Published", "success");
     location.href = "/dashboard";
   } else {
-    alert("Published failed.");
+    showToast("Publish failed.", "danger");
   }
 }
 
 async function schedulePost() {
   const time = document.getElementById("schedule-time").value;
-  if (!time) return alert("Select time");
+  if (!time) return showToast("Select time","danger");
 
   await saveAsDraft();
   const res = await fetch(`/posts/${postSlug}/schedule`, {
@@ -119,10 +119,10 @@ async function schedulePost() {
   });
 
   if (res.ok) {
-    alert("Scheduled Post");
+    showToast("Scheduled Post","success");
     location.href = "/dashboard";
   } else {
-    alert("Scheduling failed.");
+    showToast("Scheduling failed.","danger");
   }
 }
 
@@ -137,7 +137,7 @@ async function uploadMedia(slug) {
       credentials: "include",
     });
     if (!res.ok) {
-      alert("upload failed.");
+      showToast("upload failed.","danger");
     }
   }
 }
@@ -151,10 +151,10 @@ async function deleteMedia(slug, filename) {
   });
 
   if (res.ok) {
-    alert("Deleted.");
+    showToast("Deleted.","success");
     window.location.reload();
   } else {
-    alert("Delete failed.");
+    showToast("Delete failed.","danger");
   }
 }
 
@@ -219,6 +219,17 @@ function showMedia(post) {
           section.appendChild(div);
         });
     }
+}
+
+function showToast(message, variant = "primary") {
+  const toastEl = document.getElementById("live-toast");
+  const toastMsg = document.getElementById("toast-message");
+
+  toastEl.className = `toast align-items-center text-bg-${variant} border-0`;
+  toastMsg.textContent = message;
+
+  const toast = new bootstrap.Toast(toastEl);
+  toast.show();
 }
 
 window.onload = async () => {

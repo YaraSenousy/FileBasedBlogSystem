@@ -10,7 +10,7 @@ public static class RssFeed
         app.MapGet("/rss.xml", GetRss);
     }
 
-    public static async Task<IResult> GetRss()
+    public static IResult GetRss()
     {
         var xml = RssWriter.GenerateRssXml(); 
         return Results.Text(xml, "application/rss+xml", Encoding.UTF8);

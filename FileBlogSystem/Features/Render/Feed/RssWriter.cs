@@ -17,7 +17,7 @@ public static class RssWriter
         var posts = Directory.GetDirectories(postDir)
             .Select(PostReader.ReadPostFromFolder)
             .Where(p => p != null && p.Status == "published")
-            .OrderByDescending(p => p.Published)
+            .OrderByDescending(p => p!.Published)
             .ToList();
 
         var rss = new StringBuilder();
@@ -31,10 +31,10 @@ public static class RssWriter
         foreach (var post in posts)
         {
             rss.AppendLine("<item>");
-            rss.AppendLine($"  <title>{System.Security.SecurityElement.Escape(post.Title)}</title>");
-            rss.AppendLine($"  <link>{baseUrl}/post.html?slug={post.Slug}</link>");
-            rss.AppendLine($"  <pubDate>{post.Published:R}</pubDate>");
-            rss.AppendLine($"  <description>{System.Security.SecurityElement.Escape(post.Description)}</description>");
+            rss.AppendLine($"  <title>{System.Security.SecurityElement.Escape(post!.Title)}</title>");
+            rss.AppendLine($"  <link>{baseUrl}/post.html?slug={post!.Slug}</link>");
+            rss.AppendLine($"  <pubDate>{post!.Published:R}</pubDate>");
+            rss.AppendLine($"  <description>{System.Security.SecurityElement.Escape(post!.Description)}</description>");
             rss.AppendLine("</item>");
         }
 

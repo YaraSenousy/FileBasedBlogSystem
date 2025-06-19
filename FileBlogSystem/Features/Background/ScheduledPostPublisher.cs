@@ -27,20 +27,22 @@ public class ScheduledPostPublisher : BackgroundService
                         Converters = { new UtcDateTimeConverter() }
                     });
 
-
-                    if (!string.Equals(meta.Status, "scheduled", StringComparison.OrdinalIgnoreCase)) continue;
-
-                    if (meta.Published <= DateTime.Now)
+                    if (meta != null)
                     {
-                        meta.Status = "published";
-                        File.WriteAllText(metaPath, JsonSerializer.Serialize(meta, new JsonSerializerOptions
-                        {
-                            WriteIndented = true
-                        }));
-                        Console.WriteLine($"[Scheduler] Published: {meta.Slug}");
-                    }
+                        if (!string.Equals(meta.Status, "scheduled", StringComparison.OrdinalIgnoreCase)) continue;
 
-                    RssWriter.WriteRssFile();
+                        if (meta.Published <= DateTime.Now)
+                        {
+                            meta.Status = "published";
+                            File.WriteAllText(metaPath, JsonSerializer.Serialize(meta, new JsonSerializerOptions
+                            {
+                                WriteIndented = true
+                            }));
+                            Console.WriteLine($"[Scheduler] Published: {meta.Slug}");
+                        }
+
+                        RssWriter.WriteRssFile();
+                    }
                 }
                 catch (Exception ex)
                 {

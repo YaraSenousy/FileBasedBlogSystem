@@ -15,7 +15,7 @@ public static class PublishPost
     }
 
     // changes the status of a given post to published and sets the Publish Date
-    public static IResult PublishNow(string slug)
+    public static async Task<IResult> PublishNow(string slug)
     {
         var folder = PostReader.FindPostFolder(slug);
         if (folder == null) return Results.NotFound();
@@ -25,7 +25,7 @@ public static class PublishPost
         meta!.Status = "published";
         meta.Published = DateTime.Now;
 
-        File.WriteAllText(metaPath, JsonSerializer.Serialize(meta, new JsonSerializerOptions
+        await File.WriteAllTextAsync(metaPath, JsonSerializer.Serialize(meta, new JsonSerializerOptions
         {
             WriteIndented = true
         }));
@@ -49,7 +49,7 @@ public static class PublishPost
         meta!.Status = "scheduled";
         meta.Published = publishAt;
 
-        File.WriteAllText(metaPath, JsonSerializer.Serialize(meta, new JsonSerializerOptions
+        await File.WriteAllTextAsync(metaPath, JsonSerializer.Serialize(meta, new JsonSerializerOptions
         {
             WriteIndented = true
         }));
@@ -67,7 +67,7 @@ public static class PublishPost
         var meta = JsonSerializer.Deserialize<PostMeta>(File.ReadAllText(metaPath));
         meta!.Status = "draft";
 
-        File.WriteAllText(metaPath, JsonSerializer.Serialize(meta, new JsonSerializerOptions
+        await File.WriteAllTextAsync(metaPath, JsonSerializer.Serialize(meta, new JsonSerializerOptions
         {
             WriteIndented = true
         }));
@@ -78,7 +78,7 @@ public static class PublishPost
     }
 
     // delete a given post
-    public static async Task<IResult> DeletePost(string slug)
+    public static IResult DeletePost(string slug)
     {
         var folder = PostReader.FindPostFolder(slug);
         if (folder == null) return Results.NotFound();

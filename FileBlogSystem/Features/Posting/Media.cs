@@ -40,7 +40,7 @@ public static class Media
         return Results.Ok(uploadedUrls);
     }
 
-    public static async Task<IResult> HandleMediaDelete(string slug, string filename)
+    public static IResult HandleMediaDelete(string slug, string filename)
     {
         var folder = PostReader.FindPostFolder(slug);
         if (folder == null) return Results.NotFound();

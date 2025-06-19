@@ -29,7 +29,7 @@ public static class PostReader
             var post = JsonSerializer.Deserialize<Post>(metaJson, options);
 
             var markdown = File.ReadAllText(contentPath);
-            post.RawMarkdown = markdown;
+            post!.RawMarkdown = markdown;
             post!.HtmlContent = Markdown.ToHtml(markdown);
 
             var assetsPath = Path.Combine(folderPath, "assets");

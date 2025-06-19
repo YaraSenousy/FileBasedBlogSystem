@@ -12,7 +12,6 @@ document.getElementById("loginForm").onsubmit = async (e) => {
     }
   
     const data = await res.json();
-    alert("Logged in!");
     window.location.href = "/dashboard";
   };
   

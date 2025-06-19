@@ -91,17 +91,30 @@ app.MapRssFeed();
 app.MapPostEditEndpoint();
 app.MapLoginEndpoint();
 
-app.MapGet("/", ctx => ctx.Response.SendFileAsync("wwwroot/index.html"));
-app.MapGet("/login", ctx => ctx.Response.SendFileAsync("wwwroot/login.html"));
-app.MapGet("/dashboard", ctx => ctx.Response.SendFileAsync("wwwroot/dashboard.html")).RequireAuthorization();
-app.MapGet("/post", ctx => ctx.Response.SendFileAsync("wwwroot/post.html"));
-app.MapGet("/create", ctx => ctx.Response.SendFileAsync("wwwroot/create.html")).RequireAuthorization("AdminAuthor");
-app.UseStatusCodePages(async context =>
+app.MapFallback(context =>
 {
-    if (context.HttpContext.Response.StatusCode == 401)
+    var path = context.Request.Path.Value;
+
+    if (path == "/dashboard" || path == "/create")
     {
-        context.HttpContext.Response.Redirect("/login");
+        var user = context.User;
+        if (!user.Identity?.IsAuthenticated ?? true)
+        {
+            context.Response.Redirect("/login");
+            return Task.CompletedTask;
+        }
     }
+
+    if (path == "/dashboard")
+        return context.Response.SendFileAsync("wwwroot/dashboard.html");
+    if (path == "/create")
+        return context.Response.SendFileAsync("wwwroot/create.html");
+    if (path == "/post")
+        return context.Response.SendFileAsync("wwwroot/post.html");
+    if (path == "/login")
+        return context.Response.SendFileAsync("wwwroot/login.html");
+
+    return context.Response.SendFileAsync("wwwroot/index.html");
 });
 
 app.Run();

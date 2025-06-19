@@ -78,7 +78,7 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/content"
 });
 
-app.MapHomePageEndpoints();
+app.MapGetPostsEndpoints();
 app.MapCategoryListEndpoint();
 app.MapTagListEndpoint();
 app.MapCategoryPostsEndpoint();
@@ -90,5 +90,18 @@ app.MapPublishEndpoints();
 app.MapRssFeed();
 app.MapPostEditEndpoint();
 app.MapLoginEndpoint();
+
+app.MapGet("/", ctx => ctx.Response.SendFileAsync("wwwroot/index.html"));
+app.MapGet("/login", ctx => ctx.Response.SendFileAsync("wwwroot/login.html"));
+app.MapGet("/dashboard", ctx => ctx.Response.SendFileAsync("wwwroot/dashboard.html")).RequireAuthorization();
+app.MapGet("/post", ctx => ctx.Response.SendFileAsync("wwwroot/post.html"));
+app.MapGet("/create", ctx => ctx.Response.SendFileAsync("wwwroot/create.html")).RequireAuthorization("AdminAuthor");
+app.UseStatusCodePages(async context =>
+{
+    if (context.HttpContext.Response.StatusCode == 401)
+    {
+        context.HttpContext.Response.Redirect("/login");
+    }
+});
 
 app.Run();

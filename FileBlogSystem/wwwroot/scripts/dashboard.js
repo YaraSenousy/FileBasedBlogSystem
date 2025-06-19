@@ -37,7 +37,7 @@ async function loadPublishedPosts() {
   document.getElementById("tag-filter").style.display = "block";
   document.getElementById("search-part").style.display = "block";
   const res = await fetch(
-    `/?page=${currentPage}&limit=${limit}${getTagFilterParam()}`
+    `/published?page=${currentPage}&limit=${limit}${getTagFilterParam()}`
   );
   const posts = await res.json();
   renderPosts(posts);
@@ -177,7 +177,7 @@ function renderPosts(posts) {
             }</div>
             <div class="post-preview">${preview}</div>
             <div class="post-details">
-            <a href="/post.html?slug=${post.slug}&preview=${
+            <a href="/post?slug=${post.slug}&preview=${
       post.status != "published"
     }">Continue Reading</a>
             </div>
@@ -189,7 +189,7 @@ function renderPosts(posts) {
       editBtn.className = "btn btn-primary btn-sm";
       editBtn.textContent = "Edit Post";
       editBtn.onclick = () => {
-        open(`/create.html?slug=${post.slug}`, "_self");
+        open(`/create?slug=${post.slug}`, "_self");
       };
       postEl.appendChild(editBtn);
 
@@ -312,7 +312,7 @@ async function loadSearchResults(query) {
 async function logout() {
   await fetch("/logout", { method: "POST" });
   alert("Logged out");
-  location.href = "/login.html";
+  location.href = "/login";
 }
 
 function getUserRoleFromCookie() {
@@ -326,7 +326,7 @@ function getUserRoleFromCookie() {
 window.onload = () => {
   role = getUserRoleFromCookie();
   if (role == null) {
-    open("/login.html", "_self");
+    open("/login", "_self");
   }
   if (role == "editor") {
     document.getElementById("create").style.display = "none";

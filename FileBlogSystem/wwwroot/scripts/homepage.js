@@ -33,7 +33,7 @@ function getTagFilterParam() {
 
 async function loadPublishedPosts() {
   const res = await fetch(
-    `/?page=${currentPage}&limit=${limit}${getTagFilterParam()}`
+    `/published?page=${currentPage}&limit=${limit}${getTagFilterParam()}`
   );
   const posts = await res.json();
   renderPosts(posts);
@@ -126,7 +126,7 @@ function renderPosts(posts) {
         }</div>
         <div class="post-preview">${preview}</div>
         <div class="post-details">
-          <a href="/post.html?slug=${post.slug}">Continue Reading</a>
+          <a href="/post?slug=${post.slug}">Continue Reading</a>
         </div>
         <div class="post-categories"><strong>Categories:</strong> ${cats}</div>
         <div class="post-tags"><strong>Tags:</strong> ${tags}</div>

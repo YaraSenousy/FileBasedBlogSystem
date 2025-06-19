@@ -91,7 +91,7 @@ async function publishNow() {
     credentials: "include",
   });
   alert("✅ Published");
-  location.href = "/dashboard.html";
+  location.href = "/dashboard";
 }
 
 async function schedulePost() {
@@ -107,7 +107,7 @@ async function schedulePost() {
   });
 
   alert("Scheduled");
-  location.href = "/dashboard.html";
+  location.href = "/dashboard";
 }
 
 async function uploadMedia(slug) {

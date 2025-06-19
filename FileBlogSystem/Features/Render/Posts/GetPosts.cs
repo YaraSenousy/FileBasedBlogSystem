@@ -5,9 +5,9 @@ namespace FileBlogSystem.Features.Render.Posts;
 
 public static class GetPosts
 {
-    public static void MapHomePageEndpoints(this WebApplication app)
+    public static void MapGetPostsEndpoints(this WebApplication app)
     {
-        app.MapGet("/", GetHomePage);
+        app.MapGet("/published", GetPublished);
         app.MapGet("/drafts", GetDrafts).RequireAuthorization("EditorLevel");
         app.MapGet("/scheduled", GetScheduled).RequireAuthorization("EditorLevel");
     }
@@ -16,7 +16,7 @@ public static class GetPosts
     Reads all published posts and filter by tags
     paginates them, and returns posts ordered by publish time as JSON.
     */
-    public static IResult GetHomePage(HttpContext context)
+    public static IResult GetPublished(HttpContext context)
     {
         return GetAllPosts(context, "published");
     }

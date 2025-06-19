@@ -2,9 +2,9 @@
   "Title": "blog 11",
   "Description": "short description about the blog",
   "Slug": "blog-11",
-  "Published": "2025-06-19T06:57:00Z",
+  "Published": "2025-06-20T07:41:00",
   "Modified": "0001-01-01T00:00:00Z",
-  "Status": "published",
+  "Status": "scheduled",
   "Tags": [
     "welcome"
   ],

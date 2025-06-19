@@ -221,7 +221,7 @@ function renderPosts(posts) {
       scheduleBtn.textContent = "Schedule";
       scheduleBtn.onclick = () => {
         const time = document.getElementById(`schedule-${post.slug}`).value;
-        if (!time) return alert("Please choose a time");
+        if (!time) return showToast("Please choose a time","danger");
         schedulePost(post.slug, time);
       };
 
@@ -251,7 +251,7 @@ async function deletePost(slug, title) {
       method: "POST",
       credentials: "include",
     });
-    alert("🗑️ Deleted Post Successfully");
+    showToast("🗑️ Deleted Post Successfully","success");
     loadPosts();
   }
 }
@@ -261,7 +261,7 @@ async function publishNow(slug) {
     method: "POST",
     credentials: "include",
   });
-  alert("✅ Published");
+  showToast("✅ Published","success");
   loadPosts();
 }
 
@@ -272,7 +272,7 @@ async function schedulePost(slug, time) {
     body: JSON.stringify({ published: time }),
     credentials: "include",
   });
-  alert("📅 Scheduled");
+  showToast("📅 Scheduled","success");
   loadPosts();
 }
 
@@ -281,7 +281,7 @@ async function saveAsDraft(slug) {
     method: "POST",
     credentials: "include",
   });
-  alert("💾 Saved as Draft");
+  showToast("💾 Saved as Draft","success");
   loadPosts();
 }
 
@@ -311,7 +311,7 @@ async function loadSearchResults(query) {
 
 async function logout() {
   await fetch("/logout", { method: "POST" });
-  alert("Logged out");
+  showToast("Logged out","success");
   location.href = "/login";
 }
 
@@ -321,6 +321,17 @@ function getUserRoleFromCookie() {
     .find((row) => row.startsWith("user-role="));
 
   return value ? decodeURIComponent(value.split("=")[1]) : null;
+}
+
+function showToast(message, variant = "primary") {
+  const toastEl = document.getElementById("live-toast");
+  const toastMsg = document.getElementById("toast-message");
+
+  toastEl.className = `toast align-items-center text-bg-${variant} border-0`;
+  toastMsg.textContent = message;
+
+  const toast = new bootstrap.Toast(toastEl);
+  toast.show();
 }
 
 window.onload = () => {

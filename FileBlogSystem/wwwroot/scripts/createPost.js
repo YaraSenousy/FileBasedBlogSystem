@@ -1,6 +1,8 @@
 let postSlug = null;
 
 async function goToPreview() {
+  const form = document.getElementById("postForm");
+  if (!form.reportValidity()) return;
   if (postSlug)
   {
     document.getElementById("save-draft").innerHTML = "Save Edits"
@@ -78,20 +80,30 @@ async function saveAsDraft() {
     credentials: "include",
   });
 
+  if (!res.ok) {
+    alert("Save failed.");
+    return;
+  }
+
   const data = await res.json();
-  postSlug = postSlug || data.slug;
+  postSlug = data.slug || postSlug;
   await uploadMedia(postSlug);
   alert(postSlug ? "Edits saved" : "Saved");
+  document.getElementById("save-draft").innerHTML = "Save Edits"
 }
 
 async function publishNow() {
   await saveAsDraft();
-  await fetch(`/posts/${postSlug}/publish`, {
+  const res = await fetch(`/posts/${postSlug}/publish`, {
     method: "POST",
     credentials: "include",
   });
-  alert("✅ Published");
-  location.href = "/dashboard";
+  if (res.ok) {
+    alert("Published");
+    location.href = "/dashboard";
+  } else {
+    alert("Published failed.");
+  }
 }
 
 async function schedulePost() {
@@ -99,15 +111,19 @@ async function schedulePost() {
   if (!time) return alert("Select time");
 
   await saveAsDraft();
-  await fetch(`/posts/${postSlug}/schedule`, {
+  const res = await fetch(`/posts/${postSlug}/schedule`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ published: time }),
     credentials: "include",
   });
 
-  alert("Scheduled");
-  location.href = "/dashboard";
+  if (res.ok) {
+    alert("Scheduled Post");
+    location.href = "/dashboard";
+  } else {
+    alert("Scheduling failed.");
+  }
 }
 
 async function uploadMedia(slug) {
@@ -115,11 +131,14 @@ async function uploadMedia(slug) {
   const files = document.getElementById("media").files;
   [...files].forEach((f) => mediaForm.append("file", f));
   if (files.length > 0) {
-    await fetch(`/posts/${slug}/media`, {
+    const res = await fetch(`/posts/${slug}/media`, {
       method: "POST",
       body: mediaForm,
       credentials: "include",
     });
+    if (!res.ok) {
+      alert("upload failed.");
+    }
   }
 }
 async function deleteMedia(slug, filename) {

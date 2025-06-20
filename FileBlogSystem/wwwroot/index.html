@@ -12,7 +12,7 @@
 <body>
   <header>
     <h1>Lets Blog</h1>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <nav class="navbar navbar-expand-sm bg-body-tertiary">
       <div class="container-fluid">
         <a class="navbar-brand" id="nav-home" href="#" onclick="loadPublishedPosts()">Home</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -22,17 +22,19 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="nav-categories" role="button"
-                data-bs-toggle="dropdown" aria-expanded="false">
+              <a class="nav-link dropdown-toggle" href="#" id="nav-categories" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
                 All Categories
               </a>
               <ul class="dropdown-menu" id="category-dropdown">
-                <li><a class="dropdown-item active" href="#" data-value="" onclick="loadPublishedPosts()">All Categories</a></li>
+                <li><a class="dropdown-item active" href="#" data-value="" onclick="loadPublishedPosts()">All
+                    Categories</a></li>
               </ul>
             </li>
           </ul>
           <div class="d-flex" role="search">
-            <input class="form-control me-2" id="search-box" type="text" placeholder="Search All Posts.." aria-label="Search" />
+            <input class="form-control me-2" id="search-box" type="text" placeholder="Search All Posts.."
+              aria-label="Search" />
             <button class="btn btn-outline-success" onclick="onSearch()">Search</button>
           </div>
         </div>
@@ -50,20 +52,20 @@
     <div id="posts-container"></div>
     <div id="pagination">
       <ul class="pagination">
-          <li class="page-item">
-              <a class="page-link" href="#" id="prev-page" style="visibility: hidden;" onclick="prevPage()"
-                  aria-label="Previous">
-                  <span aria-hidden="true">&laquo;</span>
-              </a>
-          </li>
-          <li class="page-item page-link" id="page-number">Page 1</li>
-          <li class="page-item">
-              <a class="page-link" href="#" id="next-page" onclick="nextPage()" aria-label="Next">
-                  <span aria-hidden="true">&raquo;</span>
-              </a>
-          </li>
+        <li class="page-item">
+          <a class="page-link" href="#" id="prev-page" style="visibility: hidden;" onclick="prevPage()"
+            aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li class="page-item page-link" id="page-number">Page 1</li>
+        <li class="page-item">
+          <a class="page-link" href="#" id="next-page" onclick="nextPage()" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
       </ul>
-  </div>
+    </div>
   </main>
 
   <script src="/scripts/homepage.js"></script>

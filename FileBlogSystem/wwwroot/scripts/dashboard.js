@@ -3,6 +3,7 @@ const limit = 3;
 let activeTags = new Set();
 let currentView = "published";
 let role = null;
+let selectedCategoryName = "All Categories"; // Track selected category name
 
 async function loadTags() {
   const res = await fetch("/tags");
@@ -36,6 +37,15 @@ function getTagFilterParam() {
 async function loadPublishedPosts() {
   document.getElementById("tag-filter").style.display = "block";
   document.getElementById("search-part").style.display = "block";
+  const dropdown = document.getElementById("category-dropdown");
+  dropdown.querySelectorAll(".dropdown-item").forEach(item => item.classList.remove("active"));
+  dropdown.querySelector("[data-value='']").classList.add("active");
+  document.getElementById("nav-categories").textContent = "All Categories";
+  selectedCategoryName = "All Categories";
+
+  currentView = "published";
+  updateActiveNav();
+
   const res = await fetch(
     `/published?page=${currentPage}&limit=${limit}${getTagFilterParam()}`
   );
@@ -46,9 +56,14 @@ async function loadPublishedPosts() {
 async function loadDrafts() {
   document.getElementById("tag-filter").style.display = "none";
   document.getElementById("search-part").style.display = "none";
-  document.getElementById("category-dropdown").selectedIndex = 0;
+  const dropdown = document.getElementById("category-dropdown");
+  dropdown.querySelectorAll(".dropdown-item").forEach(item => item.classList.remove("active"));
+  dropdown.querySelector("[data-value='']").classList.add("active");
+  document.getElementById("nav-categories").textContent = "All Categories";
+  selectedCategoryName = "All Categories";
 
   currentView = "drafts";
+  updateActiveNav();
 
   const res = await fetch(`/drafts?page=${currentPage}&limit=${limit}`, {
     credentials: "include",
@@ -60,9 +75,14 @@ async function loadDrafts() {
 async function loadScheduledPosts() {
   document.getElementById("tag-filter").style.display = "none";
   document.getElementById("search-part").style.display = "none";
-  document.getElementById("category-dropdown").selectedIndex = 0;
+  const dropdown = document.getElementById("category-dropdown");
+  dropdown.querySelectorAll(".dropdown-item").forEach(item => item.classList.remove("active"));
+  dropdown.querySelector("[data-value='']").classList.add("active");
+  document.getElementById("nav-categories").textContent = "All Categories";
+  selectedCategoryName = "All Categories";
 
   currentView = "scheduled";
+  updateActiveNav();
 
   const res = await fetch(`/scheduled?page=${currentPage}&limit=${limit}`, {
     credentials: "include",
@@ -71,19 +91,21 @@ async function loadScheduledPosts() {
   renderPosts(posts);
 }
 
-async function loadPostsByCategory() {
+async function loadPostsByCategory(slug, name) {
   document.getElementById("tag-filter").style.display = "block";
   document.getElementById("search-part").style.display = "none";
 
   currentView = "published";
+  updateActiveNav();
 
-  const slug = document.getElementById("category-dropdown").value;
+  document.getElementById("nav-categories").textContent = name;
+  selectedCategoryName = name;
+
   try {
     const res = await fetch(
       `/categories/${slug}?page=${currentPage}&limit=${limit}${getTagFilterParam()}`
     );
     const posts = await res.json();
-
     renderPosts(posts);
   } catch (err) {
     console.log("Failed to load the posts: " + err.message);
@@ -114,13 +136,37 @@ async function loadCategories() {
     const categories = await res.json();
 
     categories.forEach((cat) => {
-      const option = document.createElement("option");
-      option.value = cat.slug;
-      option.textContent = cat.name;
-      dropdown.appendChild(option);
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.className = "dropdown-item";
+      a.href = "#";
+      a.textContent = cat.name;
+      a.dataset.value = cat.slug;
+      a.onclick = () => {
+        dropdown.querySelectorAll(".dropdown-item").forEach(item => item.classList.remove("active"));
+        a.classList.add("active");
+        loadPostsByCategory(cat.slug, cat.name);
+      };
+      li.appendChild(a);
+      dropdown.appendChild(li);
     });
   } catch (err) {
     console.error("Failed to load categories:", err.message);
+  }
+}
+
+function updateActiveNav() {
+  const navItems = document.querySelectorAll(".navbar-nav .nav-link");
+  navItems.forEach(item => item.classList.remove("active"));
+
+  if (currentView === "drafts") {
+    document.getElementById("nav-drafts").classList.add("active");
+  } else if (currentView === "scheduled") {
+    document.getElementById("nav-scheduled").classList.add("active");
+  } else if (currentView === "create") {
+    document.getElementById("nav-create").classList.add("active");
+  } else {
+    document.getElementById("nav-home").classList.add("active");
   }
 }
 
@@ -130,9 +176,12 @@ function loadPosts() {
   } else if (currentView === "scheduled") {
     loadScheduledPosts();
   } else {
-    const selected = document.getElementById("category-dropdown").value;
+    const selected = document.getElementById("category-dropdown").querySelector(".dropdown-item.active")?.dataset.value;
+    const selectedName = document.getElementById("category-dropdown").querySelector(".dropdown-item.active")?.textContent || "All Categories";
+    document.getElementById("nav-categories").textContent = selectedName;
+    selectedCategoryName = selectedName;
     if (selected) {
-      loadPostsByCategory();
+      loadPostsByCategory(selected, selectedName);
     } else {
       loadPublishedPosts();
     }
@@ -159,7 +208,6 @@ function renderPosts(posts) {
 
     const status = post.status?.toLowerCase() || "published";
 
-    // Filter images and create carousel only if images exist
     const images = (post.mediaUrls || []).filter((url) =>
       /\.(png|jpe?g|webp|gif)$/i.test(url)
     );
@@ -335,6 +383,11 @@ function onSearch() {
     currentPage = 1;
     document.getElementById("search-box").value = "";
     document.getElementById("tag-filter").style.display = "none";
+    const dropdown = document.getElementById("category-dropdown");
+    dropdown.querySelectorAll(".dropdown-item").forEach(item => item.classList.remove("active"));
+    dropdown.querySelector("[data-value='']").classList.add("active");
+    document.getElementById("nav-categories").textContent = "All Categories";
+    selectedCategoryName = "All Categories";
     loadSearchResults(term);
   } else {
     loadPosts();
@@ -380,10 +433,10 @@ window.onload = () => {
     open("/login", "_self");
   }
   if (role == "editor") {
-    document.getElementById("create").style.display = "none";
+    document.getElementById("nav-create").style.display = "none";
   }
 
   loadCategories();
   loadTags();
-  loadPosts();
+  loadPublishedPosts();
 };

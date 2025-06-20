@@ -32,6 +32,38 @@ nav a {
     font-weight: bold;
 }
 
+.navbar-nav .nav-link {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+
+.navbar-nav .nav-link.active {
+    background-color: #e9ecef;
+    border-radius: 4px;
+    color: #000;
+    font-weight: bold;
+}
+
+.navbar-nav .dropdown-toggle {
+    font-weight: 500;
+}
+
+.dropdown-menu {
+    min-width: 200px;
+}
+
+.dropdown-item.active {
+    background-color: #e9ecef;
+    color: #000;
+}
+
+#nav-categories {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 #tag-filter {
     margin: 1rem auto;
     max-width: 700px;
@@ -108,36 +140,38 @@ article h2 {
 }
 
 .carousel {
-    max-width: 300px; 
-    max-height: 300px; 
+    max-width: 300px;
+    max-height: 300px;
     margin: auto;
 }
 
 .carousel-item img.carousel-img {
     width: 100%;
     height: 300px;
-    border-radius: 4px; 
+    border-radius: 4px;
     display: block;
     margin: auto;
 }
 
 .carousel-control-prev,
 .carousel-control-next {
-    width: 15%; 
+    width: 15%;
     background: rgba(0, 0, 0, 0.3);
 }
 
 .carousel-control-prev-icon,
 .carousel-control-next-icon {
-    filter: invert(100%); /* Ensure icons are visible */
+    filter: invert(100%);
+    /* Ensure icons are visible */
 }
 
 @media (max-width: 576px) {
     .carousel {
-      max-width: 200px;
-      max-height: 200px;
+        max-width: 200px;
+        max-height: 200px;
     }
+
     .carousel-item img.carousel-img {
-      height: 200px;
+        height: 200px;
     }
-  }
+}

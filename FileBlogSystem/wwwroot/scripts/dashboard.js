@@ -306,6 +306,12 @@ function renderPosts(posts) {
       scheduleInput.id = `schedule-${post.slug}`;
       scheduleInput.className = "ms-2";
 
+      const scheduleLabel = document.createElement("label");
+      scheduleLabel.htmlFor = `schedule-${post.slug}`;
+      scheduleLabel.textContent = "Schedule for: ";
+      actions.appendChild(scheduleLabel);
+      actions.appendChild(scheduleInput);
+
       const scheduleBtn = document.createElement("button");
       scheduleBtn.className = "btn btn-outline-secondary btn-sm mx-2";
       scheduleBtn.textContent = "Schedule";

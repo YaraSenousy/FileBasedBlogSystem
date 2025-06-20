@@ -98,6 +98,30 @@ nav a {
     font-size: 0.9rem;
 }
 
+.form-check-input {
+    width: 1.2em;
+    height: 1.2em;
+    border: 2px solid #666;
+    border-radius: 4px;
+    appearance: none;
+    background-color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.form-check-input:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.form-check-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
 #pagination,
 #posts-container {
     max-width: 700px;
@@ -132,9 +156,35 @@ article h2 {
     font-style: italic;
 }
 
-.post-description, .post-preview {
-    font-size: 0.95rem;
+.post-description {
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-left: 4px solid #007bff;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.post-description span {
+    font-weight: bold;
+    color: #555;
+    margin-right: 0.5rem;
+}
+
+.post-description p {
+    margin: 0;
     color: #444;
+    display: inline;
+}
+
+.post-preview {
+    margin: 0.5rem 0;
+    color: #333;
+    font-style: italic;
+}
+
+.post-preview p {
+    margin: 0;
 }
 
 .post-categories span, .post-tags span {
@@ -164,6 +214,38 @@ article h2 {
 
 .post-actions {
     margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.post-actions input[type="datetime-local"] {
+    padding: 0.375rem 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    height: auto;
+    margin: 0 0.5rem;
+    background-color: #fff;
+    transition: border-color 0.3s;
+}
+
+.post-actions input[type="datetime-local"]:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.post-actions .btn-outline-secondary {
+    margin-left: 0.5rem;
+}
+
+.post-actions label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-right: 0.5rem;
+    white-space: nowrap;
 }
 
 .carousel {

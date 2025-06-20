@@ -260,4 +260,12 @@ window.onload = () => {
   loadCategories();
   loadTags();
   loadPublishedPosts();
+
+  const searchBox = document.getElementById("search-box");
+  searchBox.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") { 
+            event.preventDefault();
+            onSearch();
+        }
+  });
 };

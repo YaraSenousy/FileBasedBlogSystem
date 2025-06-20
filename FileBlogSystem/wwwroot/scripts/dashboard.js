@@ -20,7 +20,7 @@ async function loadTags() {
     input.type = "checkbox";
     input.value = tag.slug;
     input.id = `tag-${tag.slug}`;
-    
+
     input.onchange = () => {
       input.checked ? activeTags.add(tag.slug) : activeTags.delete(tag.slug);
       loadPosts();
@@ -460,4 +460,12 @@ window.onload = () => {
   loadCategories();
   loadTags();
   loadPublishedPosts();
+
+  const searchBox = document.getElementById("search-box");
+  searchBox.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") { 
+            event.preventDefault();
+            onSearch();
+        }
+  });
 };

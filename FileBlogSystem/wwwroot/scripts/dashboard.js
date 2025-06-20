@@ -186,7 +186,7 @@ function renderPosts(posts) {
         `;
     if (role != null) {
       const editBtn = document.createElement("button");
-      editBtn.className = "btn btn-primary btn-sm";
+      editBtn.className = "btn btn-primary btn-sm m-1";
       editBtn.textContent = "Edit Post";
       editBtn.onclick = () => {
         open(`/create?slug=${post.slug}`, "_self");
@@ -195,7 +195,7 @@ function renderPosts(posts) {
 
       if (role == "admin") {
         const deleteBtn = document.createElement("button");
-        deleteBtn.className = "btn btn-danger btn-sm";
+        deleteBtn.className = "btn btn-danger btn-sm m-1";
         deleteBtn.textContent = "Delete Post";
         deleteBtn.onclick = () => deletePost(post.slug, post.title);
         postEl.appendChild(deleteBtn);
@@ -208,16 +208,17 @@ function renderPosts(posts) {
     if (status === "draft" || status === "scheduled") {
       const publishBtn = document.createElement("button");
       publishBtn.textContent = "Publish Now";
-      publishBtn.className = "btn btn-outline-secondary btn-sm";
+      publishBtn.className = "btn btn-outline-secondary btn-sm ms-1";
       publishBtn.onclick = () => publishNow(post.slug);
       actions.appendChild(publishBtn);
 
       const scheduleInput = document.createElement("input");
       scheduleInput.type = "datetime-local";
       scheduleInput.id = `schedule-${post.slug}`;
+      scheduleInput.className = "ms-2";
 
       const scheduleBtn = document.createElement("button");
-      scheduleBtn.className = "btn btn-outline-secondary btn-sm";
+      scheduleBtn.className = "btn btn-outline-secondary btn-sm mx-2";
       scheduleBtn.textContent = "Schedule";
       scheduleBtn.onclick = () => {
         const time = document.getElementById(`schedule-${post.slug}`).value;
@@ -231,7 +232,7 @@ function renderPosts(posts) {
 
     if (status === "scheduled" || status === "published") {
       const draftBtn = document.createElement("button");
-      draftBtn.className = "btn btn-outline-secondary btn-sm";
+      draftBtn.className = "btn btn-outline-secondary btn-sm ms-1";
       draftBtn.textContent = "Save as Draft";
       draftBtn.onclick = () => saveAsDraft(post.slug);
       actions.appendChild(draftBtn);

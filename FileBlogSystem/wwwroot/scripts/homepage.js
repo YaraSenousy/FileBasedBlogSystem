@@ -17,6 +17,9 @@ async function loadTags() {
     input.className = "form-check-input";
     input.type = "checkbox";
     input.value = tag.slug;
+    input.value = tag.slug;
+    input.id = `tag-${tag.slug}`;
+    
     input.onchange = () => {
       input.checked ? activeTags.add(tag.slug) : activeTags.delete(tag.slug);
       loadPosts();

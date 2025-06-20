@@ -63,6 +63,10 @@ nav a {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+.navbar-brand.active {
+    padding: 3px;
+}
+
 @media (max-width: 768px) {
     .navbar-nav {
         padding: 1rem 0;
@@ -87,15 +91,67 @@ nav a {
 
 #tag-filter {
     background: #ffffff;
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    margin-bottom: 1.5rem;
+    margin: 1.5rem auto;
+    max-width: 700px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+#tag-filter strong {
+    font-size: 1rem;
+    color: #333;
+    margin-right: 1rem;
+    white-space: nowrap;
 }
 
 #tag-filter label {
-    margin-right: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    background-color: #f1f3f5;
+    border: 1px solid #dee2e6;
+    border-radius: 16px;
     font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    margin: 0;
+}
+
+#tag-filter label:hover {
+    background-color: #e9ecef;
+    border-color: #007bff;
+}
+
+#tag-filter input[type="checkbox"] {
+    width: 1.2em;
+    height: 1.2em;
+    margin-right: 0.5rem;
+    border: 2px solid #666;
+    border-radius: 4px;
+    appearance: none;
+    background-color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+    position: relative;
+}
+
+#tag-filter input[type="checkbox"]:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+#tag-filter input[type="checkbox"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
 .form-check-input {

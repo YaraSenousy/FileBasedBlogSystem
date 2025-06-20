@@ -37,9 +37,9 @@ public static class PostReader
             {
                 var contentRoot = Path.GetFullPath("content").Replace('\\', '/');
                 var mediaFiles = Directory.GetFiles(assetsPath)
-                    .Select(fullPath => fullPath.Replace('\\', '/'))
-                    .Select(path => path.Substring(path.IndexOf("/content", StringComparison.OrdinalIgnoreCase)))
-                    .ToList();
+                .Select(fullPath => Path.GetRelativePath("content", fullPath).Replace('\\', '/'))
+                .Select(rel => $"/content/{rel}")
+                .ToList();
 
                 post.MediaUrls = mediaFiles;
             }

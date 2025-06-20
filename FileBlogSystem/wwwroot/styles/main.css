@@ -32,11 +32,13 @@ nav a {
     font-weight: bold;
 }
 
+.navbar-brand,
 .navbar-nav .nav-link {
     padding: 0.5rem 1rem;
     font-weight: 500;
 }
 
+.navbar-brand.active,
 .navbar-nav .nav-link.active {
     background-color: #e9ecef;
     border-radius: 4px;
@@ -55,13 +57,6 @@ nav a {
 .dropdown-item.active {
     background-color: #e9ecef;
     color: #000;
-}
-
-#nav-categories {
-    max-width: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 #tag-filter {
@@ -162,16 +157,4 @@ article h2 {
 .carousel-control-prev-icon,
 .carousel-control-next-icon {
     filter: invert(100%);
-    /* Ensure icons are visible */
-}
-
-@media (max-width: 576px) {
-    .carousel {
-        max-width: 200px;
-        max-height: 200px;
-    }
-
-    .carousel-item img.carousel-img {
-        height: 200px;
-    }
 }

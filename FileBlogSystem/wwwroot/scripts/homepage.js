@@ -1,6 +1,7 @@
 let currentPage = 1;
 const limit = 5;
 let activeTags = new Set();
+let selectedCategoryName = "All Categories";
 
 async function loadTags() {
   const res = await fetch("/tags");
@@ -32,6 +33,14 @@ function getTagFilterParam() {
 }
 
 async function loadPublishedPosts() {
+  document.getElementById("tag-filter").style.display = "block";
+  const dropdown = document.getElementById("category-dropdown");
+  dropdown.querySelectorAll(".dropdown-item").forEach(item => item.classList.remove("active"));
+  dropdown.querySelector("[data-value='']").classList.add("active");
+  document.getElementById("nav-categories").textContent = "All Categories";
+  selectedCategoryName = "All Categories";
+  updateActiveNav();
+
   const res = await fetch(
     `/published?page=${currentPage}&limit=${limit}${getTagFilterParam()}`
   );
@@ -63,19 +72,39 @@ async function loadCategories() {
     const categories = await res.json();
 
     categories.forEach((cat) => {
-      const option = document.createElement("option");
-      option.value = cat.slug;
-      option.textContent = cat.name;
-      dropdown.appendChild(option);
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.className = "dropdown-item";
+      a.href = "#";
+      a.textContent = cat.name;
+      a.dataset.value = cat.slug;
+      a.onclick = () => {
+        dropdown.querySelectorAll(".dropdown-item").forEach(item => item.classList.remove("active"));
+        a.classList.add("active");
+        document.getElementById("nav-categories").textContent = cat.name;
+        selectedCategoryName = cat.name;
+        loadPostsByCategory(cat.slug);
+      };
+      li.appendChild(a);
+      dropdown.appendChild(li);
     });
   } catch (err) {
     console.error("Failed to load categories:", err.message);
   }
 }
 
+function updateActiveNav() {
+  document.getElementById("nav-home").classList.add("active");
+}
+
 function loadPosts() {
   document.getElementById("tag-filter").style.display = "block";
-  const selected = document.getElementById("category-dropdown").value;
+  const dropdown = document.getElementById("category-dropdown");
+  const selected = dropdown.querySelector(".dropdown-item.active")?.dataset.value;
+  const selectedName = dropdown.querySelector(".dropdown-item.active")?.textContent || "All Categories";
+  document.getElementById("nav-categories").textContent = selectedName;
+  selectedCategoryName = selectedName;
+
   if (selected) {
     loadPostsByCategory(selected);
   } else {
@@ -88,11 +117,14 @@ async function loadPostsByCategory(slug) {
     const res = await fetch(
       `/categories/${slug}?page=${currentPage}&limit=${limit}${getTagFilterParam()}`
     );
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
     const posts = await res.json();
-
     renderPosts(posts);
   } catch (err) {
-    console.log("Failed to load the posts: " + err.message);
+    console.error("Failed to load posts:", err.message);
+    document.getElementById("posts-container").innerHTML = "<h4>Failed to load posts</h4>";
   }
 }
 
@@ -110,11 +142,9 @@ function renderPosts(posts) {
     const postEl = document.createElement("article");
 
     const tags = (post.tags || []).map((t) => `<span>${t}</span>`).join("");
-    const cats = (post.categories || [])
-      .map((c) => `<span>${c}</span>`)
-      .join("");
+    const cats = (post.categories || []).map((c) => `<span>${c}</span>`).join("");
 
-      const images = (post.mediaUrls || []).filter((url) =>
+    const images = (post.mediaUrls || []).filter((url) =>
       /\.(png|jpe?g|webp|gif)$/i.test(url)
     );
     const thumbnail = images.length > 0
@@ -147,7 +177,7 @@ function renderPosts(posts) {
           }
         </div>
       `
-      : ""; 
+      : "";
     const preview = (post.htmlContent || "").slice(0, 20) + "...";
     postEl.innerHTML = `
       <div class="row">
@@ -155,12 +185,14 @@ function renderPosts(posts) {
           <h2>${post.title}</h2>
           <div class="post-meta">
             Published: ${new Date(post.published).toLocaleDateString()}
-            ${post.modified != "0001-01-01T00:00:00Z"? "Modified:" + new Date(post.modified).toLocaleDateString() : ""}
+            ${
+              post.modified !== "0001-01-01T00:00:00Z"
+                ? "Modified: " + new Date(post.modified).toLocaleDateString()
+                : ""
+            }
           </div>
-          <div class="post-description"><span>Description: </span>${
-            post.description
-          }</div>
-          <div class="post-preview">${preview}</div>
+          <div class="post-description"><span>Description: </span><p>${post.description}</p></div>
+          <div class="post-preview"><p>${preview}</p></div>
           <div class="post-details">
             <a href="/post?slug=${post.slug}">Continue Reading</a>
           </div>
@@ -173,7 +205,7 @@ function renderPosts(posts) {
             : ""
         }
       </div>
-      `;
+    `;
 
     container.appendChild(postEl);
   });
@@ -185,13 +217,25 @@ function refresh() {
   window.location.reload();
 }
 
-function onSearch() {
+async function onSearch() {
   const term = document.getElementById("search-box").value.trim();
   if (term) {
     currentPage = 1;
     document.getElementById("search-box").value = "";
     document.getElementById("tag-filter").style.display = "none";
-    loadSearchResults(term);
+    const dropdown = document.getElementById("category-dropdown");
+    dropdown.querySelectorAll(".dropdown-item").forEach(item => item.classList.remove("active"));
+    dropdown.querySelector("[data-value='']").classList.add("active");
+    document.getElementById("nav-categories").textContent = "All Categories";
+    selectedCategoryName = "All Categories";
+    updateActiveNav();
+    try {
+      await loadSearchResults(term);
+    } catch (err) {
+      console.error("Search failed:", err.message);
+      document.getElementById("posts-container").innerHTML = "<h4>Search failed. Please try again.</h4>";
+      document.getElementById("next-page").style.visibility = "hidden";
+    }
   } else {
     loadPosts();
   }
@@ -199,8 +243,12 @@ function onSearch() {
 
 async function loadSearchResults(query) {
   const res = await fetch(
-    `/search?q=${encodeURIComponent(query)}&page=${currentPage}&limit=${limit}`
+    `/search?q=${encodeURIComponent(query)}&page=${currentPage}&limit=${limit}`,
+    { credentials: "include" }
   );
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
+  }
   const posts = await res.json();
   renderPosts(posts);
 }
@@ -208,5 +256,5 @@ async function loadSearchResults(query) {
 window.onload = () => {
   loadCategories();
   loadTags();
-  loadPosts();
+  loadPublishedPosts();
 };

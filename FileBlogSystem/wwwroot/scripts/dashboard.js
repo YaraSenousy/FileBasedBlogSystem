@@ -3,7 +3,7 @@ const limit = 3;
 let activeTags = new Set();
 let currentView = "published";
 let role = null;
-let selectedCategoryName = "All Categories"; // Track selected category name
+let selectedCategoryName = "All Categories";
 
 async function loadTags() {
   const res = await fetch("/tags");
@@ -158,6 +158,7 @@ async function loadCategories() {
 function updateActiveNav() {
   const navItems = document.querySelectorAll(".navbar-nav .nav-link");
   navItems.forEach(item => item.classList.remove("active"));
+  document.getElementById("nav-home").classList.remove("active");
 
   if (currentView === "drafts") {
     document.getElementById("nav-drafts").classList.add("active");
@@ -241,7 +242,7 @@ function renderPosts(posts) {
           }
         </div>
       `
-      : ""; 
+      : "";
 
     const preview = (post.htmlContent || "").slice(0, 20) + "...";
     postEl.innerHTML = `
@@ -377,7 +378,7 @@ function refresh() {
   window.location.reload();
 }
 
-function onSearch() {
+async function onSearch() {
   const term = document.getElementById("search-box").value.trim();
   if (term) {
     currentPage = 1;
@@ -388,7 +389,15 @@ function onSearch() {
     dropdown.querySelector("[data-value='']").classList.add("active");
     document.getElementById("nav-categories").textContent = "All Categories";
     selectedCategoryName = "All Categories";
-    loadSearchResults(term);
+    currentView = "published";
+    updateActiveNav();
+    try {
+      await loadSearchResults(term);
+    } catch (err) {
+      console.error("Search failed:", err.message);
+      showToast("Search failed. Please try again.", "danger");
+      document.getElementById("posts-container").innerHTML = "<h4>Search failed. Please try again.</h4>";
+    }
   } else {
     loadPosts();
   }
@@ -396,8 +405,12 @@ function onSearch() {
 
 async function loadSearchResults(query) {
   const res = await fetch(
-    `/search?q=${encodeURIComponent(query)}&page=${currentPage}&limit=${limit}`
+    `/search?q=${encodeURIComponent(query)}&page=${currentPage}&limit=${limit}`,
+    { credentials: "include" }
   );
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
+  }
   const posts = await res.json();
   renderPosts(posts);
 }

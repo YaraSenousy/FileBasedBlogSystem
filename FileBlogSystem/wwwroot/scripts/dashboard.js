@@ -244,7 +244,7 @@ function renderPosts(posts) {
       `
       : "";
 
-    const preview = (post.htmlContent || "").slice(0, 20) + "...";
+    const preview = (post.htmlContent || "").slice(0, 20);
     postEl.innerHTML = `
       <div class="row">
         <div class="col-md-7">
@@ -260,7 +260,7 @@ function renderPosts(posts) {
           <div class="post-description"><span>Description: </span><p>${post.description}</p></div>
           <div class="post-preview"><p>${preview}</p></div>
           <div class="post-details">
-            <a href="/post?slug=${post.slug}&preview=${post.status !== "published"}">Continue Reading</a>
+            <a href="/post?slug=${post.slug}&preview=${post.status !== "published"}">View The Full Post</a>
           </div>
           <div class="post-categories"><strong>Categories:</strong> ${cats}</div>
           <div class="post-tags"><strong>Tags:</strong> ${tags}</div>

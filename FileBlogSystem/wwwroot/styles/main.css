@@ -1,5 +1,4 @@
 body {
-    font-family: Arial, sans-serif;
     margin: 0;
     padding: 1rem;
     background: #f5f5f5;
@@ -45,7 +44,6 @@ nav a {
 #tag-filter label {
     margin-right: 1rem;
 }
-
 
 #pagination,
 #posts-container {
@@ -108,3 +106,39 @@ article h2 {
 .post-actions {
     margin-top: 0.5rem;
 }
+
+.carousel {
+    max-width: 300px; /* Match server-side resized image width */
+    max-height: 300px; /* Match server-side resized image height */
+    margin: auto;
+}
+
+.carousel-item img.carousel-img {
+    width: 100%;
+    height: 300px; /* Fixed height to match server-side resizing */
+    object-fit: cover; /* Maintain aspect ratio, crop if needed */
+    border-radius: 4px; /* Consistent with article styling */
+    display: block;
+    margin: auto;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    width: 15%; /* Usable control width */
+    background: rgba(0, 0, 0, 0.3); /* Subtle background for visibility */
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    filter: invert(100%); /* Ensure icons are visible */
+}
+
+@media (max-width: 576px) {
+    .carousel {
+      max-width: 200px;
+      max-height: 200px;
+    }
+    .carousel-item img.carousel-img {
+      height: 200px;
+    }
+  }

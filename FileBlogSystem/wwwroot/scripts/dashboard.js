@@ -1,7 +1,7 @@
 let currentPage = 1;
 const limit = 3;
 let activeTags = new Set();
-let currentView = "pubished";
+let currentView = "published";
 let role = null;
 
 async function loadTags() {
@@ -46,7 +46,6 @@ async function loadPublishedPosts() {
 async function loadDrafts() {
   document.getElementById("tag-filter").style.display = "none";
   document.getElementById("search-part").style.display = "none";
-  document.getElementById("tag-filter").style.display = "none";
   document.getElementById("category-dropdown").selectedIndex = 0;
 
   currentView = "drafts";
@@ -61,7 +60,6 @@ async function loadDrafts() {
 async function loadScheduledPosts() {
   document.getElementById("tag-filter").style.display = "none";
   document.getElementById("search-part").style.display = "none";
-  document.getElementById("tag-filter").style.display = "none";
   document.getElementById("category-dropdown").selectedIndex = 0;
 
   currentView = "scheduled";
@@ -161,29 +159,71 @@ function renderPosts(posts) {
 
     const status = post.status?.toLowerCase() || "published";
 
+    // Filter images and create carousel only if images exist
+    const images = (post.mediaUrls || []).filter((url) =>
+      /\.(png|jpe?g|webp|gif)$/i.test(url)
+    );
+    const thumbnail = images.length > 0
+      ? `
+        <div id="carousel-${post.slug}" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            ${images
+              .map(
+                (url, i) => `
+              <div class="carousel-item ${i === 0 ? "active" : ""}">
+                <img src="${url}?width=300&height=300&mode=pad" class="d-block w-100 carousel-img img-fluid" alt="Post image" loading="lazy">
+              </div>
+            `
+              )
+              .join("")}
+          </div>
+          ${
+            images.length > 1
+              ? `
+            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${post.slug}" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carousel-${post.slug}" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          `
+              : ""
+          }
+        </div>
+      `
+      : ""; // No carousel if no images
+
     const preview = (post.htmlContent || "").slice(0, 20) + "...";
     postEl.innerHTML = `
-            <h2>${post.title}</h2>
-            <div class="post-meta">
+      <div class="row">
+        <div class="col-md-7">
+          <h2>${post.title}</h2>
+          <div class="post-meta">
             Published: ${new Date(post.published).toLocaleDateString()}
             ${
-              post.modified != "0001-01-01T00:00:00"
-                ? "Modified:" + new Date(post.modified).toLocaleDateString()
+              post.modified !== "0001-01-01T00:00:00Z"
+                ? "Modified: " + new Date(post.modified).toLocaleDateString()
                 : ""
             }
-            </div>
-            <div class="post-description"><span>Description: </span>${
-              post.description
-            }</div>
-            <div class="post-preview">${preview}</div>
-            <div class="post-details">
-            <a href="/post?slug=${post.slug}&preview=${
-      post.status != "published"
-    }">Continue Reading</a>
-            </div>
-            <div class="post-categories"><strong>Categories:</strong> ${cats}</div>
-            <div class="post-tags"><strong>Tags:</strong> ${tags}</div>
-        `;
+          </div>
+          <div class="post-description"><span>Description: </span><p>${post.description}</p></div>
+          <div class="post-preview"><p>${preview}</p></div>
+          <div class="post-details">
+            <a href="/post?slug=${post.slug}&preview=${post.status !== "published"}">Continue Reading</a>
+          </div>
+          <div class="post-categories"><strong>Categories:</strong> ${cats}</div>
+          <div class="post-tags"><strong>Tags:</strong> ${tags}</div>
+        </div>
+        ${
+          images.length > 0
+            ? `<div class="col-md-5">${thumbnail}</div>`
+            : ""
+        }
+      </div>
+    `;
+
     if (role != null) {
       const editBtn = document.createElement("button");
       editBtn.className = "btn btn-primary btn-sm m-1";
@@ -193,7 +233,7 @@ function renderPosts(posts) {
       };
       postEl.appendChild(editBtn);
 
-      if (role == "admin") {
+      if (role === "admin") {
         const deleteBtn = document.createElement("button");
         deleteBtn.className = "btn btn-danger btn-sm m-1";
         deleteBtn.textContent = "Delete Post";
@@ -222,7 +262,7 @@ function renderPosts(posts) {
       scheduleBtn.textContent = "Schedule";
       scheduleBtn.onclick = () => {
         const time = document.getElementById(`schedule-${post.slug}`).value;
-        if (!time) return showToast("Please choose a time","danger");
+        if (!time) return showToast("Please choose a time", "danger");
         schedulePost(post.slug, time);
       };
 
@@ -239,7 +279,6 @@ function renderPosts(posts) {
     }
 
     postEl.appendChild(actions);
-
     container.appendChild(postEl);
   });
 
@@ -252,7 +291,7 @@ async function deletePost(slug, title) {
       method: "POST",
       credentials: "include",
     });
-    showToast("🗑️ Deleted Post Successfully","success");
+    showToast("🗑️ Deleted Post Successfully", "success");
     loadPosts();
   }
 }
@@ -262,7 +301,7 @@ async function publishNow(slug) {
     method: "POST",
     credentials: "include",
   });
-  showToast("✅ Published","success");
+  showToast("✅ Published", "success");
   loadPosts();
 }
 
@@ -273,7 +312,7 @@ async function schedulePost(slug, time) {
     body: JSON.stringify({ published: time }),
     credentials: "include",
   });
-  showToast("📅 Scheduled","success");
+  showToast("📅 Scheduled", "success");
   loadPosts();
 }
 
@@ -282,7 +321,7 @@ async function saveAsDraft(slug) {
     method: "POST",
     credentials: "include",
   });
-  showToast("💾 Saved as Draft","success");
+  showToast("💾 Saved as Draft", "success");
   loadPosts();
 }
 
@@ -312,7 +351,7 @@ async function loadSearchResults(query) {
 
 async function logout() {
   await fetch("/logout", { method: "POST" });
-  showToast("Logged out","success");
+  showToast("Logged out", "success");
   location.href = "/login";
 }
 

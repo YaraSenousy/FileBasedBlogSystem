@@ -35,14 +35,14 @@ public static class PostReader
             var assetsPath = Path.Combine(folderPath, "assets");
             if (Directory.Exists(assetsPath))
             {
+                var contentRoot = Path.GetFullPath("content").Replace('\\', '/');
                 var mediaFiles = Directory.GetFiles(assetsPath)
-                    .Select(f => Path.GetFileName(f))
-                    .Select(file => $"{assetsPath}/{file}")
+                    .Select(fullPath => fullPath.Replace('\\', '/'))
+                    .Select(path => path.Substring(path.IndexOf("/content", StringComparison.OrdinalIgnoreCase)))
                     .ToList();
 
                 post.MediaUrls = mediaFiles;
             }
-
 
             return post;
         }

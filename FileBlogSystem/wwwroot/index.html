@@ -44,10 +44,21 @@
     <div id="error-message" class="error"></div>
     <div id="posts-container"></div>
     <div id="pagination">
-      <button id="prev-page" style="visibility: hidden;" onclick="prevPage()">Previous</button>
-      <span id="page-number">Page 1</span>
-      <button id="next-page" onclick="nextPage()">Next</button>
-    </div>
+      <ul class="pagination">
+          <li class="page-item">
+              <a class="page-link" href="#" id="prev-page" style="visibility: hidden;" onclick="prevPage()"
+                  aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+              </a>
+          </li>
+          <li class="page-item page-link" id="page-number">Page 1</li>
+          <li class="page-item">
+              <a class="page-link" href="#" id="next-page" onclick="nextPage()" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+              </a>
+          </li>
+      </ul>
+  </div>
   </main>
 
   <script src="/scripts/homepage.js"></script>

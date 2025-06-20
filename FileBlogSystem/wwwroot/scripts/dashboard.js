@@ -193,7 +193,7 @@ function renderPosts(posts) {
           }
         </div>
       `
-      : ""; // No carousel if no images
+      : ""; 
 
     const preview = (post.htmlContent || "").slice(0, 20) + "...";
     postEl.innerHTML = `

@@ -252,10 +252,10 @@ function renderPosts(posts) {
         <div class="col-md-7">
           <h2>${post.title}</h2>
           <div class="post-meta">
-            Published: ${new Date(post.published).toLocaleDateString()}
+            ${currentView === "drafts" ? "created":currentView}: ${new Date(post.published).toLocaleDateString()}
             ${
               post.modified !== "0001-01-01T00:00:00Z"
-                ? "Modified: " + new Date(post.modified).toLocaleDateString()
+                ? "modified: " + new Date(post.modified).toLocaleDateString()
                 : ""
             }
           </div>

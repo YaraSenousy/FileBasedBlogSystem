@@ -172,6 +172,28 @@ button:active {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.btn-outline-secondary {
+    background-color: #fff;
+    border: 1px solid #6c757d;
+    color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.btn-outline-primary {
+    background-color: #fff;
+    border: 1px solid #007bff;
+    color: #007bff;
+}
+
+.btn-outline-primary:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
 #step-preview button {
     margin-right: 0.75rem;
     margin-bottom: 0.5rem;
@@ -179,6 +201,7 @@ button:active {
 
 #media-preview {
     margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 #media-preview h4 {
@@ -206,11 +229,71 @@ button:active {
     color: #0056b3;
 }
 
-#post-status {
+#post-details {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+#edit-controls {
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: flex-start;
+    gap: 1rem;
+}
+
+#publishing-center {
+    border-top: 1px solid #ddd;
+    padding-top: 1.5rem;
+}
+
+#post-actions {
     margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.schedule-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#post-status {
+    margin-top: 1.5rem;
     font-size: 1rem;
     color: #555;
     text-align: center;
+}
+
+.preview-title {
+    font-size: 1.5rem;
+    color: #222;
+    margin-bottom: 1rem;
+    font-family: 'Georgia', serif;
+}
+
+header nav {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+}
+
+header nav a {
+    color: #333;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+header nav a:hover {
+    background-color: #e9ecef;
+    color: #007bff;
 }
 
 @media (max-width: 768px) {
@@ -236,5 +319,24 @@ button:active {
 
     #step-preview button {
         margin-right: 0;
+    }
+
+    #post-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .schedule-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    input[type="datetime-local"] {
+        width: 100%;
+    }
+
+    #edit-controls {
+        flex-direction: column;
+        gap: 0.5rem;
     }
 }

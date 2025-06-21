@@ -1,4 +1,6 @@
 let postSlug = null;
+let queuedDeletions = [];
+
 async function goToPreview() {
   const form = document.getElementById("postForm");
   if (!form.reportValidity()) return;
@@ -26,11 +28,11 @@ async function goToPreview() {
   const mediaPreview = document.getElementById("media-preview");
   mediaPreview.innerHTML = `<h4>Media:</h4>`;
 
-  // Show existing media
   if (postSlug) {
     const post = await fetch(`/posts/${postSlug}/preview`, { credentials: "include" }).then((res) => res.json());
     if (post.mediaUrls && post.mediaUrls.length > 0) {
-      post.mediaUrls.forEach((url) => {
+      const existingMedia = post.mediaUrls.filter(url => !queuedDeletions.includes(url.split("/").pop()));
+      existingMedia.forEach((url) => {
         const fileName = url.split("/").pop();
         const isImage = /\.(jpe?g|png|webp|gif)$/i.test(url);
         mediaPreview.innerHTML += isImage
@@ -40,7 +42,6 @@ async function goToPreview() {
     }
   }
 
-  // Show new media
   [...files].forEach((f) => {
     const url = URL.createObjectURL(f);
     if (/\.(jpe?g|png|webp|gif)$/i.test(f.name)) {
@@ -66,12 +67,8 @@ function goToForm() {
 async function prepareFormData() {
   const form = document.getElementById("postForm");
   const formData = new FormData(form);
-  const tags = [...document.querySelectorAll(".tag-checkbox:checked")].map(
-    (cb) => cb.value
-  );
-  const cats = [...document.querySelectorAll(".cat-checkbox:checked")].map(
-    (cb) => cb.value
-  );
+  const tags = [...document.querySelectorAll(".tag-checkbox:checked")].map((cb) => cb.value);
+  const cats = [...document.querySelectorAll(".cat-checkbox:checked")].map((cb) => cb.value);
   formData.append("tags", tags.join(","));
   formData.append("categories", cats.join(","));
   return formData;
@@ -96,7 +93,6 @@ async function saveAsDraft() {
   const data = await res.json();
   postSlug = data.slug || postSlug;
 
-  // Process queued deletions
   for (const filename of queuedDeletions) {
     const deleteRes = await fetch(`/posts/${postSlug}/media/${filename}`, {
       method: "DELETE",
@@ -106,7 +102,7 @@ async function saveAsDraft() {
       showToast(`Failed to delete ${filename}.`, "danger");
     }
   }
-  queuedDeletions = []; // Clear queue after processing
+  queuedDeletions = [];
 
   await uploadMedia(postSlug);
   showToast("Saved", "success");
@@ -162,18 +158,14 @@ async function uploadMedia(slug) {
     }
   }
 }
-let queuedDeletions = []; // Array to store filenames to delete
 
 async function deleteMedia(slug, filename) {
-  const confirmDelete = confirm(`Delete file: ${filename}? This will be applied on save.`);
-  if (!confirmDelete) return;
-
-  queuedDeletions.push(filename); // Queue the deletion
+  queuedDeletions.push(filename);
   const section = document.getElementById("uploaded-media");
   const divToRemove = Array.from(section.children).find((div) =>
     div.innerHTML.includes(filename)
   );
-  if (divToRemove) divToRemove.remove(); // Remove from UI immediately
+  if (divToRemove) divToRemove.remove();
 }
 
 async function loadTagsAndCategories() {
@@ -246,9 +238,9 @@ function updateStatusAndButtons(status) {
     scheduleBtn.setAttribute("onclick", "schedulePost()");
     const cancelScheduleBtn = document.createElement("button");
     cancelScheduleBtn.textContent = "Cancel Schedule";
-    cancelScheduleBtn.className = "btn btn-outline-secondary btn-sm ms-1";
+    cancelScheduleBtn.className = "btn btn-outline-secondary btn-sm ms-2";
     cancelScheduleBtn.onclick = () => unpublishPost();
-    document.getElementById("post-actions").appendChild(cancelScheduleBtn);    
+    document.getElementById("post-actions").appendChild(cancelScheduleBtn);
     statusDiv.textContent = "Status: Scheduled";
   }
 
@@ -280,7 +272,7 @@ function showMedia(post) {
       
           div.innerHTML = `
             ${isImage ? `<img src="${url}?width=100" alt="${fileName}" />` : `<a href="${url}" target="_blank">${fileName}</a>`}
-            <button onclick="deleteMedia('${post.slug}', '${fileName}')">Delete</button>
+            <button onclick="deleteMedia('${postSlug}', '${fileName}')">Delete</button>
           `;
           section.appendChild(div);
         });
@@ -305,6 +297,6 @@ window.onload = async () => {
     await loadExistingPost(slug);
   } else {
     document.getElementById("form-heading").textContent = "Create Post";
-    updateStatusAndButtons("draft"); // Default status for new posts
+    updateStatusAndButtons("draft");
   }
 };

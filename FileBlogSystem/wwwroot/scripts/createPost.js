@@ -1,24 +1,16 @@
 let postSlug = null;
-
 async function goToPreview() {
   const form = document.getElementById("postForm");
   if (!form.reportValidity()) return;
-  if (postSlug)
-  {
-    document.getElementById("save-draft").innerHTML = "Save Edits"
+  if (postSlug) {
+    document.getElementById("save-draft").innerHTML = "Save Edits";
   }
   const title = document.querySelector("input[name='title']").value;
-  const description = document.querySelector(
-    "textarea[name='description']"
-  ).value;
+  const description = document.querySelector("textarea[name='description']").value;
   const content = document.querySelector("textarea[name='content']").value;
 
-  const tags = [...document.querySelectorAll(".tag-checkbox:checked")].map(
-    (cb) => cb.value
-  );
-  const cats = [...document.querySelectorAll(".cat-checkbox:checked")].map(
-    (cb) => cb.value
-  );
+  const tags = [...document.querySelectorAll(".tag-checkbox:checked")].map((cb) => cb.value);
+  const cats = [...document.querySelectorAll(".cat-checkbox:checked")].map((cb) => cb.value);
 
   const markedContent = window.marked ? marked.parse(content) : content;
 
@@ -33,6 +25,22 @@ async function goToPreview() {
   const files = document.getElementById("media").files;
   const mediaPreview = document.getElementById("media-preview");
   mediaPreview.innerHTML = `<h4>Media:</h4>`;
+
+  // Show existing media
+  if (postSlug) {
+    const post = await fetch(`/posts/${postSlug}/preview`, { credentials: "include" }).then((res) => res.json());
+    if (post.mediaUrls && post.mediaUrls.length > 0) {
+      post.mediaUrls.forEach((url) => {
+        const fileName = url.split("/").pop();
+        const isImage = /\.(jpe?g|png|webp|gif)$/i.test(url);
+        mediaPreview.innerHTML += isImage
+          ? `<img src="${url}?width=100" style="width: 100px; margin: 5px;" />`
+          : `<a href="${url}" target="_blank">${fileName}</a><br/>`;
+      });
+    }
+  }
+
+  // Show new media
   [...files].forEach((f) => {
     const url = URL.createObjectURL(f);
     if (/\.(jpe?g|png|webp|gif)$/i.test(f.name)) {
@@ -87,9 +95,22 @@ async function saveAsDraft() {
 
   const data = await res.json();
   postSlug = data.slug || postSlug;
+
+  // Process queued deletions
+  for (const filename of queuedDeletions) {
+    const deleteRes = await fetch(`/posts/${postSlug}/media/${filename}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    if (!deleteRes.ok) {
+      showToast(`Failed to delete ${filename}.`, "danger");
+    }
+  }
+  queuedDeletions = []; // Clear queue after processing
+
   await uploadMedia(postSlug);
   showToast("Saved", "success");
-  document.getElementById("save-draft").innerHTML = "Save Edits"
+  document.getElementById("save-draft").innerHTML = "Save Edits";
 }
 
 async function publishNow() {
@@ -108,7 +129,7 @@ async function publishNow() {
 
 async function schedulePost() {
   const time = document.getElementById("schedule-time").value;
-  if (!time) return showToast("Select time","danger");
+  if (!time) return showToast("Select time", "danger");
 
   await saveAsDraft();
   const res = await fetch(`/posts/${postSlug}/schedule`, {
@@ -119,10 +140,10 @@ async function schedulePost() {
   });
 
   if (res.ok) {
-    showToast("Scheduled Post","success");
+    showToast("Scheduled Post", "success");
     location.href = "/dashboard";
   } else {
-    showToast("Scheduling failed.","danger");
+    showToast("Scheduling failed.", "danger");
   }
 }
 
@@ -137,25 +158,22 @@ async function uploadMedia(slug) {
       credentials: "include",
     });
     if (!res.ok) {
-      showToast("upload failed.","danger");
+      showToast("Upload failed.", "danger");
     }
   }
 }
+let queuedDeletions = []; // Array to store filenames to delete
+
 async function deleteMedia(slug, filename) {
-  const confirmDelete = confirm(`Delete file: ${filename}?`);
+  const confirmDelete = confirm(`Delete file: ${filename}? This will be applied on save.`);
   if (!confirmDelete) return;
 
-  const res = await fetch(`/posts/${slug}/media/${filename}`, {
-    method: "DELETE",
-    credentials: "include",
-  });
-
-  if (res.ok) {
-    showToast("Deleted.","success");
-    window.location.reload();
-  } else {
-    showToast("Delete failed.","danger");
-  }
+  queuedDeletions.push(filename); // Queue the deletion
+  const section = document.getElementById("uploaded-media");
+  const divToRemove = Array.from(section.children).find((div) =>
+    div.innerHTML.includes(filename)
+  );
+  if (divToRemove) divToRemove.remove(); // Remove from UI immediately
 }
 
 async function loadTagsAndCategories() {
@@ -188,8 +206,7 @@ async function loadExistingPost(slug) {
   }).then((res) => res.json());
 
   document.querySelector("input[name='title']").value = post.title;
-  document.querySelector("textarea[name='description']").value =
-    post.description;
+  document.querySelector("textarea[name='description']").value = post.description;
   document.querySelector("textarea[name='content']").value = post.rawMarkdown;
 
   post.tags?.forEach((t) =>
@@ -201,6 +218,55 @@ async function loadExistingPost(slug) {
 
   postSlug = slug;
   showMedia(post);
+  updateStatusAndButtons(post.status);
+}
+
+function updateStatusAndButtons(status) {
+  const saveDraftBtn = document.getElementById("save-draft");
+  const publishNowBtn = document.querySelector("button[onclick='publishNow()']");
+  const scheduleBtn = document.querySelector("button[onclick='schedulePost()']");
+  const statusDiv = document.getElementById("post-status");
+
+  if (status === "draft") {
+    saveDraftBtn.textContent = "Save Edits";
+    publishNowBtn.style.display = "inline-block";
+    scheduleBtn.style.display = "inline-block";
+    statusDiv.textContent = "Status: Draft";
+  } else if (status === "published") {
+    saveDraftBtn.textContent = "Save Edits";
+    publishNowBtn.style.display = "none";
+    scheduleBtn.textContent = "Unpublish";
+    scheduleBtn.setAttribute("onclick", "unpublishPost()");
+    document.getElementById("schedule-time").style.display = "none";
+    statusDiv.textContent = "Status: Published";
+  } else if (status === "scheduled") {
+    saveDraftBtn.textContent = "Save Edits";
+    publishNowBtn.style.display = "inline-block";
+    scheduleBtn.textContent = "Reschedule";
+    scheduleBtn.setAttribute("onclick", "schedulePost()");
+    const cancelScheduleBtn = document.createElement("button");
+    cancelScheduleBtn.textContent = "Cancel Schedule";
+    cancelScheduleBtn.className = "btn btn-outline-secondary btn-sm ms-1";
+    cancelScheduleBtn.onclick = () => unpublishPost();
+    document.getElementById("post-actions").appendChild(cancelScheduleBtn);    
+    statusDiv.textContent = "Status: Scheduled";
+  }
+
+  document.getElementById("step-preview").appendChild(statusDiv);
+}
+
+async function unpublishPost() {
+  saveAsDraft();
+  const res = await fetch(`/posts/${postSlug}/draft`, {
+    method: "POST",
+    credentials: "include",
+  });
+  if (res.ok) {
+    showToast("Unpublished", "success");
+    location.href = "/dashboard";
+  } else {
+    showToast("Unpublish failed.", "danger");
+  }
 }
 
 function showMedia(post) {
@@ -235,5 +301,10 @@ function showToast(message, variant = "primary") {
 window.onload = async () => {
   await loadTagsAndCategories();
   const slug = new URLSearchParams(location.search).get("slug");
-  if (slug) await loadExistingPost(slug);
+  if (slug) {
+    await loadExistingPost(slug);
+  } else {
+    document.getElementById("form-heading").textContent = "Create Post";
+    updateStatusAndButtons("draft"); // Default status for new posts
+  }
 };

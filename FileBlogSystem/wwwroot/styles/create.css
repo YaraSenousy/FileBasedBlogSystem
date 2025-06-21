@@ -340,3 +340,26 @@ header nav a:hover {
         gap: 0.5rem;
     }
 }
+.back-arrow {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    margin: 1rem 0 0.5rem; 
+    background-color: #f1f3f5;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    color: #333;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.back-arrow:hover {
+    background-color: #e9ecef;
+    color: #007bff;
+}
+
+.back-arrow::before {
+    content: "←";
+    margin-right: 0.5rem;
+}

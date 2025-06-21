@@ -294,6 +294,7 @@ window.onload = async () => {
   await loadTagsAndCategories();
   const slug = new URLSearchParams(location.search).get("slug");
   if (slug) {
+    document.getElementById("form-heading").textContent = "Edit Post";
     await loadExistingPost(slug);
   } else {
     document.getElementById("form-heading").textContent = "Create Post";

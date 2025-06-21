@@ -23,6 +23,7 @@ async function loadTags() {
 
     input.onchange = () => {
       input.checked ? activeTags.add(tag.slug) : activeTags.delete(tag.slug);
+      currentPage = 1;
       loadPosts();
     };
 

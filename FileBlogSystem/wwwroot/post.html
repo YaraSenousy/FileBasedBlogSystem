@@ -53,12 +53,14 @@
                   <div class="carousel-inner">
                     ${carouselItems}
                   </div>
-                  <button class="carousel-control-prev" type="button" data-bs-target="#mediaCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                  </button>
-                  <button class="carousel-control-next" type="button" data-bs-target="#mediaCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                  </button>
+                  ${imageUrls.length > 1 ? `
+                    <button class="carousel-control-prev" type="button" data-bs-target="#mediaCarousel" data-bs-slide="prev">
+                      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#mediaCarousel" data-bs-slide="next">
+                      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    </button>
+                  ` : ''}
                 </div>
               </div>
             `;

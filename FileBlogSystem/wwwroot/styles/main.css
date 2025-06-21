@@ -348,7 +348,7 @@ article h2 {
 
 .carousel-control-prev-icon,
 .carousel-control-next-icon {
-    filter: invert(100%);
+    color: #ffffff;
 }
 
 .carousel-img {
@@ -393,7 +393,7 @@ article h2 {
 
 #post-container .carousel-control-prev-icon,
 #post-container .carousel-control-next-icon {
-    filter: invert(100%);
+    color: #ffffff;
 }
 
 #post-container .carousel-img {
@@ -467,7 +467,6 @@ article div strong {
     text-decoration: underline;
     color: #0056b3;
 }
-
 
 .back-arrow {
     display: inline-flex;

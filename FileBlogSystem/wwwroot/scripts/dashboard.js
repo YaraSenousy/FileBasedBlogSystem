@@ -456,6 +456,9 @@ window.onload = () => {
   }
   if (role == "editor") {
     document.getElementById("nav-create").style.display = "none";
+    document.getElementById("nav-add-dropdown").style.display = "none";
+  } else if (role !== "admin") {
+    document.getElementById("nav-add-dropdown").style.display = "none";
   }
 
   loadCategories();
@@ -464,9 +467,9 @@ window.onload = () => {
 
   const searchBox = document.getElementById("search-box");
   searchBox.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") { 
-            event.preventDefault();
-            onSearch();
-        }
+      if (event.key === "Enter") { 
+          event.preventDefault();
+          onSearch();
+      }
   });
 };

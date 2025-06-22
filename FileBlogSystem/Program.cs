@@ -115,6 +115,12 @@ app.MapFallback(context =>
         return context.Response.SendFileAsync("wwwroot/post.html");
     if (path == "/login")
         return context.Response.SendFileAsync("wwwroot/login.html");
+    if (path == "/addUser")
+        return context.Response.SendFileAsync("wwwroot/addUser.html");
+    if (path == "/addTag")
+        return context.Response.SendFileAsync("wwwroot/addTag.html");
+    if (path == "/addCategory")
+        return context.Response.SendFileAsync("wwwroot/addCategory.html");
 
     return context.Response.SendFileAsync("wwwroot/index.html");
 });

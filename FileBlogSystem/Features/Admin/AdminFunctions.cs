@@ -12,7 +12,7 @@ public static class AdminFunctions
     {
         app.MapPost("/admin/users", AddUser).RequireAuthorization("AdminLevel");
         app.MapPost("/admin/tags", AddTag).RequireAuthorization("AdminLevel");
-        app.MapPost("/admin/cateories", AddCategory).RequireAuthorization("AdminLevel");
+        app.MapPost("/admin/categories", AddCategory).RequireAuthorization("AdminLevel");
     }
 
     /*
@@ -30,8 +30,11 @@ public static class AdminFunctions
         if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || roles.Length == 0)
             return Results.BadRequest("User data incomplete");
 
-        var userPath = Path.Combine("content", "users", username!, "profile.json");
+        var userFolder = Path.Combine("content", "users", username!);
+        var userPath = Path.Combine(userFolder, "profile.json");
+
         if (File.Exists(userPath)) return Results.BadRequest("Username already used");
+        Directory.CreateDirectory(userFolder);
 
         var hash = BCrypt.Net.BCrypt.HashPassword(password);
 
@@ -47,7 +50,7 @@ public static class AdminFunctions
             WriteIndented = true
         });
 
-        await File.WriteAllTextAsync(Path.Combine(userPath, "profile.json"), userJson);
+        await File.WriteAllTextAsync(userPath, userJson);
         return Results.Ok();
     }
 
@@ -65,7 +68,7 @@ public static class AdminFunctions
 
         var slug = SlugGenerator.ToSlug(tagName!);
 
-        var tagPath = Path.Combine("content", "tags", slug!, $"{slug}.json");
+        var tagPath = Path.Combine("content", "tags", $"{slug}.json");
         if (File.Exists(tagPath)) return Results.BadRequest("Tag already exists");
 
         var tag = new Tag
@@ -79,7 +82,7 @@ public static class AdminFunctions
             WriteIndented = true
         });
 
-        await File.WriteAllTextAsync(Path.Combine(tagPath, $"{slug}.json"), tagJson);
+        await File.WriteAllTextAsync(tagPath, tagJson);
         return Results.Ok();
     }
 
@@ -98,7 +101,7 @@ public static class AdminFunctions
 
         var slug = SlugGenerator.ToSlug(categoryName!);
 
-        var categoryPath = Path.Combine("content", "categories", slug!, $"{slug}.json");
+        var categoryPath = Path.Combine("content", "categories", $"{slug}.json");
         if (File.Exists(categoryPath)) return Results.BadRequest("Category already exists");
 
         var category = new Category
@@ -113,7 +116,7 @@ public static class AdminFunctions
             WriteIndented = true
         });
 
-        await File.WriteAllTextAsync(Path.Combine(categoryPath, $"{slug}.json"), categoryJson);
+        await File.WriteAllTextAsync(categoryPath, categoryJson);
         return Results.Ok();
     }
 }

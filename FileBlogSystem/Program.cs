@@ -7,6 +7,7 @@ using FileBlogSystem.Features.Posting;
 using FileBlogSystem.Features.Render.Feed;
 using FileBlogSystem.config;
 using FileBlogSystem.Features.Security;
+using FileBlogSystem.Features.Admin;
 
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.FileProviders;
@@ -90,6 +91,7 @@ app.MapPublishEndpoints();
 app.MapRssFeed();
 app.MapPostEditEndpoint();
 app.MapLoginEndpoint();
+app.MapAdminEndPoint();
 
 app.MapFallback(context =>
 {

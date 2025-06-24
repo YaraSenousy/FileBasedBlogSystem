@@ -97,7 +97,7 @@ app.MapFallback(context =>
 {
     var path = context.Request.Path.Value;
 
-    if (path == "/dashboard" || path == "/create")
+    if (path == "/dashboard" || path == "/create" || path == "/addUser" || path == "/addTag" || path == "/addCategory")
     {
         var user = context.User;
         if (!user.Identity?.IsAuthenticated ?? true)

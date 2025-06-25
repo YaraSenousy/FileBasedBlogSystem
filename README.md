@@ -32,6 +32,8 @@ content/
 
 ## Setup
 
+- ```cd src/FileBlogSystem``` 
+
 - Create a .env file with your JWT secret key:
 ```
 JWT_SECRET=your_secret_key_here

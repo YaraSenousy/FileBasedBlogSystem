@@ -5,6 +5,12 @@
 <link>http://localhost:5188</link>
 <description>Latest blog posts from FileBlogSystem</description>
 <item>
+  <title>blog 5</title>
+  <link>http://localhost:5188/post.html?slug=blog-5</link>
+  <pubDate>Mon, 23 Jun 2025 22:27:00 GMT</pubDate>
+  <description>testing </description>
+</item>
+<item>
   <title>logic</title>
   <link>http://localhost:5188/post.html?slug=logic</link>
   <pubDate>Sat, 21 Jun 2025 23:13:02 GMT</pubDate>

@@ -4,9 +4,7 @@ let queuedDeletions = [];
 async function goToPreview() {
   const form = document.getElementById("postForm");
   if (!form.reportValidity()) return;
-  if (postSlug) {
-    document.getElementById("save-draft").innerHTML = "Save Edits";
-  }
+
   const title = document.querySelector("input[name='title']").value;
   const description = document.querySelector("textarea[name='description']").value;
   const content = document.querySelector("textarea[name='content']").value;
@@ -298,6 +296,6 @@ window.onload = async () => {
     await loadExistingPost(slug);
   } else {
     document.getElementById("form-heading").textContent = "Create Post";
-    updateStatusAndButtons("draft");
+    //updateStatusAndButtons("draft");
   }
 };

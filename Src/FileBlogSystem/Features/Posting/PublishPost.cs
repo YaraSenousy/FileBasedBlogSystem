@@ -14,7 +14,7 @@ public static class PublishPost
         app.MapPost("/posts/{slug}/delete", DeletePost).RequireAuthorization("AdminLevel");
     }
 
-    // changes the status of a given post to published and sets the Publish Date
+    // changes the status of a given post to published and sets the Publish Date update the rss
     public static async Task<IResult> PublishNow(string slug)
     {
         var folder = PostReader.FindPostFolder(slug);
@@ -57,7 +57,7 @@ public static class PublishPost
         return Results.Ok();
     }
 
-    // changes the status of a given post to draft
+    // changes the status of a given post to draft and update the rss
     public static async Task<IResult> SaveAsDraft(string slug)
     {
         var folder = PostReader.FindPostFolder(slug);
@@ -77,7 +77,7 @@ public static class PublishPost
         return Results.Ok();
     }
 
-    // delete a given post
+    // delete a given postfrom the content and the routes and update the rss
     public static IResult DeletePost(string slug)
     {
         var folder = PostReader.FindPostFolder(slug);
@@ -85,6 +85,9 @@ public static class PublishPost
 
         Directory.Delete(folder, true);
         RouteMapper.RemoveRoute(slug);
+
+        RssWriter.WriteRssFile();
+        
         return Results.Ok();
     }
 }

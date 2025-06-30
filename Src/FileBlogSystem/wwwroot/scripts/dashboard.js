@@ -253,10 +253,27 @@ function renderPosts(posts) {
         <div class="col-md-7">
           <h2>${post.title}</h2>
           <div class="post-meta">
-            ${currentView === "drafts" ? "" : currentView + ": " + new Date(post.published).toUTCString().slice(0, -7)} <br>
+            ${currentView === "drafts" ? "" : currentView + ": " + new Date(post.published).toLocaleString('en-GB', {
+              weekday: 'short',
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            })} <br>
             ${
-              !post.modified.startsWith("0001-01-01T00:00:00")
-                ? "modified: " + new Date(post.modified).toUTCString().slice(0, -7)
+              post.modified !== "0001-01-01T00:00:00"
+                ? `Modified: ${new Date(post.modified).toLocaleString('en-GB', {
+                    weekday: 'short',
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                  })}
+                  `
                 : ""
             }
           </div>

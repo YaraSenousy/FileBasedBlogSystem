@@ -188,10 +188,10 @@ function renderPosts(posts) {
         <div class="col-md-7">
           <h2>${post.title}</h2>
           <div class="post-meta">
-            Published: ${new Date(post.published).toLocaleDateString()}
+            Published: ${new Date(post.published).toUTCString().slice(0, -7)} <br>
             ${
               post.modified !== "0001-01-01T00:00:00Z"
-                ? "Modified: " + new Date(post.modified).toLocaleDateString()
+                ? "Modified: " + new Date(post.modified).toUTCString().slice(0, -7)
                 : ""
             }
           </div>

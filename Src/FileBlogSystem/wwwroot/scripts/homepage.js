@@ -7,7 +7,6 @@ async function loadTags() {
   const res = await fetch("/tags");
   const tags = await res.json();
   const container = document.getElementById("tag-checkboxes");
-  currentPage = 1;
 
   tags.forEach((tag) => {
     const label = document.createElement("label");
@@ -23,6 +22,7 @@ async function loadTags() {
     input.onchange = () => {
       input.checked ? activeTags.add(tag.slug) : activeTags.delete(tag.slug);
       currentPage = 1;
+      document.getElementById("prev-page").style.visibility = "hidden";
       loadPosts();
     };
 
@@ -85,6 +85,8 @@ async function loadCategories() {
       a.onclick = () => {
         dropdown.querySelectorAll(".dropdown-item").forEach(item => item.classList.remove("active"));
         a.classList.add("active");
+        currentPage = 1;
+        document.getElementById("prev-page").style.visibility = "hidden";
         document.getElementById("nav-categories").textContent = cat.name;
         selectedCategoryName = cat.name;
         loadPostsByCategory(cat.slug);

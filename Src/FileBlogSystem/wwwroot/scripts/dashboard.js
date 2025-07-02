@@ -9,7 +9,6 @@ async function loadTags() {
   const res = await fetch("/tags");
   const tags = await res.json();
   const container = document.getElementById("tag-checkboxes");
-  currentPage = 1;
 
   tags.forEach((tag) => {
     const label = document.createElement("label");
@@ -24,6 +23,7 @@ async function loadTags() {
     input.onchange = () => {
       input.checked ? activeTags.add(tag.slug) : activeTags.delete(tag.slug);
       currentPage = 1;
+      document.getElementById("prev-page").style.visibility = "hidden";
       loadPosts();
     };
 
@@ -148,6 +148,8 @@ async function loadCategories() {
       a.onclick = () => {
         dropdown.querySelectorAll(".dropdown-item").forEach(item => item.classList.remove("active"));
         a.classList.add("active");
+        currentPage = 1;
+        document.getElementById("prev-page").style.visibility = "hidden";
         loadPostsByCategory(cat.slug, cat.name);
       };
       li.appendChild(a);
@@ -264,7 +266,7 @@ function renderPosts(posts) {
             })} <br>
             ${
               post.modified !== "0001-01-01T00:00:00"
-                ? `Modified: ${new Date(post.modified).toLocaleString('en-GB', {
+                ? `modified: ${new Date(post.modified).toLocaleString('en-GB', {
                     weekday: 'short',
                     day: '2-digit',
                     month: 'short',
@@ -489,4 +491,20 @@ window.onload = () => {
           onSearch();
       }
   });
+
+  document.getElementById("nav-drafts").onclick = () => {
+    currentPage = 1;
+    document.getElementById("prev-page").style.visibility = "hidden";
+    loadDrafts();
+  };
+  document.getElementById("nav-scheduled").onclick = () => {
+    currentPage = 1;
+    document.getElementById("prev-page").style.visibility = "hidden";
+    loadScheduledPosts();
+  };
+  document.getElementById("nav-home").onclick = () => {
+    currentPage = 1;
+    document.getElementById("prev-page").style.visibility = "hidden";
+    loadPublishedPosts();
+  };
 };

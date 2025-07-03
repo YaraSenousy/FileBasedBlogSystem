@@ -1,10 +1,21 @@
 import { fetchData, getTagFilterParam, renderPosts, showToast } from "./utils.js";
 
+/**
+ * Manages the current page number, limit per page, active tags, and selected category for the homepage.
+ * @type {number} currentPage - The current page number.
+ * @type {number} limit - The number of posts per page.
+ * @type {Set} activeTags - A Set of currently selected tag slugs.
+ * @type {string} selectedCategoryName - The name of the currently selected category.
+ */
 let currentPage = 1;
 const limit = 5;
 let activeTags = new Set();
 let selectedCategoryName = "All Categories";
 
+/**
+ * Loads and renders tag checkboxes for filtering posts.
+ * Fetches tags from the /tags endpoint and sets up event listeners for checkbox changes.
+ */
 async function loadTags() {
   const tags = await fetchData("/tags");
   const container = document.getElementById("tag-checkboxes");
@@ -32,6 +43,9 @@ async function loadTags() {
   });
 }
 
+/**
+ * Loads and renders published posts for the current page and tag filters.
+ */
 async function loadPublishedPosts() {
   document.getElementById("tag-filter").style.display = "block";
   const dropdown = document.getElementById("category-dropdown");
@@ -49,12 +63,20 @@ async function loadPublishedPosts() {
   renderPosts(posts, "posts-container");
 }
 
+/**
+ * Advances to the next page of posts.
+ * Updates the current page number and reloads posts.
+ */
 function nextPage() {
   currentPage++;
   document.getElementById("prev-page").style.visibility = "visible";
   loadPosts();
 }
 
+/**
+ * Returns to the previous page of posts.
+ * Updates the current page number and reloads posts, hiding the previous button on page 1.
+ */
 function prevPage() {
   if (currentPage > 1) {
     currentPage--;
@@ -65,6 +87,10 @@ function prevPage() {
   }
 }
 
+/**
+ * Loads and populates the category dropdown menu.
+ * Fetches categories from the /categories endpoint and sets up event listeners for selection.
+ */
 async function loadCategories() {
   const dropdown = document.getElementById("category-dropdown");
   const categories = await fetchData("/categories");
@@ -92,10 +118,17 @@ async function loadCategories() {
   });
 }
 
+/**
+ * Updates the active navigation state for the homepage.
+ * Highlights the "Home" link as active.
+ */
 function updateActiveNav() {
   document.getElementById("nav-home").classList.add("active");
 }
 
+/**
+ * Loads the appropriate posts based on the current category or default to published posts.
+ */
 function loadPosts() {
   document.getElementById("tag-filter").style.display = "block";
   const dropdown = document.getElementById("category-dropdown");
@@ -109,6 +142,10 @@ function loadPosts() {
   else loadPublishedPosts();
 }
 
+/**
+ * Loads and renders posts for a specific category.
+ * @param {string} slug - The slug of the category to load.
+ */
 async function loadPostsByCategory(slug) {
   try {
     const posts = await fetchData(
@@ -123,6 +160,10 @@ async function loadPostsByCategory(slug) {
   }
 }
 
+/**
+ * Handles the search functionality.
+ * Performs a search if a term is provided, otherwise reloads posts.
+ */
 async function onSearch() {
   const term = document.getElementById("search-box").value.trim();
   if (term) {
@@ -153,6 +194,10 @@ async function onSearch() {
   }
 }
 
+/**
+ * Initializes the homepage by loading categories, tags, and published posts,
+ * and sets up event listeners for search and navigation.
+ */
 window.onload = () => {
   loadCategories();
   loadTags();
@@ -164,5 +209,28 @@ window.onload = () => {
       event.preventDefault();
       onSearch();
     }
+  });
+  searchBox.addEventListener("click", (e) => {
+    e.preventDefault();
+    onSearch();
+  });
+
+  document.getElementById("all-categories").addEventListener("click", (e) => {
+    e.preventDefault();
+    loadPublishedPosts();
+  });
+  document.getElementById("next-page").addEventListener("click", (e) => {
+    e.preventDefault();
+    nextPage();
+  });
+  document.getElementById("prev-page").addEventListener("click", (e) => {
+    e.preventDefault();
+    prevPage();
+  });
+  document.getElementById("nav-home").addEventListener("click", (e) => {
+    e.preventDefault();
+    currentPage = 1;
+    document.getElementById("prev-page").style.visibility = "hidden";
+    window.location.reload();
   });
 };

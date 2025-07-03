@@ -14,7 +14,7 @@
         <h1>Lets Blog</h1>
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
-                <a class="navbar-brand" id="nav-home" href="#" onclick="loadPublishedPosts()">Home</a>
+                <a class="navbar-brand" id="nav-home" href="#">Home</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
@@ -28,15 +28,15 @@
                                 All Categories
                             </a>
                             <ul class="dropdown-menu" id="category-dropdown">
-                                <li><a class="dropdown-item active" href="#" data-value=""
-                                        onclick="loadPublishedPosts()">All Categories</a></li>
+                                <li><a class="dropdown-item active" href="#" data-value="" id="all-categories"> All
+                                        Categories</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="nav-drafts" href="#" onclick="loadDrafts()">Drafts</a>
+                            <a class="nav-link" id="nav-drafts" href="#">Drafts</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="nav-scheduled" href="#" onclick="loadScheduledPosts()">Scheduled
+                            <a class="nav-link" id="nav-scheduled" href="#">Scheduled
                                 Posts</a>
                         </li>
                         <li class="nav-item">
@@ -57,9 +57,9 @@
                     <div id="search-part" class="d-flex" role="search">
                         <input class="form-control me-2" id="search-box" type="text" placeholder="Search All Posts.."
                             aria-label="Search" />
-                        <button class="btn btn-outline-success" onclick="onSearch()">Search</button>
+                        <button class="btn btn-outline-success">Search</button>
                     </div>
-                    <a class="nav-item btn ms-2 btn-outline-danger" onclick="logout()">Logout</a>
+                    <a class="nav-item btn ms-2 btn-outline-danger">Logout</a>
                 </div>
             </div>
         </nav>
@@ -76,14 +76,13 @@
         <div id="pagination">
             <ul class="pagination">
                 <li class="page-item">
-                    <a class="page-link" href="#" id="prev-page" style="visibility: hidden;" onclick="prevPage()"
-                        aria-label="Previous">
+                    <a class="page-link" href="#" id="prev-page" style="visibility: hidden;" aria-label="Previous">
                         <span aria-hidden="true">«</span>
                     </a>
                 </li>
                 <li class="page-item page-link" id="page-number">Page 1</li>
                 <li class="page-item">
-                    <a class="page-link" href="#" id="next-page" onclick="nextPage()" aria-label="Next">
+                    <a class="page-link" href="#" id="next-page" aria-label="Next">
                         <span aria-hidden="true">»</span>
                     </a>
                 </li>

@@ -8,7 +8,7 @@ import { fetchData, getTagFilterParam, renderPosts, showToast } from "./utils.js
  * @type {string} selectedCategoryName - The name of the currently selected category.
  */
 let currentPage = 1;
-const limit = 5;
+const limit = 3;
 let activeTags = new Set();
 let selectedCategoryName = "All Categories";
 

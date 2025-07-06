@@ -27,7 +27,15 @@
           <a href="javascript:history.back()" class="back-arrow">Back</a>
           <article>
             <h1>${post.title}</h1>
-            <p><i>${new Date(post.published).toLocaleDateString()}</i></p>
+            <p><i>Published: ${new Date(post.published).toLocaleDateString("en-GB", {
+          weekday: "short",
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        })}</i></p>
             <div>${post.htmlContent}</div>
             <div id="media-section"></div>
             <div class="post-categories""><strong>Categories:</strong> ${(post.categories || []).map((c) => `<span>${c}</span>`).join("")}</div>

@@ -63,8 +63,8 @@ dotnet run
 ---
 
 ## Roles & Permissions
-| Role   | Can View | Can Create/Edit | Can Delete | Can Publish |
-| ------ | -------- | --------------- | ---------- | ----------- |
-| Admin  | ✅        | ✅               | ✅          | ✅           |
-| Author | ✅        | ✅               | ❌          | ✅           |
-| Editor | ✅        | ❌               | ❌          | ❌           |
+| Role   | Can View | Can Create| Can Edit | Can Delete | Can Publish | Can Add Users/Categories/Tag |
+| ------ | -------- | ----------| -------- | ---------- | ----------- | --------------------------   |
+| Admin  | ✅        | ✅      |    ✅    |    ✅      | ✅         |             ❌              |
+| Author | ✅        | ✅      |    ✅    |    ❌      | ✅         |             ❌              |
+| Editor | ✅        | ❌      |    ✅    |    ❌      | ✅         |             ✅              |

@@ -333,7 +333,7 @@ function getUserRoleFromCookie() {
 
 /**
  * Initializes the dashboard by loading categories, tags, and published posts,
- * and sets up event listeners for search and navigation.
+ * and sets up event listeners for buttons.
  */
 window.onload = () => {
   role = getUserRoleFromCookie();
@@ -399,4 +399,34 @@ window.onload = () => {
     e.preventDefault();
     logout();
   });
+
+  // Event delegation for dynamically created post action buttons
+  const postsContainer = document.getElementById("posts-container");
+  postsContainer.addEventListener("click", (e) => {
+    const button = e.target.closest("button");
+    if (!button) return;
+
+    const postEl = button.closest("article");
+    const slug = postEl.querySelector("a[href^='/post?slug=']").href.split("slug=")[1].split("&")[0];
+
+    if (button.textContent === "Edit Post") {
+      window.open(`/create?slug=${slug}`, "_self");
+    } else if (button.textContent === "Delete Post") {
+      deletePost(slug, postEl.querySelector("h2").textContent);
+    } else if (button.textContent === "Publish Now") {
+      publishNow(slug);
+    } else if (button.textContent === "Save as Draft") {
+      saveAsDraft(slug);
+    } else if (button.textContent === "Schedule") {
+      const timeInput = postEl.querySelector("input[type='datetime-local']");
+      if (timeInput && timeInput.value) {
+        schedulePost(slug, timeInput.value);
+      } else {
+        showToast("Please choose a time", "danger");
+      }
+    }
+  });
 };
+
+// Export functions if needed by other modules
+export { publishNow, schedulePost, saveAsDraft, deletePost };

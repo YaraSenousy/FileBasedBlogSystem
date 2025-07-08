@@ -141,6 +141,7 @@ async function loadPostsByCategory(slug, name) {
  */
 function nextPage() {
   currentPage++;
+  document.getElementById("page-number").textContent = `Page ${currentPage}`;
   document.getElementById("prev-page").style.visibility = "visible";
   loadPosts();
 }
@@ -152,11 +153,13 @@ function nextPage() {
 function prevPage() {
   if (currentPage > 1) {
     currentPage--;
+    document.getElementById("next-page").style.visibility = "visible";
     loadPosts();
   }
   if (currentPage === 1) {
     document.getElementById("prev-page").style.visibility = "hidden";
   }
+  document.getElementById("page-number").textContent = `Page ${currentPage}`;
 }
 
 /**

@@ -491,3 +491,74 @@ article div strong {
     content: "←";
     margin-right: 0.5rem;
 }
+/* Sidebar styling */
+.sidebar {
+    background: #ffffff;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-top: 1.5rem;
+    height: fit-content;
+}
+
+.sidebar section {
+    margin-bottom: 1.5rem;
+}
+
+.sidebar strong {
+    font-size: 1rem;
+    color: #333;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+#category-filter .dropdown-toggle {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    background-color: #f1f3f5;
+    border: 1px solid #dee2e6;
+    color: #333;
+    text-align: left;
+}
+
+#category-filter .dropdown-toggle:hover {
+    background-color: #e9ecef;
+    border-color: #007bff;
+}
+
+#category-filter .dropdown-menu {
+    font-size: 0.9rem;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#category-filter .dropdown-item {
+    padding: 0.5rem 1rem;
+    color: #333;
+}
+
+#category-filter .dropdown-item:hover {
+    background-color: #e9ecef;
+    color: #007bff;
+}
+
+#category-filter .dropdown-item.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+/* Adjust main content */
+main {
+    padding: 1.5rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .sidebar {
+        margin-bottom: 1rem;
+    }
+    main {
+        padding: 1rem;
+    }
+}

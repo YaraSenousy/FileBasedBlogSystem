@@ -22,22 +22,11 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="nav-categories" role="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                All Categories
-                            </a>
-                            <ul class="dropdown-menu" id="category-dropdown">
-                                <li><a class="dropdown-item active" href="#" data-value="" id="all-categories"> All
-                                        Categories</a></li>
-                            </ul>
-                        </li>
                         <li class="nav-item">
                             <a class="nav-link" id="nav-drafts" href="#">Drafts</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="nav-scheduled" href="#">Scheduled
-                                Posts</a>
+                            <a class="nav-link" id="nav-scheduled" href="#">Scheduled Posts</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="nav-create" href="/create">Create Post</a>
@@ -54,41 +43,65 @@
                             </ul>
                         </li>
                     </ul>
-                    <div id="search-part" class="d-flex" role="search">
-                        <input class="form-control me-2" id="search-box" type="text" placeholder="Search All Posts.."
-                            aria-label="Search" />
-                        <button class="btn btn-outline-success">Search</button>
-                    </div>
                     <a class="nav-item btn ms-2 btn-outline-danger" id="nav-logout">Logout</a>
                 </div>
             </div>
         </nav>
     </header>
 
-    <section id="tag-filter">
-        <strong>Filter by Tags:</strong>
-        <div id="tag-checkboxes"></div>
-    </section>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <aside class="col-md-3 sidebar">
+                <section id="search-part">
+                    <strong>Search Posts:</strong>
+                    <div class="d-flex mb-3">
+                        <input class="form-control me-2" id="search-box" type="text" placeholder="Search All Posts.."
+                            aria-label="Search" />
+                        <button class="btn btn-outline-success" onclick="onSearch()">Search</button>
+                    </div>
+                </section>
+                <section id="category-filter">
+                    <strong>Filter by Category:</strong>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button"
+                            id="category-dropdown-button" data-bs-toggle="dropdown" aria-expanded="false">
+                            All Categories
+                        </button>
+                        <ul class="dropdown-menu w-100" id="category-dropdown">
+                            <li><a class="dropdown-item active" href="#" data-value="" id="all-categories">All Categories</a></li>
+                        </ul>
+                    </div>
+                </section>
+                <section id="tag-filter">
+                    <strong>Filter by Tags:</strong>
+                    <div id="tag-checkboxes"></div>
+                </section>
+            </aside>
 
-    <main>
-        <div id="error-message" class="error"></div>
-        <div id="posts-container"></div>
-        <div id="pagination">
-            <ul class="pagination">
-                <li class="page-item">
-                    <a class="page-link" href="#" id="prev-page" style="visibility: hidden;" aria-label="Previous">
-                        <span aria-hidden="true">«</span>
-                    </a>
-                </li>
-                <li class="page-item page-link" id="page-number">Page 1</li>
-                <li class="page-item">
-                    <a class="page-link" href="#" id="next-page" aria-label="Next">
-                        <span aria-hidden="true">»</span>
-                    </a>
-                </li>
-            </ul>
+            <!-- Main Content -->
+            <main class="col-md-9">
+                <div id="error-message" class="error"></div>
+                <div id="posts-container"></div>
+                <div id="pagination">
+                    <ul class="pagination">
+                        <li class="page-item">
+                            <a class="page-link" href="#" id="prev-page" style="visibility: hidden;" aria-label="Previous">
+                                <span aria-hidden="true">«</span>
+                            </a>
+                        </li>
+                        <li class="page-item page-link" id="page-number">Page 1</li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" id="next-page" aria-label="Next">
+                                <span aria-hidden="true">»</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </main>
         </div>
-    </main>
+    </div>
+
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
         <div id="live-toast" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">

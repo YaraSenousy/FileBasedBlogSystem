@@ -16,6 +16,7 @@ let activeTags = new Set();
 let currentView = "published";
 let role = null;
 let selectedCategoryName = "All Categories";
+let selectedCategorySlug = ""; // Added to track the selected category slug
 
 /**
  * Loads and renders tag checkboxes for filtering posts.
@@ -54,13 +55,15 @@ async function loadTags() {
 async function loadPublishedPosts() {
   document.getElementById("tag-filter").style.display = "block";
   document.getElementById("search-part").style.display = "block";
+  document.getElementById("category-filter").style.display = "block";
   const dropdown = document.getElementById("category-dropdown");
   dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
     item.classList.remove("active")
   );
   dropdown.querySelector("[data-value='']").classList.add("active");
-  document.getElementById("nav-categories").textContent = "All Categories";
+  document.getElementById("category-dropdown-button").textContent = "All Categories";
   selectedCategoryName = "All Categories";
+  selectedCategorySlug = "";
   currentView = "published";
   updateActiveNav();
 
@@ -76,13 +79,15 @@ async function loadPublishedPosts() {
 async function loadDrafts() {
   document.getElementById("tag-filter").style.display = "none";
   document.getElementById("search-part").style.display = "none";
+  document.getElementById("category-filter").style.display = "none";
   const dropdown = document.getElementById("category-dropdown");
   dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
     item.classList.remove("active")
   );
   dropdown.querySelector("[data-value='']").classList.add("active");
-  document.getElementById("nav-categories").textContent = "All Categories";
+  document.getElementById("category-dropdown-button").textContent = "All Categories";
   selectedCategoryName = "All Categories";
+  selectedCategorySlug = "";
   currentView = "drafts";
   updateActiveNav();
 
@@ -96,13 +101,15 @@ async function loadDrafts() {
 async function loadScheduledPosts() {
   document.getElementById("tag-filter").style.display = "none";
   document.getElementById("search-part").style.display = "none";
+  document.getElementById("category-filter").style.display = "none";
   const dropdown = document.getElementById("category-dropdown");
   dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
     item.classList.remove("active")
   );
   dropdown.querySelector("[data-value='']").classList.add("active");
-  document.getElementById("nav-categories").textContent = "All Categories";
+  document.getElementById("category-dropdown-button").textContent = "All Categories";
   selectedCategoryName = "All Categories";
+  selectedCategorySlug = "";
   currentView = "scheduled";
   updateActiveNav();
 
@@ -117,11 +124,13 @@ async function loadScheduledPosts() {
  */
 async function loadPostsByCategory(slug, name) {
   document.getElementById("tag-filter").style.display = "block";
-  document.getElementById("search-part").style.display = "none";
+  document.getElementById("search-part").style.display = "block";
+  document.getElementById("category-filter").style.display = "block";
   currentView = "published";
   updateActiveNav();
-  document.getElementById("nav-categories").textContent = name;
+  document.getElementById("category-dropdown-button").textContent = name;
   selectedCategoryName = name;
+  selectedCategorySlug = slug;
 
   try {
     const posts = await fetchData(
@@ -182,6 +191,7 @@ async function loadCategories() {
         item.classList.remove("active")
       );
       a.classList.add("active");
+      document.getElementById("category-dropdown-button").textContent = cat.name;
       currentPage = 1;
       document.getElementById("prev-page").style.visibility = "hidden";
       loadPostsByCategory(cat.slug, cat.name);
@@ -220,8 +230,9 @@ function loadPosts() {
     const selectedName =
       document.getElementById("category-dropdown").querySelector(".dropdown-item.active")
         ?.textContent || "All Categories";
-    document.getElementById("nav-categories").textContent = selectedName;
+    document.getElementById("category-dropdown-button").textContent = selectedName;
     selectedCategoryName = selectedName;
+    selectedCategorySlug = selected || "";
     if (selected) loadPostsByCategory(selected, selectedName);
     else loadPublishedPosts();
   }
@@ -286,13 +297,15 @@ async function onSearch() {
     currentPage = 1;
     document.getElementById("search-box").value = "";
     document.getElementById("tag-filter").style.display = "none";
+    document.getElementById("category-filter").style.display = "none";
     const dropdown = document.getElementById("category-dropdown");
     dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
       item.classList.remove("active")
     );
     dropdown.querySelector("[data-value='']").classList.add("active");
-    document.getElementById("nav-categories").textContent = "All Categories";
+    document.getElementById("category-dropdown-button").textContent = "All Categories";
     selectedCategoryName = "All Categories";
+    selectedCategorySlug = "";
     currentView = "published";
     updateActiveNav();
     try {
@@ -356,13 +369,14 @@ window.onload = () => {
       onSearch();
     }
   });
-  searchBox.addEventListener("click", (e) => {
-    e.preventDefault();
-    onSearch();
-  });
 
   document.getElementById("all-categories").addEventListener("click", (e) => {
     e.preventDefault();
+    document.getElementById("category-dropdown-button").textContent = "All Categories";
+    selectedCategoryName = "All Categories";
+    selectedCategorySlug = "";
+    currentPage = 1;
+    document.getElementById("prev-page").style.visibility = "hidden";
     loadPublishedPosts();
   });
   document.getElementById("next-page").addEventListener("click", (e) => {
@@ -377,7 +391,10 @@ window.onload = () => {
     e.preventDefault();
     currentPage = 1;
     document.getElementById("prev-page").style.visibility = "hidden";
-    window.location.reload();
+    document.getElementById("category-dropdown-button").textContent = "All Categories";
+    selectedCategoryName = "All Categories";
+    selectedCategorySlug = "";
+    loadPublishedPosts();
   });
   document.getElementById("nav-drafts").addEventListener("click", (e) => {
     e.preventDefault();

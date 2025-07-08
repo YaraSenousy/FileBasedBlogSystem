@@ -99,11 +99,6 @@ function renderPosts(posts, containerId, role = null) {
     `;
 
     if (role) {
-      const editBtn = document.createElement("button");
-      editBtn.className = "btn btn-primary btn-sm m-1";
-      editBtn.textContent = "Edit Post";
-      editBtn.onclick = () => window.open(`/create?slug=${post.slug}`, "_self");
-      postEl.appendChild(editBtn);
 
       if (role === "admin") {
         const deleteBtn = document.createElement("button");
@@ -116,6 +111,12 @@ function renderPosts(posts, containerId, role = null) {
       const actions = document.createElement("div");
       actions.className = "post-actions";
       if (status === "draft" || status === "scheduled") {
+        const editBtn = document.createElement("button");
+        editBtn.className = "btn btn-primary btn-sm m-1";
+        editBtn.textContent = "Edit Post";
+        editBtn.onclick = () => window.open(`/create?slug=${post.slug}`, "_self");
+        postEl.appendChild(editBtn);
+        
         const publishBtn = document.createElement("button");
         publishBtn.textContent = "Publish Now";
         publishBtn.className = "btn btn-outline-secondary btn-sm ms-1";

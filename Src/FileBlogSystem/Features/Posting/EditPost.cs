@@ -29,6 +29,7 @@ public static class EditPost
 
         var meta = JsonSerializer.Deserialize<PostMeta>(File.ReadAllText(metaPath));
         if (meta == null) return Results.BadRequest();
+        if (meta.Status == "published") return Results.BadRequest();
 
         var title = form["title"];
         var description = form["description"];

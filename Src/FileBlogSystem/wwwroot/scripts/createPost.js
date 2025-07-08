@@ -1,6 +1,22 @@
+import { fetchData, showToast } from "./utils.js";
+
+/**
+ * Stores the slug of the current post being edited or created.
+ * @type {string|null}
+ */
 let postSlug = null;
+
+/**
+ * Tracks filenames of media queued for deletion.
+ * @type {string[]}
+ */
 let queuedDeletions = [];
 
+/**
+ * Generates a preview of the post content and media.
+ * Validates the form, renders markdown, and updates the preview UI.
+ * @returns {Promise<void>}
+ */
 async function goToPreview() {
   const form = document.getElementById("postForm");
   if (!form.reportValidity()) return;
@@ -27,22 +43,26 @@ async function goToPreview() {
   mediaPreview.innerHTML = `<h4>Media:</h4>`;
 
   if (postSlug) {
-    const post = await fetch(`/posts/${postSlug}/preview`, { credentials: "include" }).then((res) => res.json());
-    if (post.mediaUrls && post.mediaUrls.length > 0) {
-      const existingMedia = post.mediaUrls.filter(url => !queuedDeletions.includes(url.split("/").pop()));
-      existingMedia.forEach((url) => {
-        const fileName = url.split("/").pop();
-        const isImage = /\.(jpe?g|png|webp|gif)$/i.test(url);
-        mediaPreview.innerHTML += isImage
-          ? `<img src="${url}?width=100" style="width: 100px; margin: 5px;" />`
-          : `<a href="${url}" target="_blank">${fileName}</a><br/>`;
-      });
+    try {
+      const post = await fetchData(`/posts/${postSlug}/preview`);
+      if (post.mediaUrls && post.mediaUrls.length > 0) {
+        const existingMedia = post.mediaUrls.filter((url) => !queuedDeletions.includes(url.split("/").pop()));
+        existingMedia.forEach((url) => {
+          const fileName = url.split("/").pop();
+          const isImage = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+          mediaPreview.innerHTML += isImage
+            ? `<img src="${url}?width=100" style="width: 100px; margin: 5px;" />`
+            : `<a href="${url}" target="_blank">${fileName}</a><br/>`;
+        });
+      }
+    } catch (error) {
+      showToast("Failed to load existing media.", "danger");
     }
   }
 
   [...files].forEach((f) => {
     const url = URL.createObjectURL(f);
-    if (/\.(jpe?g|png|webp|gif)$/i.test(f.name)) {
+    if (/\.(jpg|jpeg|png|webp|gif)$/i.test(f.name)) {
       mediaPreview.innerHTML += `<img src="${url}" style="width: 100px; margin: 5px;" />`;
     } else {
       mediaPreview.innerHTML += `<a href="${url}" target="_blank">${f.name}</a><br/>`;
@@ -52,16 +72,26 @@ async function goToPreview() {
   switchToPreview();
 }
 
+/**
+ * Switches the UI to preview mode by hiding the form and showing the preview.
+ */
 function switchToPreview() {
   document.getElementById("step-form").style.display = "none";
   document.getElementById("step-preview").style.display = "block";
 }
 
+/**
+ * Switches the UI back to form mode by hiding the preview and showing the form.
+ */
 function goToForm() {
   document.getElementById("step-preview").style.display = "none";
   document.getElementById("step-form").style.display = "block";
 }
 
+/**
+ * Prepares FormData with post details, including tags and categories.
+ * @returns {FormData} The prepared form data for submission.
+ */
 async function prepareFormData() {
   const form = document.getElementById("postForm");
   const formData = new FormData(form);
@@ -72,91 +102,128 @@ async function prepareFormData() {
   return formData;
 }
 
+/**
+ * Saves the post as a draft, handling media uploads and deletions.
+ * @returns {Promise<void>}
+ */
 async function saveAsDraft() {
-  const formData = await prepareFormData();
-  const endpoint = postSlug ? `/posts/${postSlug}/edit` : `/posts`;
-  const method = postSlug ? "POST" : "POST";
-
-  const res = await fetch(endpoint, {
-    method,
-    body: formData,
-    credentials: "include",
-  });
-
-  if (!res.ok) {
-    showToast("Save failed.", "danger");
-    return;
-  }
-
-  const data = await res.json();
-  postSlug = data.slug || postSlug;
-
-  for (const filename of queuedDeletions) {
-    const deleteRes = await fetch(`/posts/${postSlug}/media/${filename}`, {
-      method: "DELETE",
+  try {
+    const formData = await prepareFormData();
+    const endpoint = postSlug ? `/posts/${postSlug}/edit` : `/posts`;
+    const res = await fetch(endpoint, {
+      method: "POST",
+      body: formData,
       credentials: "include",
     });
-    if (!deleteRes.ok) {
-      showToast(`Failed to delete ${filename}.`, "danger");
+
+    if (!res.ok) {
+      showToast("Save failed.", "danger");
+      return;
     }
-  }
-  queuedDeletions = [];
 
-  await uploadMedia(postSlug);
-  showToast("Saved", "success");
-  document.getElementById("save-draft").innerHTML = "Save Edits";
+    const data = await res.json();
+    postSlug = data.slug || postSlug;
+
+    for (const filename of queuedDeletions) {
+      const deleteRes = await fetch(`/posts/${postSlug}/media/${filename}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!deleteRes.ok) {
+        showToast(`Failed to delete ${filename}.`, "danger");
+      }
+    }
+    queuedDeletions = [];
+
+    await uploadMedia(postSlug);
+    showToast("Saved", "success");
+    document.getElementById("save-draft").textContent = "Save Edits";
+  } catch (error) {
+    showToast("Save failed due to an error.", "danger");
+  }
 }
 
+/**
+ * Publishes the post immediately after saving as a draft.
+ * @returns {Promise<void>}
+ */
 async function publishNow() {
-  await saveAsDraft();
-  const res = await fetch(`/posts/${postSlug}/publish`, {
-    method: "POST",
-    credentials: "include",
-  });
-  if (res.ok) {
-    showToast("Published", "success");
-    location.href = "/dashboard";
-  } else {
-    showToast("Publish failed.", "danger");
+  try {
+    await saveAsDraft();
+    const res = await fetch(`/posts/${postSlug}/publish`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (res.ok) {
+      showToast("Published", "success");
+      location.href = "/dashboard";
+    } else {
+      showToast("Publish failed.", "danger");
+    }
+  } catch (error) {
+    showToast("Publish failed due to an error.", "danger");
   }
 }
 
+/**
+ * Schedules the post for a specific time after saving as a draft.
+ * @returns {Promise<void>}
+ */
 async function schedulePost() {
   const time = document.getElementById("schedule-time").value;
   if (!time) return showToast("Select time", "danger");
 
-  await saveAsDraft();
-  const res = await fetch(`/posts/${postSlug}/schedule`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ published: time }),
-    credentials: "include",
-  });
+  try {
+    await saveAsDraft();
+    const res = await fetch(`/posts/${postSlug}/schedule`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ published: time }),
+      credentials: "include",
+    });
 
-  if (res.ok) {
-    showToast("Scheduled Post", "success");
-    location.href = "/dashboard";
-  } else {
-    showToast("Scheduling failed.", "danger");
+    if (res.ok) {
+      showToast("Scheduled Post", "success");
+      location.href = "/dashboard";
+    } else {
+      showToast("Scheduling failed.", "danger");
+    }
+  } catch (error) {
+    showToast("Scheduling failed due to an error.", "danger");
   }
 }
 
+/**
+ * Uploads media files for the given post slug.
+ * @param {string} slug - The slug of the post to upload media for.
+ * @returns {Promise<void>}
+ */
 async function uploadMedia(slug) {
   const mediaForm = new FormData();
   const files = document.getElementById("media").files;
   [...files].forEach((f) => mediaForm.append("file", f));
   if (files.length > 0) {
-    const res = await fetch(`/posts/${slug}/media`, {
-      method: "POST",
-      body: mediaForm,
-      credentials: "include",
-    });
-    if (!res.ok) {
-      showToast("Upload failed.", "danger");
+    try {
+      const res = await fetch(`/posts/${slug}/media`, {
+        method: "POST",
+        body: mediaForm,
+        credentials: "include",
+      });
+      if (!res.ok) {
+        showToast("Upload failed.", "danger");
+      }
+    } catch (error) {
+      showToast("Upload failed due to an error.", "danger");
     }
   }
 }
 
+/**
+ * Queues a media file for deletion and removes it from the UI.
+ * @param {string} slug - The slug of the post.
+ * @param {string} filename - The filename of the media to delete.
+ * @returns {Promise<void>}
+ */
 async function deleteMedia(slug, filename) {
   queuedDeletions.push(filename);
   const section = document.getElementById("uploaded-media");
@@ -166,55 +233,74 @@ async function deleteMedia(slug, filename) {
   if (divToRemove) divToRemove.remove();
 }
 
+/**
+ * Loads available tags and categories into their respective lists.
+ * @returns {Promise<void>}
+ */
 async function loadTagsAndCategories() {
   const tagBox = document.getElementById("tags-list");
   const catBox = document.getElementById("categories-list");
 
-  const tags = await fetch("/tags").then((r) => r.json());
-  const cats = await fetch("/categories").then((r) => r.json());
+  try {
+    const [tags, cats] = await Promise.all([fetch("/tags").then((r) => r.json()), fetch("/categories").then((r) => r.json())]);
+    tagBox.innerHTML += tags
+      .map(
+        (tag) => `
+          <label><input type="checkbox" class="tag-checkbox" value="${tag.slug}"> ${tag.name}</label><br/>
+      `
+      )
+      .join("");
 
-  tagBox.innerHTML += tags
-    .map(
-      (tag) => `
-        <label><input type="checkbox" class="tag-checkbox" value="${tag.slug}"> ${tag.name}</label><br/>
-    `
-    )
-    .join("");
-
-  catBox.innerHTML += cats
-    .map(
-      (cat) => `
-        <label><input type="checkbox" class="cat-checkbox" value="${cat.slug}"> ${cat.name}</label><br/>
-    `
-    )
-    .join("");
+    catBox.innerHTML += cats
+      .map(
+        (cat) => `
+          <label><input type="checkbox" class="cat-checkbox" value="${cat.slug}"> ${cat.name}</label><br/>
+      `
+      )
+      .join("");
+  } catch (error) {
+    showToast("Failed to load tags or categories.", "danger");
+  }
 }
 
+/**
+ * Loads an existing post's data into the form for editing.
+ * @param {string} slug - The slug of the post to load.
+ * @returns {Promise<void>}
+ */
 async function loadExistingPost(slug) {
-  const post = await fetch(`/posts/${slug}/preview`, {
-    credentials: "include",
-  }).then((res) => res.json());
+  try {
+    const post = await fetch(`/posts/${slug}/preview`, {
+      credentials: "include",
+    }).then((res) => res.json());
 
-  document.querySelector("input[name='title']").value = post.title;
-  document.querySelector("textarea[name='description']").value = post.description;
-  document.querySelector("textarea[name='content']").value = post.rawMarkdown;
+    document.querySelector("input[name='title']").value = post.title;
+    document.querySelector("textarea[name='description']").value = post.description;
+    document.querySelector("textarea[name='content']").value = post.rawMarkdown;
 
-  post.tags?.forEach((t) =>
-    document.querySelector(`.tag-checkbox[value="${t}"]`)?.click()
-  );
-  post.categories?.forEach((c) =>
-    document.querySelector(`.cat-checkbox[value="${c}"]`)?.click()
-  );
+    post.tags?.forEach((t) =>
+      document.querySelector(`.tag-checkbox[value="${t}"]`)?.click()
+    );
+    post.categories?.forEach((c) =>
+      document.querySelector(`.cat-checkbox[value="${c}"]`)?.click()
+    );
 
-  postSlug = slug;
-  showMedia(post);
-  updateStatusAndButtons(post.status);
+    postSlug = slug;
+    showMedia(post);
+    updateStatusAndButtons(post.status);
+  } catch (error) {
+    showToast("Failed to load existing post.", "danger");
+  }
 }
 
+/**
+ * Updates the UI based on the post's status.
+ * @param {string} status - The status of the post (e.g., "draft", "published", "scheduled").
+ */
 function updateStatusAndButtons(status) {
   const saveDraftBtn = document.getElementById("save-draft");
-  const publishNowBtn = document.querySelector("button[onclick='publishNow()']");
-  const scheduleBtn = document.querySelector("button[onclick='schedulePost()']");
+  const publishNowBtn = document.querySelector(".publish-btn");
+  const scheduleBtn = document.querySelector(".schedule-btn");
   const statusDiv = document.getElementById("post-status");
 
   if (status === "draft") {
@@ -226,14 +312,14 @@ function updateStatusAndButtons(status) {
     saveDraftBtn.textContent = "Save Edits";
     publishNowBtn.style.display = "none";
     scheduleBtn.textContent = "Unpublish";
-    scheduleBtn.setAttribute("onclick", "unpublishPost()");
+    scheduleBtn.onclick = () => unpublishPost();
     document.getElementById("schedule-time").style.display = "none";
     statusDiv.textContent = "Status: Published";
   } else if (status === "scheduled") {
     saveDraftBtn.textContent = "Save Edits";
     publishNowBtn.style.display = "inline-block";
     scheduleBtn.textContent = "Reschedule";
-    scheduleBtn.setAttribute("onclick", "schedulePost()");
+    scheduleBtn.onclick = () => schedulePost();
     const cancelScheduleBtn = document.createElement("button");
     cancelScheduleBtn.textContent = "Cancel Schedule";
     cancelScheduleBtn.className = "btn btn-outline-secondary btn-sm ms-2";
@@ -245,57 +331,76 @@ function updateStatusAndButtons(status) {
   document.getElementById("step-preview").appendChild(statusDiv);
 }
 
+/**
+ * Unpublishes the post by saving it as a draft.
+ * @returns {Promise<void>}
+ */
 async function unpublishPost() {
-  saveAsDraft();
-  const res = await fetch(`/posts/${postSlug}/draft`, {
-    method: "POST",
-    credentials: "include",
-  });
-  if (res.ok) {
-    showToast("Unpublished", "success");
-    location.href = "/dashboard";
-  } else {
-    showToast("Unpublish failed.", "danger");
+  try {
+    await saveAsDraft();
+    const res = await fetch(`/posts/${postSlug}/draft`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (res.ok) {
+      showToast("Unpublished", "success");
+      location.href = "/dashboard";
+    } else {
+      showToast("Unpublish failed.", "danger");
+    }
+  } catch (error) {
+    showToast("Unpublish failed due to an error.", "danger");
   }
 }
 
+/**
+ * Displays uploaded media for the post in the UI.
+ * @param {Object} post - The post object containing media URLs.
+ */
 function showMedia(post) {
-    const section = document.getElementById("uploaded-media");
-    if (post.mediaUrls && post.mediaUrls.length > 0) {
-        section.innerHTML = `<h3>Uploaded Media:</h3>`;
-        post.mediaUrls.forEach(url => {
-          const fileName = url.split("/").pop();
-          const div = document.createElement("div");
-          const isImage = /\.(png|jpe?g|webp|gif)$/i.test(url);
-      
-          div.innerHTML = `
-            ${isImage ? `<img src="${url}?width=100" alt="${fileName}" />` : `<a href="${url}" target="_blank">${fileName}</a>`}
-            <button onclick="deleteMedia('${postSlug}', '${fileName}')">Delete</button>
-          `;
-          section.appendChild(div);
-        });
-    }
+  const section = document.getElementById("uploaded-media");
+  if (post.mediaUrls && post.mediaUrls.length > 0) {
+    section.innerHTML = `<h3>Uploaded Media:</h3>`;
+    post.mediaUrls.forEach((url) => {
+      const fileName = url.split("/").pop();
+      const div = document.createElement("div");
+      const isImage = /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+
+      div.innerHTML = `
+        ${isImage ? `<img src="${url}?width=100" alt="${fileName}" />` : `<a href="${url}" target="_blank">${fileName}</a>`}
+      `;
+      const deleteButton = document.createElement("button");
+      deleteButton.className = "btn btn-danger btn-sm ms-2";
+      deleteButton.textContent = "Delete";
+      deleteButton.onclick= () => deleteMedia(postSlug, fileName);
+      div.appendChild(deleteButton);
+      section.appendChild(div);
+    });
+  }
 }
 
-function showToast(message, variant = "primary") {
-  const toastEl = document.getElementById("live-toast");
-  const toastMsg = document.getElementById("toast-message");
-
-  toastEl.className = `toast align-items-center text-bg-${variant} border-0`;
-  toastMsg.textContent = message;
-
-  const toast = new bootstrap.Toast(toastEl);
-  toast.show();
-}
-
+/**
+ * Initializes the create/edit post page by loading tags, categories, and existing post data if applicable.
+ * Attach event listeners
+ * @returns {Promise<void>}
+ */
 window.onload = async () => {
-  await loadTagsAndCategories();
-  const slug = new URLSearchParams(location.search).get("slug");
-  if (slug) {
-    document.getElementById("form-heading").textContent = "Edit Post";
-    await loadExistingPost(slug);
-  } else {
-    document.getElementById("form-heading").textContent = "Create Post";
-    //updateStatusAndButtons("draft");
+  try {
+    await loadTagsAndCategories();
+    const slug = new URLSearchParams(location.search).get("slug");
+    if (slug) {
+      document.getElementById("form-heading").textContent = "Edit Post";
+      await loadExistingPost(slug);
+    } else {
+      document.getElementById("form-heading").textContent = "Create Post";
+    }
+
+    document.querySelector(".continue-btn").addEventListener("click", goToPreview);
+    document.getElementById("save-draft").addEventListener("click", saveAsDraft);
+    document.querySelector(".publish-btn").addEventListener("click", publishNow);
+    document.querySelector(".schedule-btn").addEventListener("click", schedulePost);
+    document.querySelector(".back-btn").addEventListener("click", goToForm);
+  } catch (error) {
+    showToast("Failed to initialize page.", "danger");
   }
 };

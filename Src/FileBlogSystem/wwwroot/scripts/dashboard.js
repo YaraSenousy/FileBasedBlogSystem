@@ -1,25 +1,103 @@
 import { fetchData, getTagFilterParam, renderPosts, showToast } from "./utils.js";
 
 /**
- * Manages the current page number, limit per page, active tags, current view, user role,
+ * Manages the current page number, limit per page, total pages, active tags, current view, user role,
  * and selected category for the dashboard.
  * @type {number} currentPage - The current page number.
  * @type {number} limit - The number of posts per page.
+ * @type {number} totalPages - The total number of pages available.
  * @type {Set} activeTags - A Set of currently selected tag slugs.
  * @type {string} currentView - The current view (e.g., "published", "drafts", "scheduled").
  * @type {string|null} role - The user role (e.g., "admin", "editor", or null if unauthenticated).
  * @type {string} selectedCategoryName - The name of the currently selected category.
- * @type {string} selectedCategorySlug - The slug of the currently selected category.
  * @type {string} searchTerm - The current search term, if any.
  */
 let currentPage = 1;
-const limit = 3;
+const limit = 1;
+let totalPages = 1;
 let activeTags = new Set();
 let currentView = "published";
 let role = null;
 let selectedCategoryName = "All Categories";
-let selectedCategorySlug = "";
 let searchTerm = "";
+
+/**
+ * Renders pagination links dynamically based on totalPages and currentPage.
+ */
+function renderPagination() {
+  const pageNumbersContainer = document.getElementById("page-numbers");
+  pageNumbersContainer.innerHTML = "";
+
+  const maxPagesToShow = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+  let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+  if (endPage === totalPages) {
+    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+  }
+
+  const prevPageItem = document.getElementById("prev-page");
+  prevPageItem.classList.toggle("disabled", currentPage === 1);
+
+  if (startPage > 1) {
+    const ellipsis = document.createElement("li");
+    ellipsis.className = "page-item disabled";
+    ellipsis.innerHTML = '<span class="page-link">...</span>';
+    const firstPage = document.createElement("li");
+    firstPage.className = "page-item";
+    const pageLink = document.createElement("a");
+    pageLink.className = "page-link";
+    pageLink.href = "#";
+    pageLink.textContent = "1";
+    pageLink.onclick = (e) => {
+      e.preventDefault();
+      currentPage = 1;
+      loadPosts();
+    };
+    firstPage.appendChild(pageLink);
+    pageNumbersContainer.appendChild(firstPage);
+    pageNumbersContainer.appendChild(ellipsis);
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    const pageItem = document.createElement("li");
+    pageItem.className = `page-item ${i === currentPage ? "active" : ""}`;
+    const pageLink = document.createElement("a");
+    pageLink.className = "page-link";
+    pageLink.href = "#";
+    pageLink.textContent = i;
+    pageLink.onclick = (e) => {
+      e.preventDefault();
+      currentPage = i;
+      loadPosts();
+    };
+    pageItem.appendChild(pageLink);
+    pageNumbersContainer.appendChild(pageItem);
+  }
+
+  if (endPage < totalPages) {
+    const ellipsis = document.createElement("li");
+    ellipsis.className = "page-item disabled";
+    ellipsis.innerHTML = '<span class="page-link">...</span>';
+    const lastPage = document.createElement("li");
+    lastPage.className = "page-item";
+    const pageLink = document.createElement("a");
+    pageLink.className = "page-link";
+    pageLink.href = "#";
+    pageLink.textContent = totalPages;
+    pageLink.onclick = (e) => {
+      e.preventDefault();
+      currentPage = totalPages;
+      loadPosts();
+    };
+    lastPage.appendChild(pageLink);
+    pageNumbersContainer.appendChild(ellipsis);
+    pageNumbersContainer.appendChild(lastPage);
+  }
+
+  const nextPageItem = document.getElementById("next-page");
+  nextPageItem.classList.toggle("disabled", currentPage === totalPages);
+}
 
 /**
  * Loads and renders tag checkboxes for filtering posts.
@@ -42,7 +120,6 @@ async function loadTags() {
       if (input.checked) activeTags.add(tag.slug);
       else activeTags.delete(tag.slug);
       currentPage = 1;
-      document.getElementById("prev-page").style.visibility = "hidden";
       loadPosts();
     };
 
@@ -66,16 +143,17 @@ async function loadPublishedPosts() {
   dropdown.querySelector("[data-value='']").classList.add("active");
   document.getElementById("category-dropdown-button").textContent = "All Categories";
   selectedCategoryName = "All Categories";
-  selectedCategorySlug = "";
   searchTerm = "";
   document.getElementById("search-box").value = "";
   currentView = "published";
   updateActiveNav();
 
-  const posts = await fetchData(
-    `/published?page=${currentPage}&limit=${limit}${getTagFilterParam(activeTags)}`
+  const response = await fetchData(
+    `/published?page=${currentPage}&limit=${limit}${getTagFilterParam(activeTags)}`, true
   );
-  renderPosts(posts, "posts-container", role);
+  totalPages = Math.ceil(response.totalItems / limit) || 1;
+  renderPosts(response.data, "posts-container", role);
+  renderPagination();
 }
 
 /**
@@ -92,14 +170,15 @@ async function loadDrafts() {
   dropdown.querySelector("[data-value='']").classList.add("active");
   document.getElementById("category-dropdown-button").textContent = "All Categories";
   selectedCategoryName = "All Categories";
-  selectedCategorySlug = "";
   searchTerm = "";
   document.getElementById("search-box").value = "";
   currentView = "drafts";
   updateActiveNav();
 
-  const posts = await fetchData(`/drafts?page=${currentPage}&limit=${limit}`);
-  renderPosts(posts, "posts-container", role);
+  const response = await fetchData(`/drafts?page=${currentPage}&limit=${limit}`,true);
+  totalPages = Math.ceil(response.totalItems / limit) || 1;
+  renderPosts(response.data, "posts-container", role);
+  renderPagination();
 }
 
 /**
@@ -116,14 +195,15 @@ async function loadScheduledPosts() {
   dropdown.querySelector("[data-value='']").classList.add("active");
   document.getElementById("category-dropdown-button").textContent = "All Categories";
   selectedCategoryName = "All Categories";
-  selectedCategorySlug = "";
   searchTerm = "";
   document.getElementById("search-box").value = "";
   currentView = "scheduled";
   updateActiveNav();
 
-  const posts = await fetchData(`/scheduled?page=${currentPage}&limit=${limit}`);
-  renderPosts(posts, "posts-container", role);
+  const response = await fetchData(`/scheduled?page=${currentPage}&limit=${limit}`,true);
+  totalPages = Math.ceil(response.totalItems / limit) || 1;
+  renderPosts(response.data, "posts-container", role);
+  renderPagination();
 }
 
 /**
@@ -139,47 +219,52 @@ async function loadPostsByCategory(slug, name) {
   updateActiveNav();
   document.getElementById("category-dropdown-button").textContent = name;
   selectedCategoryName = name;
-  selectedCategorySlug = slug;
   searchTerm = "";
   document.getElementById("search-box").value = "";
 
   try {
-    const posts = await fetchData(
+    const response = await fetchData(
       `/categories/${slug}?page=${currentPage}&limit=${limit}${getTagFilterParam(
         activeTags
-      )}`
+      )}`, true
     );
-    renderPosts(posts, "posts-container", role);
+    totalPages = Math.ceil(response.totalItems / limit) || 1;
+    renderPosts(response.data, "posts-container", role);
+    renderPagination();
   } catch (err) {
     console.log("Failed to load the posts:", err.message);
   }
 }
 
 /**
+ * Navigates to a specific page.
+ * @param {number} page - The page number to navigate to.
+ */
+function goToPage(page) {
+  if (page >= 1 && page <= totalPages) {
+    currentPage = page;
+    loadPosts();
+  }
+}
+
+/**
  * Advances to the next page of posts.
- * Updates the current page number and reloads posts.
  */
 function nextPage() {
-  currentPage++;
-  document.getElementById("page-number").textContent = `Page ${currentPage}`;
-  document.getElementById("prev-page").style.visibility = "visible";
-  loadPosts();
+  if (currentPage < totalPages) {
+    currentPage++;
+    loadPosts();
+  }
 }
 
 /**
  * Returns to the previous page of posts.
- * Updates the current page number and reloads posts, hiding the previous button on page 1.
  */
 function prevPage() {
   if (currentPage > 1) {
     currentPage--;
-    document.getElementById("next-page").style.visibility = "visible";
     loadPosts();
   }
-  if (currentPage === 1) {
-    document.getElementById("prev-page").style.visibility = "hidden";
-  }
-  document.getElementById("page-number").textContent = `Page ${currentPage}`;
 }
 
 /**
@@ -204,7 +289,6 @@ async function loadCategories() {
       a.classList.add("active");
       document.getElementById("category-dropdown-button").textContent = cat.name;
       currentPage = 1;
-      document.getElementById("prev-page").style.visibility = "hidden";
       loadPostsByCategory(cat.slug, cat.name);
     };
     li.appendChild(a);
@@ -238,10 +322,13 @@ async function loadPosts() {
     loadScheduledPosts();
   } else if (searchTerm) {
     try {
-      const posts = await fetchData(
+      const response = await fetchData(
         `/search?q=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${limit}`
+        ,true
       );
-      renderPosts(posts, "posts-container", role);
+      totalPages = Math.ceil(response.totalItems / limit) || 1;
+      renderPosts(response.data, "posts-container", role);
+      renderPagination();
     } catch (err) {
       console.error("Search failed:", err.message);
       showToast("Search failed. Please try again.", "danger");
@@ -257,7 +344,6 @@ async function loadPosts() {
         ?.textContent || "All Categories";
     document.getElementById("category-dropdown-button").textContent = selectedName;
     selectedCategoryName = selectedName;
-    selectedCategorySlug = selected || "";
     if (selected) loadPostsByCategory(selected, selectedName);
     else loadPublishedPosts();
   }
@@ -314,7 +400,7 @@ async function saveAsDraft(slug) {
 
 /**
  * Handles the search functionality.
- * Performs a search if a term is provided, otherwise reloads posts.
+ * Performs a search if a term is provided, otherwise clears the search.
  */
 async function onSearch() {
   const term = document.getElementById("search-box").value.trim();
@@ -330,14 +416,15 @@ async function onSearch() {
     dropdown.querySelector("[data-value='']").classList.add("active");
     document.getElementById("category-dropdown-button").textContent = "All Categories";
     selectedCategoryName = "All Categories";
-    selectedCategorySlug = "";
     currentView = "published";
     updateActiveNav();
     try {
-      const posts = await fetchData(
-        `/search?q=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${limit}`
+      const response = await fetchData(
+        `/search?q=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${limit}`, true
       );
-      renderPosts(posts, "posts-container", role);
+      totalPages = Math.ceil(response.totalItems / limit) || 1;
+      renderPosts(response.data, "posts-container", role);
+      renderPagination();
     } catch (err) {
       console.error("Search failed:", err.message);
       showToast("Search failed. Please try again.", "danger");
@@ -364,10 +451,8 @@ function clearSearch() {
   dropdown.querySelector("[data-value='']").classList.add("active");
   document.getElementById("category-dropdown-button").textContent = "All Categories";
   selectedCategoryName = "All Categories";
-  selectedCategorySlug = "";
   currentView = "published";
   currentPage = 1;
-  document.getElementById("prev-page").style.visibility = "hidden";
   updateActiveNav();
   loadPublishedPosts();
 }
@@ -430,11 +515,9 @@ window.onload = () => {
     e.preventDefault();
     document.getElementById("category-dropdown-button").textContent = "All Categories";
     selectedCategoryName = "All Categories";
-    selectedCategorySlug = "";
     searchTerm = "";
     document.getElementById("search-box").value = "";
     currentPage = 1;
-    document.getElementById("prev-page").style.visibility = "hidden";
     loadPublishedPosts();
   });
   document.getElementById("next-page").addEventListener("click", (e) => {
@@ -448,10 +531,8 @@ window.onload = () => {
   document.getElementById("nav-home").addEventListener("click", (e) => {
     e.preventDefault();
     currentPage = 1;
-    document.getElementById("prev-page").style.visibility = "hidden";
     document.getElementById("category-dropdown-button").textContent = "All Categories";
     selectedCategoryName = "All Categories";
-    selectedCategorySlug = "";
     searchTerm = "";
     document.getElementById("search-box").value = "";
     loadPublishedPosts();
@@ -459,13 +540,11 @@ window.onload = () => {
   document.getElementById("nav-drafts").addEventListener("click", (e) => {
     e.preventDefault();
     currentPage = 1;
-    document.getElementById("prev-page").style.visibility = "hidden";
     loadDrafts();
   });
   document.getElementById("nav-scheduled").addEventListener("click", (e) => {
     e.preventDefault();
     currentPage = 1;
-    document.getElementById("prev-page").style.visibility = "hidden";
     loadScheduledPosts();
   });
   document.getElementById("nav-create").addEventListener("click", (e) => {

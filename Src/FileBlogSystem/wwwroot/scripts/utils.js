@@ -1,8 +1,26 @@
-// Fetch data with error handling
-async function fetchData(url, options = {}) {
-  const res = await fetch(url, { credentials: "include", ...options });
-  if (!res.ok) throw new Error(`HTTP error! status: ${res.ok}`);
-  return res.json();
+/**
+ * Fetches data from the specified endpoint.
+ * @param {string} endpoint - The API endpoint to fetch data from.
+ * @returns {Promise<{data: any, totalItems: number}>} The response data and total items.
+ */
+async function fetchData(endpoint, paginated = false) {
+  try {
+    const response = await fetch(endpoint, { credentials: "include" });
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const result = await response.json();
+    if (paginated)
+      return {
+        data: result.data || result,
+        totalItems: result.totalItems || result.length || 0
+      };
+    else
+      return result;
+  } catch (err) {
+    console.error(`Failed to fetch from ${endpoint}:`, err.message);
+    throw err;
+  }
 }
 
 // Get tag filter parameter
@@ -17,7 +35,6 @@ function renderPosts(posts, containerId, role = null) {
 
   if (posts.length <= 0) {
     container.innerHTML = "<h4>No results</h4>";
-    document.getElementById("next-page").style.visibility = "hidden";
     return;
   }
 

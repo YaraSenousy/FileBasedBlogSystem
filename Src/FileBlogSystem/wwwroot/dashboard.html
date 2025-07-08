@@ -14,7 +14,7 @@
         <h1>Lets Blog</h1>
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
-                <a class="navbar-brand" id="nav-home" href="#">Home</a>
+                <a class="navbar-brand" id="nav-home" href="#">Published</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,7 @@
                     <div class="input-group mb-3">
                         <input class="form-control" id="search-box" type="text" placeholder="Search All Posts.."
                             aria-label="Search" />
-                        <button class="btn btn-outline-secondary clear-search-btn" type="button" id="clear-search-btn" title="Clear search">x</button>
+                        <button class="btn btn-outline-secondary clear-search-btn" type="button" id="clear-search-btn" title="Clear search">×</button>
                         <button class="btn btn-outline-success" type="button" id="search-btn">Search</button>
                     </div>
                 </section>
@@ -83,15 +83,15 @@
                 <div id="error-message" class="error"></div>
                 <div id="posts-container"></div>
                 <div id="pagination">
-                    <ul class="pagination">
-                        <li class="page-item">
-                            <a class="page-link" href="#" id="prev-page" style="visibility: hidden;" aria-label="Previous">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" id="prev-page">
+                            <a class="page-link" href="#" aria-label="Previous">
                                 <span aria-hidden="true">«</span>
                             </a>
                         </li>
-                        <li class="page-item page-link" id="page-number">Page 1</li>
-                        <li class="page-item">
-                            <a class="page-link" href="#" id="next-page" aria-label="Next">
+                        <div id="page-numbers" class="d-flex"></div>
+                        <li class="page-item" id="next-page">
+                            <a class="page-link" href="#" aria-label="Next">
                                 <span aria-hidden="true">»</span>
                             </a>
                         </li>

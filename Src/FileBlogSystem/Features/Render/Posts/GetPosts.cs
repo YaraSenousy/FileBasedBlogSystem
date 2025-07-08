@@ -69,12 +69,17 @@ public static class GetPosts
                 .ToList();
         }
 
+        var totalItems = allPosts.Count;
         var paged = allPosts
             .Skip((page - 1) * limit)
             .Take(limit)
             .ToList();
 
-        return Results.Ok(paged);
+        return Results.Ok(new
+        {
+            data = paged,
+            totalItems
+        });
     }
 
 }

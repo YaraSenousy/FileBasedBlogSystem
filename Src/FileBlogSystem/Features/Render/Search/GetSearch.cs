@@ -35,7 +35,12 @@ public static class GetSearch
             .OrderByDescending(p => p!.Published)
             .ToList();
 
+        var totalItems = posts.Count;
         var paged = posts.Skip((page - 1) * limit).Take(limit).ToList();
-        return Results.Ok(paged);
+        return Results.Ok(new
+        {
+            data = paged,
+            totalItems
+        });
     }
 }

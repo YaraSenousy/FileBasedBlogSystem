@@ -9,6 +9,8 @@ import { fetchData, getTagFilterParam, renderPosts, showToast } from "./utils.js
  * @type {string} currentView - The current view (e.g., "published", "drafts", "scheduled").
  * @type {string|null} role - The user role (e.g., "admin", "editor", or null if unauthenticated).
  * @type {string} selectedCategoryName - The name of the currently selected category.
+ * @type {string} selectedCategorySlug - The slug of the currently selected category.
+ * @type {string} searchTerm - The current search term, if any.
  */
 let currentPage = 1;
 const limit = 3;
@@ -16,7 +18,8 @@ let activeTags = new Set();
 let currentView = "published";
 let role = null;
 let selectedCategoryName = "All Categories";
-let selectedCategorySlug = ""; // Added to track the selected category slug
+let selectedCategorySlug = "";
+let searchTerm = "";
 
 /**
  * Loads and renders tag checkboxes for filtering posts.
@@ -64,6 +67,8 @@ async function loadPublishedPosts() {
   document.getElementById("category-dropdown-button").textContent = "All Categories";
   selectedCategoryName = "All Categories";
   selectedCategorySlug = "";
+  searchTerm = "";
+  document.getElementById("search-box").value = "";
   currentView = "published";
   updateActiveNav();
 
@@ -88,6 +93,8 @@ async function loadDrafts() {
   document.getElementById("category-dropdown-button").textContent = "All Categories";
   selectedCategoryName = "All Categories";
   selectedCategorySlug = "";
+  searchTerm = "";
+  document.getElementById("search-box").value = "";
   currentView = "drafts";
   updateActiveNav();
 
@@ -110,6 +117,8 @@ async function loadScheduledPosts() {
   document.getElementById("category-dropdown-button").textContent = "All Categories";
   selectedCategoryName = "All Categories";
   selectedCategorySlug = "";
+  searchTerm = "";
+  document.getElementById("search-box").value = "";
   currentView = "scheduled";
   updateActiveNav();
 
@@ -131,6 +140,8 @@ async function loadPostsByCategory(slug, name) {
   document.getElementById("category-dropdown-button").textContent = name;
   selectedCategoryName = name;
   selectedCategorySlug = slug;
+  searchTerm = "";
+  document.getElementById("search-box").value = "";
 
   try {
     const posts = await fetchData(
@@ -218,12 +229,26 @@ function updateActiveNav() {
 }
 
 /**
- * Loads the appropriate posts based on the current view or category.
+ * Loads the appropriate posts based on the current view, category, or search term.
  */
-function loadPosts() {
-  if (currentView === "drafts") loadDrafts();
-  else if (currentView === "scheduled") loadScheduledPosts();
-  else {
+async function loadPosts() {
+  if (currentView === "drafts") {
+    loadDrafts();
+  } else if (currentView === "scheduled") {
+    loadScheduledPosts();
+  } else if (searchTerm) {
+    try {
+      const posts = await fetchData(
+        `/search?q=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${limit}`
+      );
+      renderPosts(posts, "posts-container", role);
+    } catch (err) {
+      console.error("Search failed:", err.message);
+      showToast("Search failed. Please try again.", "danger");
+      document.getElementById("posts-container").innerHTML =
+        "<h4>Search failed. Please try again.</h4>";
+    }
+  } else {
     const selected = document.getElementById("category-dropdown").querySelector(
       ".dropdown-item.active"
     )?.dataset.value;
@@ -294,8 +319,8 @@ async function saveAsDraft(slug) {
 async function onSearch() {
   const term = document.getElementById("search-box").value.trim();
   if (term) {
+    searchTerm = term;
     currentPage = 1;
-    document.getElementById("search-box").value = "";
     document.getElementById("tag-filter").style.display = "none";
     document.getElementById("category-filter").style.display = "none";
     const dropdown = document.getElementById("category-dropdown");
@@ -310,7 +335,7 @@ async function onSearch() {
     updateActiveNav();
     try {
       const posts = await fetchData(
-        `/search?q=${encodeURIComponent(term)}&page=${currentPage}&limit=${limit}`
+        `/search?q=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${limit}`
       );
       renderPosts(posts, "posts-container", role);
     } catch (err) {
@@ -320,8 +345,31 @@ async function onSearch() {
         "<h4>Search failed. Please try again.</h4>";
     }
   } else {
-    loadPosts();
+    clearSearch();
   }
+}
+
+/**
+ * Clears the search term and resets to the default published posts view.
+ */
+function clearSearch() {
+  document.getElementById("search-box").value = "";
+  searchTerm = "";
+  document.getElementById("tag-filter").style.display = "block";
+  document.getElementById("category-filter").style.display = "block";
+  const dropdown = document.getElementById("category-dropdown");
+  dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
+    item.classList.remove("active")
+  );
+  dropdown.querySelector("[data-value='']").classList.add("active");
+  document.getElementById("category-dropdown-button").textContent = "All Categories";
+  selectedCategoryName = "All Categories";
+  selectedCategorySlug = "";
+  currentView = "published";
+  currentPage = 1;
+  document.getElementById("prev-page").style.visibility = "hidden";
+  updateActiveNav();
+  loadPublishedPosts();
 }
 
 /**
@@ -369,12 +417,22 @@ window.onload = () => {
       onSearch();
     }
   });
+  document.getElementById("search-btn").addEventListener("click", (e) => {
+    e.preventDefault();
+    onSearch();
+  });
+  document.getElementById("clear-search-btn").addEventListener("click", (e) => {
+    e.preventDefault();
+    clearSearch();
+  });
 
   document.getElementById("all-categories").addEventListener("click", (e) => {
     e.preventDefault();
     document.getElementById("category-dropdown-button").textContent = "All Categories";
     selectedCategoryName = "All Categories";
     selectedCategorySlug = "";
+    searchTerm = "";
+    document.getElementById("search-box").value = "";
     currentPage = 1;
     document.getElementById("prev-page").style.visibility = "hidden";
     loadPublishedPosts();
@@ -394,6 +452,8 @@ window.onload = () => {
     document.getElementById("category-dropdown-button").textContent = "All Categories";
     selectedCategoryName = "All Categories";
     selectedCategorySlug = "";
+    searchTerm = "";
+    document.getElementById("search-box").value = "";
     loadPublishedPosts();
   });
   document.getElementById("nav-drafts").addEventListener("click", (e) => {

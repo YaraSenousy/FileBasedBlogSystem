@@ -491,7 +491,7 @@ article div strong {
     content: "←";
     margin-right: 0.5rem;
 }
-/* Sidebar styling */
+
 .sidebar {
     background: #ffffff;
     padding: 1.5rem;
@@ -548,12 +548,10 @@ article div strong {
     color: #fff;
 }
 
-/* Adjust main content */
 main {
     padding: 1.5rem;
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
     .sidebar {
         margin-bottom: 1rem;
@@ -561,4 +559,52 @@ main {
     main {
         padding: 1rem;
     }
+}
+
+.sidebar {
+    background-color: #f8f9fa;
+    padding: 20px;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+#posts-container article {
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+#posts-container article h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+#posts-container article p {
+    margin-bottom: 10px;
+}
+
+#posts-container article a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+#posts-container article a:hover {
+    text-decoration: underline;
+}
+
+#pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.clear-search-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5em;
+    font-size: 1.2em;
+    padding: 0;
 }

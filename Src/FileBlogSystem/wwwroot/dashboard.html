@@ -51,14 +51,14 @@
 
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
             <aside class="col-md-3 sidebar">
                 <section id="search-part">
                     <strong>Search Posts:</strong>
-                    <div class="d-flex mb-3">
-                        <input class="form-control me-2" id="search-box" type="text" placeholder="Search All Posts.."
+                    <div class="input-group mb-3">
+                        <input class="form-control" id="search-box" type="text" placeholder="Search All Posts.."
                             aria-label="Search" />
-                        <button class="btn btn-outline-success" onclick="onSearch()">Search</button>
+                        <button class="btn btn-outline-secondary clear-search-btn" type="button" id="clear-search-btn" title="Clear search">x</button>
+                        <button class="btn btn-outline-success" type="button" id="search-btn">Search</button>
                     </div>
                 </section>
                 <section id="category-filter">
@@ -79,7 +79,6 @@
                 </section>
             </aside>
 
-            <!-- Main Content -->
             <main class="col-md-9">
                 <div id="error-message" class="error"></div>
                 <div id="posts-container"></div>

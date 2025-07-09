@@ -46,18 +46,24 @@
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
-                <div>
-                    <a class="nav-link" href="/addUser" role="button">
-                        Manage Users
-                    </a>
-                    <a class="nav-link" href="/addTag" role="button">
-                        Manage Tags
-                    </a>
-                    <a class="nav-link" href="/addCategory" role="button">
-                        Manage Categories
-                    </a>
-                </div>
-                <button class="btn btn-outline-danger w-100" id="account-logout">Logout</button>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/addUser">
+                            <i class="fas fa-users"></i> Manage Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/addTag">
+                            <i class="fas fa-tags"></i> Manage Tags
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/addCategory">
+                            <i class="fas fa-list"></i> Manage Categories
+                        </a>
+                    </li>
+                </ul>
+                <button class="btn btn-outline-danger w-100 mt-3" id="account-logout">Logout</button>
             </div>
         </div>
     </header>
@@ -67,7 +73,7 @@
             <aside class="col-12 col-md-3 sidebar">
                 <button class="btn btn-outline-primary mb-2" type="button" id="create-post">Create Post</button>
                 <section id="search-part">
-                    <strong>Search Posts:</strong>
+                    <strong> <i class="fas fa-search"></i> Search Posts:</strong>
                     <div class="input-group mb-3">
                         <input class="form-control" id="search-box" type="text" placeholder="Search All Posts.."
                             aria-label="Search" />
@@ -78,7 +84,7 @@
                     </div>
                 </section>
                 <section id="category-filter">
-                    <strong>Filter by Category:</strong>
+                    <strong> <i class="fas fa-list"></i> Filter by Category:</i></strong>
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button"
                             id="category-dropdown-button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -90,7 +96,7 @@
                     </div>
                 </section>
                 <section id="tag-filter">
-                    <strong>Filter by Tags:</strong>
+                    <strong> <i class="fas fa-tags"></i> Filter by Tags:</strong>
                     <button class="btn btn-outline-danger mb-2" type="button" id="clear-tags-btn">Clear Tags</button>
                     <div id="tag-checkboxes"></div>
                 </section>

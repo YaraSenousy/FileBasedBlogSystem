@@ -29,14 +29,14 @@
 
   <div class="container-fluid">
     <div class="row">
-      <aside class="col-md-3 sidebar">
+      <aside class="col-12 col-md-3 sidebar">
         <section id="search-part">
           <strong>Search Posts:</strong>
           <div class="input-group mb-3">
             <input class="form-control" id="search-box" type="text" placeholder="Search All Posts.."
               aria-label="Search" />
             <button class="btn btn-outline-secondary clear-search-btn" type="button" id="clear-search-btn" title="Clear search">×</button>
-            <button class="btn btn-outline-success" type="button" id="search-btn">Search</button>
+            <button class="btn btn-outline-success" type="button" id="search-btn" title="Search published posts">Search</button>
           </div>
         </section>
         <section id="category-filter">
@@ -53,12 +53,12 @@
         </section>
         <section id="tag-filter">
           <strong>Filter by Tags:</strong>
-          <button class="btn btn-outline-danger btn-sm mt-2" type="button" id="clear-tags-btn">Clear Tags</button>
+          <button class="btn btn-outline-danger btn-sm mb-2" type="button" id="clear-tags-btn">Clear Tags</button>
           <div id="tag-checkboxes"></div>
         </section>
       </aside>
 
-      <main class="col-md-9">
+      <main class="col-12 col-md-9">
         <div id="error-message" class="error"></div>
         <div id="posts-container"></div>
         <div id="pagination">

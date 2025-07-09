@@ -108,8 +108,8 @@ function renderPosts(posts, containerId, role = null) {
         <div class="col-md-7">
           <h2>${post.title}</h2>
           <div class="post-meta">
-            ${role ? (status === "draft" ? "" : `${status}: ${publishedDate} <br>`) : `Published: ${publishedDate} <br>`}
-            ${modifiedDate ? `Modified: ${modifiedDate}` : ""}
+            ${status === "draft" ? "" : `${status}: ${publishedDate} <br>`}
+            ${modifiedDate ? `modified: ${modifiedDate}` : ""}
           </div>
           <div class="post-description"><span>Description: </span><p>${post.description}</p></div>
           <div class="post-preview"><p>${preview}</p></div>

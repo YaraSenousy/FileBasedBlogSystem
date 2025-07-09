@@ -29,9 +29,6 @@
                         <li class="nav-item">
                             <a class="nav-link" id="nav-scheduled" href="#">Scheduled Posts</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="nav-create" href="/create">Create Post</a>
-                        </li>
                         <li class="nav-item dropdown" id="nav-add-dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                                 aria-expanded="false">
@@ -57,6 +54,7 @@
     <div class="container-fluid">
         <div class="row">
             <aside class="col-12 col-md-3 sidebar">
+                <button class="btn btn-outline-primary mb-2" type="button" id="create-post">Create Post</button>
                 <section id="search-part">
                     <strong>Search Posts:</strong>
                     <div class="input-group mb-3">
@@ -80,7 +78,7 @@
                 </section>
                 <section id="tag-filter">
                     <strong>Filter by Tags:</strong>
-                    <button class="btn btn-outline-danger btn-sm mb-2" type="button" id="clear-tags-btn">Clear Tags</button>
+                    <button class="btn btn-outline-danger mb-2" type="button" id="clear-tags-btn">Clear Tags</button>
                     <div id="tag-checkboxes"></div>
                 </section>
             </aside>

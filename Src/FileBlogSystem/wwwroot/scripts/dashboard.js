@@ -434,7 +434,7 @@ window.onload = () => {
     currentPage = 1;
     loadScheduledPosts();
   });
-  document.getElementById("nav-create").addEventListener("click", (e) => {
+  document.getElementById("create-post").addEventListener("click", (e) => {
     e.preventDefault();
     window.open("/create", "_self");
   });

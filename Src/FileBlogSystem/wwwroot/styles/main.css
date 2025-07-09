@@ -200,6 +200,7 @@ main {
 #search-part .input-group {
     align-items: center;
 }
+
 #search-box.form-control {
     background-color: white;
     height: 38px;
@@ -341,7 +342,8 @@ main {
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-#clear-tags-btn, #create-post {
+#clear-tags-btn,
+#create-post {
     width: 100%;
     font-size: 0.9rem;
     padding: 0.5rem 1rem;
@@ -721,11 +723,11 @@ article div strong {
     transition: transform 0.3s, background-color 0.3s;
 }
 
-.theme-toggle:checked + .theme-toggle-label {
+.theme-toggle:checked+.theme-toggle-label {
     background-color: #4a4a4a;
 }
 
-.theme-toggle:checked + .theme-toggle-label::before {
+.theme-toggle:checked+.theme-toggle-label::before {
     content: "\f186";
     transform: translateX(26px);
     background-color: #4dabf7;
@@ -826,7 +828,7 @@ article div strong {
     .offcanvas-body p {
         color: #e0e0e0;
     }
-    
+
     .sidebar {
         background: #2c2c2c;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -1079,7 +1081,22 @@ article div strong {
         background-color: #4a4a4a;
     }
 
-    .theme-toggle:checked + .theme-toggle-label {
+    .theme-toggle:checked+.theme-toggle-label {
+        background-color: #007bff;
+    }
+
+    #create-post {
+        border-color: #4dabf7;
+        color: #4dabf7;
+    }
+
+    #create-post:hover,
+    #edit-btn {
+        background-color: #4dabf7;
+        color: white;
+    }
+
+    #edit-btn:hover {
         background-color: #007bff;
     }
 }

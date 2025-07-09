@@ -29,17 +29,6 @@
                         <li class="nav-item">
                             <a class="nav-link" id="nav-scheduled" href="#">Scheduled Posts</a>
                         </li>
-                        <li class="nav-item dropdown" id="nav-add-dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                Add
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="/addUser">Add User</a></li>
-                                <li><a class="dropdown-item" href="/addTag">Add Tag</a></li>
-                                <li><a class="dropdown-item" href="/addCategory">Add Category</a></li>
-                            </ul>
-                        </li>
                     </ul>
                     <button class="nav-item btn ms-2" id="nav-account" data-bs-toggle="offcanvas" data-bs-target="#accountOffcanvas" aria-controls="accountOffcanvas">
                         <i class="fas fa-user"></i>
@@ -57,6 +46,17 @@
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
+                <div>
+                    <a class="nav-link" href="/addUser" role="button">
+                        Manage Users
+                    </a>
+                    <a class="nav-link" href="/addTag" role="button">
+                        Manage Tags
+                    </a>
+                    <a class="nav-link" href="/addCategory" role="button">
+                        Manage Categories
+                    </a>
+                </div>
                 <button class="btn btn-outline-danger w-100" id="account-logout">Logout</button>
             </div>
         </div>

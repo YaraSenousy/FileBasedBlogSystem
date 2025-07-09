@@ -139,6 +139,7 @@ function renderPosts(posts, containerId, role = null) {
       if (status === "draft" || status === "scheduled") {
         const editBtn = document.createElement("button");
         editBtn.className = "btn btn-primary btn-sm m-1";
+        editBtn.id = "edit-btn";
         editBtn.textContent = "Edit Post";
         editBtn.onclick = () => window.open(`/create?slug=${post.slug}`, "_self");
         postEl.appendChild(editBtn);

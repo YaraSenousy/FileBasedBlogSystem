@@ -1,4 +1,4 @@
-import { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination } from "./utils.js";
+import { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags } from "./utils.js";
 
 /**
  * Manages the current page number, limit per page, total pages, active tags, current view, user role,
@@ -26,6 +26,16 @@ let searchTerm = "";
  */
 function setCurrentPage(current) {
   currentPage = current;
+}
+
+/**
+ * Clears all tag filters and reloads posts.
+ */
+function clearTagsHandler() {
+  activeTags.clear();
+  currentPage = 1;
+  clearTags();
+  loadPosts();
 }
 
 /**
@@ -384,7 +394,10 @@ window.onload = () => {
     e.preventDefault();
     clearSearch();
   });
-
+  document.getElementById("clear-tags-btn").addEventListener("click", (e) => {
+    e.preventDefault();
+    clearTagsHandler();
+  });
   document.getElementById("all-categories").addEventListener("click", (e) => {
     e.preventDefault();
     document.getElementById("category-dropdown-button").textContent = "All Categories";

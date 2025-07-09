@@ -208,7 +208,7 @@ function showToast(message, variant = "primary") {
 async function loadTags(setCurrentPage, activeTags, loadPosts) {
   const tags = await fetchData("/tags");
   const container = document.getElementById("tag-checkboxes");
-
+  container.innerHTML = "";
   tags.forEach((tag) => {
     const label = document.createElement("label");
     label.className = "form-check-label";
@@ -228,6 +228,17 @@ async function loadTags(setCurrentPage, activeTags, loadPosts) {
     label.appendChild(input);
     label.append(` ${tag.name}`);
     container.appendChild(label);
+  });
+}
+
+/**
+ * Clears all tag checkboxes in the tag filter section.
+ */
+function clearTags() {
+  const container = document.getElementById("tag-checkboxes");
+  const checkboxes = container.querySelectorAll("input[type='checkbox']");
+  checkboxes.forEach((checkbox) => {
+    checkbox.checked = false;
   });
 }
 
@@ -344,4 +355,4 @@ function renderPagination(currentPage, setCurrentPage, totalPages, loadPosts) {
   nextPageItem.classList.toggle("disabled", currentPage === totalPages);
 }
 
-export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination };
+export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags};

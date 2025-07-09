@@ -10,13 +10,59 @@ public static class AdminFunctions
 {
     public static void MapAdminEndPoint(this WebApplication app)
     {
+        app.MapGet("/admin/users", GetUsers).RequireAuthorization("AdminLevel");
         app.MapPost("/admin/users", AddUser).RequireAuthorization("AdminLevel");
         app.MapPost("/admin/tags", AddTag).RequireAuthorization("AdminLevel");
         app.MapPost("/admin/categories", AddCategory).RequireAuthorization("AdminLevel");
     }
 
     /*
-    handles adding a new user by taking username and password
+    handles getting users info
+    */
+    public static IResult GetUsers(HttpRequest request)
+    {
+        var usersDir = Path.Combine(Directory.GetCurrentDirectory(), "content", "users");
+        if (!Directory.Exists(usersDir))
+            return Results.Problem("Users folder missing", statusCode: 500);
+
+        var users = Directory
+        .GetDirectories(usersDir)
+        .Select(folder => ReadUserFromFolder(folder))
+        .Where(u => u != null)
+        .ToList();
+
+        return Results.Ok(users);
+    }
+
+    /*
+    handles reading user profile given the user folder
+    */
+    public static User? ReadUserFromFolder(string userDir)
+    {
+        var profilePath = Path.Combine(userDir, "profile.json");
+        if (!File.Exists(profilePath)) return null;
+
+        try
+        {
+            var profileJson = File.ReadAllText(profilePath);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            var user = JsonSerializer.Deserialize<User>(profileJson, options);
+            user.PasswordHash = string.Empty!;
+            return user;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ReadUserFromFolder] Error reading {profilePath}: {ex.Message}");
+            return null;
+        }
+    }
+
+    /*
+    handles adding a new user by taking username and name and password
     create slug from the username and make sure it is unique 
     and stores the password hashed
     */
@@ -25,11 +71,18 @@ public static class AdminFunctions
         var form = await request.ReadFormAsync();
         var username = form["username"];
         var password = form["password"];
+        var name = form["name"];
         var roles = form["roles"].ToString().Split(',', StringSplitOptions.RemoveEmptyEntries);
 
-        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || roles.Length == 0)
-            return Results.BadRequest("User data incomplete");
-
+        if (string.IsNullOrEmpty(username))
+            return Results.BadRequest("Missing username");
+        if (string.IsNullOrEmpty(password))
+            return Results.BadRequest("Missing password");
+        if (string.IsNullOrEmpty(name))
+            return Results.BadRequest("Missing name");
+        if (roles.Length == 0)
+            return Results.BadRequest("Missing role");
+            
         var userFolder = Path.Combine("content", "users", username!);
         var userPath = Path.Combine(userFolder, "profile.json");
 
@@ -41,6 +94,7 @@ public static class AdminFunctions
         var user = new User
         {
             Username = username!,
+            Name = name!,
             PasswordHash = hash!,
             Roles = roles.ToList(),
         };

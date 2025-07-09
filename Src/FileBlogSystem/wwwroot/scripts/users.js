@@ -1,4 +1,6 @@
-
+/**
+ * Initialize theme based on localStorage or system preference
+ */
 const savedTheme = localStorage.getItem("theme");
 if (savedTheme) {
     document.documentElement.setAttribute("data-theme", savedTheme);
@@ -6,43 +8,38 @@ if (savedTheme) {
     document.documentElement.setAttribute("data-theme", "dark");
 }
 
-const mockUsers = [
-    { username: "admin1", name: "John Doe", role: "admin" },
-    { username: "author1", name: "Jane Smith", role: "author" },
-    { username: "editor1", name: "Alice Johnson", role: "editor" },
-    { username: "user4", name: "Bob Wilson", role: "author" },
-    { username: "user5", name: "Emma Brown", role: "editor" },
-    { username: "user6", name: "Michael Lee", role: "admin" },
-    { username: "user7", name: "Sarah Davis", role: "author" },
-    { username: "user8", name: "David Clark", role: "editor" },
-    { username: "user9", name: "Laura Martinez", role: "admin" },
-    { username: "user10", name: "James Taylor", role: "author" },
-    { username: "user11", name: "Olivia White", role: "editor" },
-    { username: "user12", name: "William Harris", role: "admin" }
-];
-
+/**
+ * Configuration and state
+ * @type {number} USERS_PER_PAGE - Number of users per page.
+ * @type {user[]} users - Store users as objects.
+ * @type {number} currentPage - Current pagination page.
+ * @type {string} sortField - Current sort field.
+ * @type {string} sortDirection -  Sort direction: 'asc' or 'desc'.
+ */
 const USERS_PER_PAGE = 10;
+let users = [];
 let currentPage = 1;
-let sortField = 'username';
+let sortField = 'username'; 
 let sortDirection = 'asc';
 
-// Render users with pagination and sorting
-function renderUsers(users) {
-    // Sort users
-    const sortedUsers = [...users].sort((a, b) => {
+/**
+ * Renders users in the table with sorting and pagination
+ * @param {Object[]} usersToRender - Array of user objects to display
+ */
+function renderUsers(usersToRender) {
+    // Sort users by the current sort field and direction
+    const sortedUsers = [...usersToRender].sort((a, b) => {
         const valA = a[sortField].toLowerCase();
         const valB = b[sortField].toLowerCase();
-        if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
-        if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
-        return 0;
+        return sortDirection === 'asc' ? (valA < valB ? -1 : 1) : (valA > valB ? -1 : 1);
     });
 
-    // Paginate
+    // Paginate users
     const start = (currentPage - 1) * USERS_PER_PAGE;
     const end = start + USERS_PER_PAGE;
     const paginatedUsers = sortedUsers.slice(start, end);
 
-    // Render table
+    // Render table rows
     const tbody = document.getElementById('users-table-body');
     tbody.innerHTML = '';
     paginatedUsers.forEach(user => {
@@ -63,11 +60,14 @@ function renderUsers(users) {
         tbody.appendChild(tr);
     });
 
-    // Update pagination
+    // Update pagination controls
     renderPagination(sortedUsers.length);
 }
 
-// Render pagination
+/**
+ * Renders pagination controls based on total users
+ * @param {number} totalUsers - Total number of users after filtering
+ */
 function renderPagination(totalUsers) {
     const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
     const pageNumbers = document.getElementById('page-numbers');
@@ -82,32 +82,35 @@ function renderPagination(totalUsers) {
     document.getElementById('next-page').classList.toggle('disabled', currentPage === totalPages);
 }
 
-// Search users
+/**
+ * Filters users based on search query and re-renders the table
+ */
 function searchUsers() {
     const query = document.getElementById('search-users').value.toLowerCase();
-    const filteredUsers = mockUsers.filter(user =>
+    const filteredUsers = users.filter(user =>
         user.username.toLowerCase().includes(query) || user.name.toLowerCase().includes(query)
     );
     currentPage = 1; // Reset to first page on search
     renderUsers(filteredUsers);
 }
 
-// Clear search
+/**
+ * Clears the search input and re-renders all users
+ */
 document.getElementById('clear-search-btn').addEventListener('click', () => {
     document.getElementById('search-users').value = '';
     currentPage = 1;
-    renderUsers(mockUsers);
+    renderUsers(users);
 });
 
-// Search input
+// Handle search input
 document.getElementById('search-users').addEventListener('input', searchUsers);
 
-// Pagination clicks
+// Handle pagination clicks
 document.getElementById('pagination').addEventListener('click', (e) => {
     e.preventDefault();
     const pageLink = e.target.closest('.page-link');
-    if (!pageLink) return;
-    if (pageLink.parentElement.classList.contains('disabled')) return;
+    if (!pageLink || pageLink.parentElement.classList.contains('disabled')) return;
     if (pageLink.dataset.page) {
         currentPage = parseInt(pageLink.dataset.page);
     } else if (pageLink.parentElement.id === 'prev-page') {
@@ -115,10 +118,10 @@ document.getElementById('pagination').addEventListener('click', (e) => {
     } else if (pageLink.parentElement.id === 'next-page') {
         currentPage++;
     }
-    searchUsers(); // Re-render with current search
+    searchUsers();
 });
 
-// Sorting clicks
+// Handle sorting clicks
 document.querySelectorAll('.sortable').forEach(th => {
     th.addEventListener('click', () => {
         const field = th.dataset.sort;
@@ -132,11 +135,14 @@ document.querySelectorAll('.sortable').forEach(th => {
             icon.className = 'fas fa-sort';
         });
         th.querySelector('i').className = `fas fa-sort-${sortDirection === 'asc' ? 'up' : 'down'}`;
-        searchUsers(); // Re-render with current search and sort
+        searchUsers();
     });
 });
 
-// Add user
+/**
+ * Handles add user form submission
+ * @param {Event} e - Form submission event
+ */
 document.getElementById('addUserForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -150,7 +156,7 @@ document.getElementById('addUserForm').addEventListener('submit', async (e) => {
         });
         if (res.ok) {
             const newUser = await res.json();
-            mockUsers.push(newUser);
+            users.push({ username: newUser.username, name: newUser.name, role: newUser.roles[0] });
             toastMsg.textContent = 'User added successfully';
             toast.className = 'toast align-items-center text-bg-success border-0';
             e.target.reset();
@@ -168,11 +174,13 @@ document.getElementById('addUserForm').addEventListener('submit', async (e) => {
     new bootstrap.Toast(toast).show();
 });
 
-// Edit user population
+/**
+ * Populates edit user form with user data
+ */
 document.getElementById('users-table-body').addEventListener('click', (e) => {
     if (e.target.closest('.edit-btn')) {
         const username = e.target.closest('.edit-btn').dataset.username;
-        const user = mockUsers.find(u => u.username === username);
+        const user = users.find(u => u.username === username);
         document.getElementById('edit-username-original').value = user.username;
         document.getElementById('edit-username').value = user.username;
         document.getElementById('edit-name').value = user.name;
@@ -181,7 +189,10 @@ document.getElementById('users-table-body').addEventListener('click', (e) => {
     }
 });
 
-// Edit user
+/**
+ * Handles edit user form submission
+ * @param {Event} e - Form submission event
+ */
 document.getElementById('editUserForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -196,8 +207,8 @@ document.getElementById('editUserForm').addEventListener('submit', async (e) => 
         });
         if (res.ok) {
             const updatedUser = await res.json();
-            const index = mockUsers.findIndex(u => u.username === originalUsername);
-            mockUsers[index] = updatedUser;
+            const index = users.findIndex(u => u.username === originalUsername);
+            users[index] = { username: updatedUser.username, name: updatedUser.name, role: updatedUser.roles[0] };
             toastMsg.textContent = 'User updated successfully';
             toast.className = 'toast align-items-center text-bg-success border-0';
             bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
@@ -214,7 +225,9 @@ document.getElementById('editUserForm').addEventListener('submit', async (e) => 
     new bootstrap.Toast(toast).show();
 });
 
-// Delete user
+/**
+ * Stores username for deletion
+ */
 let userToDelete = null;
 document.getElementById('users-table-body').addEventListener('click', (e) => {
     if (e.target.closest('.delete-btn')) {
@@ -222,6 +235,9 @@ document.getElementById('users-table-body').addEventListener('click', (e) => {
     }
 });
 
+/**
+ * Handles delete user confirmation
+ */
 document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
     if (!userToDelete) return;
     const toast = document.getElementById('live-toast');
@@ -232,7 +248,7 @@ document.getElementById('confirm-delete-btn').addEventListener('click', async ()
             credentials: 'include',
         });
         if (res.ok) {
-            mockUsers.splice(mockUsers.findIndex(u => u.username === userToDelete), 1);
+            users.splice(users.findIndex(u => u.username === userToDelete), 1);
             toastMsg.textContent = 'User deleted successfully';
             toast.className = 'toast align-items-center text-bg-success border-0';
             bootstrap.Modal.getInstance(document.getElementById('deleteUserModal')).hide();
@@ -250,32 +266,37 @@ document.getElementById('confirm-delete-btn').addEventListener('click', async ()
     userToDelete = null;
 });
 
-// Fetch users
+/**
+ * Fetches users from the API and updates the users array
+ */
 async function fetchUsers() {
     try {
         const res = await fetch('/admin/users', { credentials: 'include' });
         if (res.ok) {
-            const users = await res.json();
-            mockUsers.length = 0;
-            mockUsers.push(...users);
+            const apiUsers = await res.json();
+            // Transform API response to { username, name, role }
+            users = apiUsers.map(user => ({
+                username: user.username,
+                name: user.name,
+                role: user.roles[0]
+            }));
             searchUsers();
         } else {
+            const error = await res.json();
             const toast = document.getElementById('live-toast');
             const toastMsg = document.getElementById('toast-message');
-            toastMsg.textContent = 'Failed to load users';
+            toastMsg.textContent = `Failed to load users: ${error.error}`;
             toast.className = 'toast align-items-center text-bg-danger border-0';
             new bootstrap.Toast(toast).show();
         }
     } catch (err) {
         const toast = document.getElementById('live-toast');
         const toastMsg = document.getElementById('toast-message');
-        toastMsg.textContent = 'Error loading users';
+        toastMsg.textContent = `Error loading users: ${err.message}`;
         toast.className = 'toast align-items-center text-bg-danger border-0';
         new bootstrap.Toast(toast).show();
     }
 }
-// Comment out until API is ready
-// fetchUsers();
 
-// Initial render
-renderUsers(mockUsers);
+// Initialize by fetching users
+fetchUsers();

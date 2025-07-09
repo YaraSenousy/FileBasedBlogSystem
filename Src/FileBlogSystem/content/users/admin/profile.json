@@ -1,7 +1,8 @@
 {
-  "username": "admin",
-  "passwordHash": "$2a$11$Rg94COu3grDSMYy2d0Hw..tk6wSl7XP460LU4/xpTg1ws/ziK5AxK",
-  "roles": [
+  "Username": "admin",
+  "Name": "yara",
+  "PasswordHash": "$2a$11$Rg94COu3grDSMYy2d0Hw..tk6wSl7XP460LU4/xpTg1ws/ziK5AxK",
+  "Roles": [
     "admin"
   ]
 }

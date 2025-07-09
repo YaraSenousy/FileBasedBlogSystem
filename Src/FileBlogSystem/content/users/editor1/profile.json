@@ -2,7 +2,7 @@
   "Username": "editor1",
   "Name": "Samy",
   "PasswordHash": "$2a$11$0sC55n2ipKqYN28bZy1FQ.OEC3kWbK9/c8NLHQQizVlKUkFu5l72q",
-  "Roles": [
+  "Role": 
     "editor"
-  ]
+  
 }

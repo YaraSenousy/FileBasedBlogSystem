@@ -46,7 +46,7 @@ public static class Login
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
 
-        request.HttpContext.Response.Cookies.Append("user-role", user.Roles[0], new CookieOptions
+        request.HttpContext.Response.Cookies.Append("user-role", user.Role, new CookieOptions
         {
             HttpOnly = false,
             Secure = true,

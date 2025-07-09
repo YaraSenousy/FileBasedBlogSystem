@@ -11,7 +11,7 @@ if (savedTheme) {
 /**
  * Configuration and state
  * @type {number} USERS_PER_PAGE - Number of users per page.
- * @type {user[]} users - Store users as objects.
+ * @type {json[]} users - Store users as objects.
  * @type {number} currentPage - Current pagination page.
  * @type {string} sortField - Current sort field.
  * @type {string} sortDirection -  Sort direction: 'asc' or 'desc'.
@@ -155,16 +155,15 @@ document.getElementById('addUserForm').addEventListener('submit', async (e) => {
             credentials: 'include',
         });
         if (res.ok) {
-            const newUser = await res.json();
-            users.push({ username: newUser.username, name: newUser.name, role: newUser.roles[0] });
+            fetchUsers();
             toastMsg.textContent = 'User added successfully';
             toast.className = 'toast align-items-center text-bg-success border-0';
             e.target.reset();
             bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
             searchUsers();
         } else {
-            const error = await res.json();
-            toastMsg.textContent = `Failed: ${error.error}`;
+            const error = await res.text();
+            toastMsg.textContent = `Failed: ${error}`;
             toast.className = 'toast align-items-center text-bg-danger border-0';
         }
     } catch (err) {
@@ -273,13 +272,7 @@ async function fetchUsers() {
     try {
         const res = await fetch('/admin/users', { credentials: 'include' });
         if (res.ok) {
-            const apiUsers = await res.json();
-            // Transform API response to { username, name, role }
-            users = apiUsers.map(user => ({
-                username: user.username,
-                name: user.name,
-                role: user.roles[0]
-            }));
+            users = await res.json();
             searchUsers();
         } else {
             const error = await res.json();

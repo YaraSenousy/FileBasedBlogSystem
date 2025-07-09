@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using FileBlogSystem.Features.Security;
 using FileBlogSystem.Features.Render.Tags;
 using FileBlogSystem.Features.Posting;
@@ -62,6 +63,16 @@ public static class AdminFunctions
     }
 
     /*
+    Define the password policy:
+    At least 8 characters, one uppercase, one lowercase, one digit.
+    */
+    public static bool IsValidPassword(string password)
+    {
+
+        string pattern = @"(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$";
+        return Regex.IsMatch(password, pattern);
+    }
+    /*
     handles adding a new user by taking username and name and password
     create slug from the username and make sure it is unique 
     and stores the password hashed
@@ -72,7 +83,7 @@ public static class AdminFunctions
         var username = form["username"];
         var password = form["password"];
         var name = form["name"];
-        var roles = form["roles"].ToString().Split(',', StringSplitOptions.RemoveEmptyEntries);
+        var role = form["role"];
 
         if (string.IsNullOrEmpty(username))
             return Results.BadRequest("Missing username");
@@ -80,9 +91,15 @@ public static class AdminFunctions
             return Results.BadRequest("Missing password");
         if (string.IsNullOrEmpty(name))
             return Results.BadRequest("Missing name");
-        if (roles.Length == 0)
+        if (string.IsNullOrEmpty(role))
             return Results.BadRequest("Missing role");
-            
+        if (Regex.IsMatch(username!, @"[^a-zA-Z0-9]"))
+            return Results.BadRequest("Invalid Username: Shouldn't contain special characters");
+        if (!IsValidPassword(password!))
+            return Results.BadRequest("Invalid Password: Must be at least 8 characters, one uppercase, one lowercase, one digit");
+        if (role != "admin" && role != "author" && role != "editor")
+            return Results.BadRequest("Invalid role");
+
         var userFolder = Path.Combine("content", "users", username!);
         var userPath = Path.Combine(userFolder, "profile.json");
 
@@ -96,7 +113,7 @@ public static class AdminFunctions
             Username = username!,
             Name = name!,
             PasswordHash = hash!,
-            Roles = roles.ToList(),
+            Role = role!,
         };
 
         var userJson = JsonSerializer.Serialize(user, new JsonSerializerOptions

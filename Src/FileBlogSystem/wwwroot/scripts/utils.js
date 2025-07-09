@@ -354,5 +354,17 @@ function renderPagination(currentPage, setCurrentPage, totalPages, loadPosts) {
   const nextPageItem = document.getElementById("next-page");
   nextPageItem.classList.toggle("disabled", currentPage === totalPages);
 }
+/**
+ * toggles the colour theme and save it in the local storage
+ */
+function toggleTheme() {
+  const html = document.documentElement;
+  const toggle = document.querySelector(".theme-toggle");
+  const currentTheme = html.getAttribute("data-theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const newTheme = currentTheme === "dark" ? "light" : "dark";
+  html.setAttribute("data-theme", newTheme);
+  localStorage.setItem("theme", newTheme);
+  toggle.checked = newTheme === "dark";
+}
 
-export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags};
+export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, toggleTheme };

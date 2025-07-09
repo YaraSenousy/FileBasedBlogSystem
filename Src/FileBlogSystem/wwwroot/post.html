@@ -13,6 +13,12 @@
 <body>
   <main id="post-container">Loading...</main>
   <script>
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      document.documentElement.setAttribute("data-theme", savedTheme);
+    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
     const url = new URLSearchParams(location.search);
     const slug = url.get("slug");
     const preview = url.get("preview");

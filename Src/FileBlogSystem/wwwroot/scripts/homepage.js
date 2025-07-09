@@ -1,4 +1,4 @@
-import { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags } from "./utils.js";
+import { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, toggleTheme } from "./utils.js";
 
 /**
  * Manages the current page number, limit per page, total pages, active tags, and selected category for the homepage.
@@ -249,4 +249,13 @@ window.onload = () => {
     currentPage = 1;
     clearSearch();
   });
+  document.getElementById("theme-toggle").addEventListener("click", (e) =>{
+    toggleTheme();
+  });
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme) {
+    document.documentElement.setAttribute("data-theme", savedTheme);
+  } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    document.documentElement.setAttribute("data-theme", "dark");
+  }
 };

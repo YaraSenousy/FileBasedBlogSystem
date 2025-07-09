@@ -41,14 +41,25 @@
                             </ul>
                         </li>
                     </ul>
-                    <a class="nav-item btn ms-2 btn-outline-danger" id="nav-logout">Logout</a>
+                    <button class="nav-item btn ms-2" id="nav-account" data-bs-toggle="offcanvas" data-bs-target="#accountOffcanvas" aria-controls="accountOffcanvas">
+                        <i class="fas fa-user"></i>
+                    </button>
+                </div>
+                <div class="theme-toggle-container">
+                    <input type="checkbox" id="theme-toggle" class="theme-toggle">
+                    <label for="theme-toggle" class="theme-toggle-label" aria-label="Toggle Theme"></label>
                 </div>
             </div>
-            <div class="theme-toggle-container">
-                <input type="checkbox" id="theme-toggle" class="theme-toggle">
-                <label for="theme-toggle" class="theme-toggle-label" aria-label="Toggle Theme"></label>
-            </div>
         </nav>
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="accountOffcanvas" aria-labelledby="accountOffcanvasLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="accountOffcanvasLabel">Hello, User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <button class="btn btn-outline-danger w-100" id="account-logout">Logout</button>
+            </div>
+        </div>
     </header>
 
     <div class="container-fluid">

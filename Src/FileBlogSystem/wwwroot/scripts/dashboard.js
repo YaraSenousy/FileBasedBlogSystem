@@ -438,19 +438,21 @@ window.onload = () => {
     e.preventDefault();
     window.open("/create", "_self");
   });
-  document.getElementById("nav-logout").addEventListener("click", (e) => {
+  document.getElementById("account-logout").addEventListener("click", (e) => {
     e.preventDefault();
     logout();
   });
-  document.getElementById("theme-toggle").addEventListener("click", (e) =>{
+  document.getElementById("theme-toggle").addEventListener("click", (e) => {
     toggleTheme();
   });
 
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme) {
     document.documentElement.setAttribute("data-theme", savedTheme);
+    document.getElementById("theme-toggle").checked = savedTheme === "dark";
   } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
     document.documentElement.setAttribute("data-theme", "dark");
+    document.getElementById("theme-toggle").checked = true;
   }
 
   // Event listeners for dynamically created post action buttons
@@ -480,6 +482,3 @@ window.onload = () => {
     }
   });
 };
-
-// Export functions if needed by other modules
-export { publishNow, schedulePost, saveAsDraft, deletePost };

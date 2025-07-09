@@ -255,7 +255,9 @@ window.onload = () => {
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme) {
     document.documentElement.setAttribute("data-theme", savedTheme);
+    document.getElementById("theme-toggle").checked = savedTheme === "dark";
   } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
     document.documentElement.setAttribute("data-theme", "dark");
+    document.getElementById("theme-toggle").checked = true;
   }
 };

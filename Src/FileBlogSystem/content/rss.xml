@@ -17,7 +17,19 @@
   <description>some logic</description>
 </item>
 <item>
-  <title>blog 11</title>
+  <title>blog 12</title>
+  <link>http://localhost:5188/post.html?slug=blog-11</link>
+  <pubDate>Fri, 20 Jun 2025 07:41:00 GMT</pubDate>
+  <description>short description about the blog</description>
+</item>
+<item>
+  <title>blog 13</title>
+  <link>http://localhost:5188/post.html?slug=blog-11</link>
+  <pubDate>Fri, 20 Jun 2025 07:41:00 GMT</pubDate>
+  <description>short description about the blog</description>
+</item>
+<item>
+  <title>blog 14</title>
   <link>http://localhost:5188/post.html?slug=blog-11</link>
   <pubDate>Fri, 20 Jun 2025 07:41:00 GMT</pubDate>
   <description>short description about the blog</description>

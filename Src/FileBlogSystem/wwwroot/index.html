@@ -21,51 +21,63 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="nav-categories" role="button" data-bs-toggle="dropdown"
-                aria-expanded="false">
-                All Categories
-              </a>
-              <ul class="dropdown-menu" id="category-dropdown">
-                <li><a class="dropdown-item active" href="#" data-value="" id="all-categories">All
-                    Categories</a></li>
-              </ul>
-            </li>
           </ul>
-          <div class="d-flex" role="search">
-            <input class="form-control me-2" id="search-box" type="text" placeholder="Search All Posts.."
-              aria-label="Search" />
-            <button class="btn btn-outline-success">Search</button>
-          </div>
         </div>
       </div>
     </nav>
   </header>
 
-  <section id="tag-filter">
-    <strong>Filter by Tags:</strong>
-    <div id="tag-checkboxes"></div>
-  </section>
+  <div class="container-fluid">
+    <div class="row">
+      <aside class="col-md-3 sidebar">
+        <section id="search-part">
+          <strong>Search Posts:</strong>
+          <div class="input-group mb-3">
+            <input class="form-control" id="search-box" type="text" placeholder="Search All Posts.."
+              aria-label="Search" />
+            <button class="btn btn-outline-secondary clear-search-btn" type="button" id="clear-search-btn" title="Clear search">×</button>
+            <button class="btn btn-outline-success" type="button" id="search-btn">Search</button>
+          </div>
+        </section>
+        <section id="category-filter">
+          <strong>Filter by Category:</strong>
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button"
+              id="category-dropdown-button" data-bs-toggle="dropdown" aria-expanded="false">
+              All Categories
+            </button>
+            <ul class="dropdown-menu w-100" id="category-dropdown">
+              <li><a class="dropdown-item active" href="#" data-value="" id="all-categories">All Categories</a></li>
+            </ul>
+          </div>
+        </section>
+        <section id="tag-filter">
+          <strong>Filter by Tags:</strong>
+          <div id="tag-checkboxes"></div>
+        </section>
+      </aside>
 
-  <main>
-    <div id="error-message" class="error"></div>
-    <div id="posts-container"></div>
-    <div id="pagination">
-      <ul class="pagination">
-        <li class="page-item">
-          <a class="page-link" href="#" id="prev-page" style="visibility: hidden;" aria-label="Previous">
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        </li>
-        <li class="page-item page-link" id="page-number">Page 1</li>
-        <li class="page-item">
-          <a class="page-link" href="#" id="next-page" aria-label="Next">
-            <span aria-hidden="true">&raquo;</span>
-          </a>
-        </li>
-      </ul>
+      <main class="col-md-9">
+        <div id="error-message" class="error"></div>
+        <div id="posts-container"></div>
+        <div id="pagination">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" id="prev-page">
+              <a class="page-link" href="#" aria-label="Previous">
+                <span aria-hidden="true">«</span>
+              </a>
+            </li>
+            <div id="page-numbers" class="d-flex"></div>
+            <li class="page-item" id="next-page">
+              <a class="page-link" href="#" aria-label="Next">
+                <span aria-hidden="true">»</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </main>
     </div>
-  </main>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"

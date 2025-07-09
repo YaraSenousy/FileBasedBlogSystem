@@ -111,19 +111,6 @@ nav a {
     color: #000;
 }
 
-#tag-filter {
-    background: #ffffff;
-    padding: 0.75rem 1rem;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    margin: 1.5rem auto;
-    max-width: 700px;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
 #tag-filter strong {
     font-size: 1rem;
     color: #333;

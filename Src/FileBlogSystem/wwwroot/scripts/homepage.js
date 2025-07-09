@@ -1,46 +1,26 @@
-import { fetchData, getTagFilterParam, renderPosts, showToast } from "./utils.js";
+import { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination } from "./utils.js";
 
 /**
- * Manages the current page number, limit per page, active tags, and selected category for the homepage.
+ * Manages the current page number, limit per page, total pages, active tags, and selected category for the homepage.
  * @type {number} currentPage - The current page number.
  * @type {number} limit - The number of posts per page.
+ * @type {number} totalPages - The total number of pages available.
  * @type {Set} activeTags - A Set of currently selected tag slugs.
  * @type {string} selectedCategoryName - The name of the currently selected category.
+ * @type {string} searchTerm - The current search term, if any.
  */
 let currentPage = 1;
 const limit = 3;
+let totalPages = 1;
 let activeTags = new Set();
 let selectedCategoryName = "All Categories";
+let searchTerm = "";
 
 /**
- * Loads and renders tag checkboxes for filtering posts.
- * Fetches tags from the /tags endpoint and sets up event listeners for checkbox changes.
+ * Sets the current page
  */
-async function loadTags() {
-  const tags = await fetchData("/tags");
-  const container = document.getElementById("tag-checkboxes");
-
-  tags.forEach((tag) => {
-    const label = document.createElement("label");
-    label.className = "form-check-label";
-    const input = document.createElement("input");
-    input.className = "form-check-input";
-    input.type = "checkbox";
-    input.value = tag.slug;
-    input.id = `tag-${tag.slug}`;
-
-    input.onchange = () => {
-      if (input.checked) activeTags.add(tag.slug);
-      else activeTags.delete(tag.slug);
-      currentPage = 1;
-      document.getElementById("prev-page").style.visibility = "hidden";
-      loadPosts();
-    };
-
-    label.appendChild(input);
-    label.append(` ${tag.name}`);
-    container.appendChild(label);
-  });
+function setCurrentPage(current) {
+  currentPage = current;
 }
 
 /**
@@ -48,77 +28,86 @@ async function loadTags() {
  */
 async function loadPublishedPosts() {
   document.getElementById("tag-filter").style.display = "block";
+  document.getElementById("search-part").style.display = "block";
+  document.getElementById("category-filter").style.display = "block";
   const dropdown = document.getElementById("category-dropdown");
   dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
     item.classList.remove("active")
   );
   dropdown.querySelector("[data-value='']").classList.add("active");
-  document.getElementById("nav-categories").textContent = "All Categories";
+  document.getElementById("category-dropdown-button").textContent = "All Categories";
   selectedCategoryName = "All Categories";
+  searchTerm = "";
+  document.getElementById("search-box").value = "";
   updateActiveNav();
 
-  const posts = await fetchData(
-    `/published?page=${currentPage}&limit=${limit}${getTagFilterParam(activeTags)}`
+  const response = await fetchData(
+    `/published?page=${currentPage}&limit=${limit}${getTagFilterParam(activeTags)}`,
+    true
   );
-  renderPosts(posts, "posts-container");
+  totalPages = Math.ceil(response.totalItems / limit) || 1;
+  renderPosts(response.data, "posts-container");
+  renderPagination(currentPage, setCurrentPage, totalPages, loadPosts);
+}
+
+/**
+ * Loads and renders posts for a specific category.
+ * @param {string} slug - The slug of the category to load.
+ * @param {string} name - The name of the category to display.
+ */
+async function loadPostsByCategory(slug, name) {
+  document.getElementById("tag-filter").style.display = "block";
+  document.getElementById("search-part").style.display = "block";
+  document.getElementById("category-filter").style.display = "block";
+  document.getElementById("category-dropdown-button").textContent = name;
+  selectedCategoryName = name;
+  searchTerm = "";
+  document.getElementById("search-box").value = "";
+
+  try {
+    const response = await fetchData(
+      `/categories/${slug}?page=${currentPage}&limit=${limit}${getTagFilterParam(activeTags)}`,
+      true
+    );
+    totalPages = Math.ceil(response.totalItems / limit) || 1;
+    renderPosts(response.data, "posts-container");
+    renderPagination(currentPage, setCurrentPage, totalPages, loadPosts);
+  } catch (err) {
+    console.error("Failed to load posts:", err.message);
+    document.getElementById("posts-container").innerHTML = "<h4>Failed to load posts</h4>";
+    showToast("Failed to load posts", "danger");
+  }
+}
+
+/**
+ * Navigates to a specific page.
+ * @param {number} page - The page number to navigate to.
+ */
+function goToPage(page) {
+  if (page >= 1 && page <= totalPages) {
+    currentPage = page;
+    loadPosts();
+  }
 }
 
 /**
  * Advances to the next page of posts.
- * Updates the current page number and reloads posts.
  */
 function nextPage() {
-  currentPage++;
-  document.getElementById("page-number").textContent = `Page ${currentPage}`;
-  document.getElementById("prev-page").style.visibility = "visible";
-  loadPosts();
+  if (currentPage < totalPages) {
+    currentPage++;
+    loadPosts();
+  }
 }
 
 /**
  * Returns to the previous page of posts.
- * Updates the current page number and reloads posts, hiding the previous button on page 1.
  */
 function prevPage() {
   if (currentPage > 1) {
     currentPage--;
-    document.getElementById("next-page").style.visibility = "visible";
     loadPosts();
   }
-  if (currentPage === 1) {
-    document.getElementById("prev-page").style.visibility = "hidden";
-  }
-  document.getElementById("page-number").textContent = `Page ${currentPage}`;
-}
-
-/**
- * Loads and populates the category dropdown menu.
- * Fetches categories from the /categories endpoint and sets up event listeners for selection.
- */
-async function loadCategories() {
-  const dropdown = document.getElementById("category-dropdown");
-  const categories = await fetchData("/categories");
-
-  categories.forEach((cat) => {
-    const li = document.createElement("li");
-    const a = document.createElement("a");
-    a.className = "dropdown-item";
-    a.href = "#";
-    a.textContent = cat.name;
-    a.dataset.value = cat.slug;
-    a.onclick = () => {
-      dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
-        item.classList.remove("active")
-      );
-      a.classList.add("active");
-      currentPage = 1;
-      document.getElementById("prev-page").style.visibility = "hidden";
-      document.getElementById("nav-categories").textContent = cat.name;
-      selectedCategoryName = cat.name;
-      loadPostsByCategory(cat.slug);
-    };
-    li.appendChild(a);
-    dropdown.appendChild(li);
-  });
 }
 
 /**
@@ -130,71 +119,79 @@ function updateActiveNav() {
 }
 
 /**
- * Loads the appropriate posts based on the current category or default to published posts.
+ * Loads the appropriate posts based on the current category or search term.
  */
 function loadPosts() {
-  document.getElementById("tag-filter").style.display = "block";
-  const dropdown = document.getElementById("category-dropdown");
-  const selected = dropdown.querySelector(".dropdown-item.active")?.dataset.value;
-  const selectedName =
-    dropdown.querySelector(".dropdown-item.active")?.textContent || "All Categories";
-  document.getElementById("nav-categories").textContent = selectedName;
-  selectedCategoryName = selectedName;
-
-  if (selected) loadPostsByCategory(selected);
-  else loadPublishedPosts();
-}
-
-/**
- * Loads and renders posts for a specific category.
- * @param {string} slug - The slug of the category to load.
- */
-async function loadPostsByCategory(slug) {
-  try {
-    const posts = await fetchData(
-      `/categories/${slug}?page=${currentPage}&limit=${limit}${getTagFilterParam(
-        activeTags
-      )}`
-    );
-    renderPosts(posts, "posts-container");
-  } catch (err) {
-    console.error("Failed to load posts:", err.message);
-    document.getElementById("posts-container").innerHTML = "<h4>Failed to load posts</h4>";
+  if (searchTerm) {
+    onSearch();
+  } else {
+    const dropdown = document.getElementById("category-dropdown");
+    const selected = dropdown.querySelector(".dropdown-item.active")?.dataset.value;
+    const selectedName =
+      dropdown.querySelector(".dropdown-item.active")?.textContent || "All Categories";
+    document.getElementById("category-dropdown-button").textContent = selectedName;
+    selectedCategoryName = selectedName;
+    if (selected) loadPostsByCategory(selected, selectedName);
+    else loadPublishedPosts();
   }
 }
 
 /**
  * Handles the search functionality.
- * Performs a search if a term is provided, otherwise reloads posts.
+ * Performs a search if a term is provided, otherwise clears the search.
  */
 async function onSearch() {
   const term = document.getElementById("search-box").value.trim();
   if (term) {
+    searchTerm = term;
     currentPage = 1;
-    document.getElementById("search-box").value = "";
     document.getElementById("tag-filter").style.display = "none";
+    document.getElementById("category-filter").style.display = "none";
     const dropdown = document.getElementById("category-dropdown");
     dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
       item.classList.remove("active")
     );
     dropdown.querySelector("[data-value='']").classList.add("active");
-    document.getElementById("nav-categories").textContent = "All Categories";
+    document.getElementById("category-dropdown-button").textContent = "All Categories";
     selectedCategoryName = "All Categories";
     updateActiveNav();
     try {
-      const posts = await fetchData(
-        `/search?q=${encodeURIComponent(term)}&page=${currentPage}&limit=${limit}`
+      const response = await fetchData(
+        `/search?q=${encodeURIComponent(term)}&page=${currentPage}&limit=${limit}`,
+        true
       );
-      renderPosts(posts, "posts-container");
+      totalPages = Math.ceil(response.totalItems / limit) || 1;
+      renderPosts(response.data, "posts-container");
+      renderPagination(currentPage, setCurrentPage, totalPages, loadPosts);
     } catch (err) {
       console.error("Search failed:", err.message);
+      showToast("Search failed. Please try again.", "danger");
       document.getElementById("posts-container").innerHTML =
         "<h4>Search failed. Please try again.</h4>";
-      document.getElementById("next-page").style.visibility = "hidden";
     }
   } else {
-    loadPosts();
+    clearSearch();
   }
+}
+
+/**
+ * Clears the search term and resets to the default published posts view.
+ */
+function clearSearch() {
+  document.getElementById("search-box").value = "";
+  searchTerm = "";
+  document.getElementById("tag-filter").style.display = "block";
+  document.getElementById("category-filter").style.display = "block";
+  const dropdown = document.getElementById("category-dropdown");
+  dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
+    item.classList.remove("active")
+  );
+  dropdown.querySelector("[data-value='']").classList.add("active");
+  document.getElementById("category-dropdown-button").textContent = "All Categories";
+  selectedCategoryName = "All Categories";
+  currentPage = 1;
+  updateActiveNav();
+  loadPublishedPosts();
 }
 
 /**
@@ -202,8 +199,8 @@ async function onSearch() {
  * and sets up event listeners for search and navigation.
  */
 window.onload = () => {
-  loadCategories();
-  loadTags();
+  loadCategories(setCurrentPage, loadPostsByCategory);
+  loadTags(setCurrentPage, activeTags, loadPosts);
   loadPublishedPosts();
 
   const searchBox = document.getElementById("search-box");
@@ -213,14 +210,17 @@ window.onload = () => {
       onSearch();
     }
   });
-  searchBox.addEventListener("click", (e) => {
+  document.getElementById("search-btn").addEventListener("click", (e) => {
     e.preventDefault();
     onSearch();
   });
-
+  document.getElementById("clear-search-btn").addEventListener("click", (e) => {
+    e.preventDefault();
+    clearSearch();
+  });
   document.getElementById("all-categories").addEventListener("click", (e) => {
     e.preventDefault();
-    loadPublishedPosts();
+    clearSearch();
   });
   document.getElementById("next-page").addEventListener("click", (e) => {
     e.preventDefault();
@@ -233,7 +233,6 @@ window.onload = () => {
   document.getElementById("nav-home").addEventListener("click", (e) => {
     e.preventDefault();
     currentPage = 1;
-    document.getElementById("prev-page").style.visibility = "hidden";
-    window.location.reload();
+    clearSearch();
   });
 };

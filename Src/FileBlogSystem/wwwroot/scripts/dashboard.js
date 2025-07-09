@@ -1,4 +1,4 @@
-import { fetchData, getTagFilterParam, renderPosts, showToast } from "./utils.js";
+import { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination } from "./utils.js";
 
 /**
  * Manages the current page number, limit per page, total pages, active tags, current view, user role,
@@ -22,111 +22,10 @@ let selectedCategoryName = "All Categories";
 let searchTerm = "";
 
 /**
- * Renders pagination links dynamically based on totalPages and currentPage.
+ * Sets the current page
  */
-function renderPagination() {
-  const pageNumbersContainer = document.getElementById("page-numbers");
-  pageNumbersContainer.innerHTML = "";
-
-  const maxPagesToShow = 5;
-  let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-  let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-
-  if (endPage === totalPages) {
-    startPage = Math.max(1, endPage - maxPagesToShow + 1);
-  }
-
-  const prevPageItem = document.getElementById("prev-page");
-  prevPageItem.classList.toggle("disabled", currentPage === 1);
-
-  if (startPage > 1) {
-    const ellipsis = document.createElement("li");
-    ellipsis.className = "page-item disabled";
-    ellipsis.innerHTML = '<span class="page-link">...</span>';
-    const firstPage = document.createElement("li");
-    firstPage.className = "page-item";
-    const pageLink = document.createElement("a");
-    pageLink.className = "page-link";
-    pageLink.href = "#";
-    pageLink.textContent = "1";
-    pageLink.onclick = (e) => {
-      e.preventDefault();
-      currentPage = 1;
-      loadPosts();
-    };
-    firstPage.appendChild(pageLink);
-    pageNumbersContainer.appendChild(firstPage);
-    pageNumbersContainer.appendChild(ellipsis);
-  }
-
-  for (let i = startPage; i <= endPage; i++) {
-    const pageItem = document.createElement("li");
-    pageItem.className = `page-item ${i === currentPage ? "active" : ""}`;
-    const pageLink = document.createElement("a");
-    pageLink.className = "page-link";
-    pageLink.href = "#";
-    pageLink.textContent = i;
-    pageLink.onclick = (e) => {
-      e.preventDefault();
-      currentPage = i;
-      loadPosts();
-    };
-    pageItem.appendChild(pageLink);
-    pageNumbersContainer.appendChild(pageItem);
-  }
-
-  if (endPage < totalPages) {
-    const ellipsis = document.createElement("li");
-    ellipsis.className = "page-item disabled";
-    ellipsis.innerHTML = '<span class="page-link">...</span>';
-    const lastPage = document.createElement("li");
-    lastPage.className = "page-item";
-    const pageLink = document.createElement("a");
-    pageLink.className = "page-link";
-    pageLink.href = "#";
-    pageLink.textContent = totalPages;
-    pageLink.onclick = (e) => {
-      e.preventDefault();
-      currentPage = totalPages;
-      loadPosts();
-    };
-    lastPage.appendChild(pageLink);
-    pageNumbersContainer.appendChild(ellipsis);
-    pageNumbersContainer.appendChild(lastPage);
-  }
-
-  const nextPageItem = document.getElementById("next-page");
-  nextPageItem.classList.toggle("disabled", currentPage === totalPages);
-}
-
-/**
- * Loads and renders tag checkboxes for filtering posts.
- * Fetches tags from the /tags endpoint and sets up event listeners for checkbox changes.
- */
-async function loadTags() {
-  const tags = await fetchData("/tags");
-  const container = document.getElementById("tag-checkboxes");
-
-  tags.forEach((tag) => {
-    const label = document.createElement("label");
-    label.className = "form-check-label";
-    const input = document.createElement("input");
-    input.className = "form-check-input";
-    input.type = "checkbox";
-    input.value = tag.slug;
-    input.id = `tag-${tag.slug}`;
-
-    input.onchange = () => {
-      if (input.checked) activeTags.add(tag.slug);
-      else activeTags.delete(tag.slug);
-      currentPage = 1;
-      loadPosts();
-    };
-
-    label.appendChild(input);
-    label.append(` ${tag.name}`);
-    container.appendChild(label);
-  });
+function setCurrentPage(current) {
+  currentPage = current;
 }
 
 /**
@@ -149,11 +48,12 @@ async function loadPublishedPosts() {
   updateActiveNav();
 
   const response = await fetchData(
-    `/published?page=${currentPage}&limit=${limit}${getTagFilterParam(activeTags)}`, true
+    `/published?page=${currentPage}&limit=${limit}${getTagFilterParam(activeTags)}`,
+    true
   );
   totalPages = Math.ceil(response.totalItems / limit) || 1;
   renderPosts(response.data, "posts-container", role);
-  renderPagination();
+  renderPagination(currentPage, setCurrentPage, totalPages, loadPosts);
 }
 
 /**
@@ -175,10 +75,10 @@ async function loadDrafts() {
   currentView = "drafts";
   updateActiveNav();
 
-  const response = await fetchData(`/drafts?page=${currentPage}&limit=${limit}`,true);
+  const response = await fetchData(`/drafts?page=${currentPage}&limit=${limit}`, true);
   totalPages = Math.ceil(response.totalItems / limit) || 1;
   renderPosts(response.data, "posts-container", role);
-  renderPagination();
+  renderPagination(currentPage, setCurrentPage, totalPages, loadPosts);
 }
 
 /**
@@ -200,10 +100,10 @@ async function loadScheduledPosts() {
   currentView = "scheduled";
   updateActiveNav();
 
-  const response = await fetchData(`/scheduled?page=${currentPage}&limit=${limit}`,true);
+  const response = await fetchData(`/scheduled?page=${currentPage}&limit=${limit}`, true);
   totalPages = Math.ceil(response.totalItems / limit) || 1;
   renderPosts(response.data, "posts-container", role);
-  renderPagination();
+  renderPagination(currentPage, setCurrentPage, totalPages, loadPosts);
 }
 
 /**
@@ -226,13 +126,15 @@ async function loadPostsByCategory(slug, name) {
     const response = await fetchData(
       `/categories/${slug}?page=${currentPage}&limit=${limit}${getTagFilterParam(
         activeTags
-      )}`, true
+      )}`,
+      true
     );
     totalPages = Math.ceil(response.totalItems / limit) || 1;
     renderPosts(response.data, "posts-container", role);
-    renderPagination();
+    renderPagination(currentPage, setCurrentPage, totalPages, loadPosts);
   } catch (err) {
     console.log("Failed to load the posts:", err.message);
+    showToast("Failed to load posts", "danger");
   }
 }
 
@@ -268,35 +170,6 @@ function prevPage() {
 }
 
 /**
- * Loads and populates the category dropdown menu.
- * Fetches categories from the /categories endpoint and sets up event listeners for selection.
- */
-async function loadCategories() {
-  const dropdown = document.getElementById("category-dropdown");
-  const categories = await fetchData("/categories");
-
-  categories.forEach((cat) => {
-    const li = document.createElement("li");
-    const a = document.createElement("a");
-    a.className = "dropdown-item";
-    a.href = "#";
-    a.textContent = cat.name;
-    a.dataset.value = cat.slug;
-    a.onclick = () => {
-      dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
-        item.classList.remove("active")
-      );
-      a.classList.add("active");
-      document.getElementById("category-dropdown-button").textContent = cat.name;
-      currentPage = 1;
-      loadPostsByCategory(cat.slug, cat.name);
-    };
-    li.appendChild(a);
-    dropdown.appendChild(li);
-  });
-}
-
-/**
  * Updates the active navigation state based on the current view.
  * Highlights the appropriate nav link as active.
  */
@@ -323,12 +196,12 @@ async function loadPosts() {
   } else if (searchTerm) {
     try {
       const response = await fetchData(
-        `/search?q=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${limit}`
-        ,true
+        `/search?q=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${limit}`,
+        true
       );
       totalPages = Math.ceil(response.totalItems / limit) || 1;
       renderPosts(response.data, "posts-container", role);
-      renderPagination();
+      renderPagination(currentPage, setCurrentPage, totalPages, loadPosts);
     } catch (err) {
       console.error("Search failed:", err.message);
       showToast("Search failed. Please try again.", "danger");
@@ -420,11 +293,12 @@ async function onSearch() {
     updateActiveNav();
     try {
       const response = await fetchData(
-        `/search?q=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${limit}`, true
+        `/search?q=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${limit}`,
+        true
       );
       totalPages = Math.ceil(response.totalItems / limit) || 1;
       renderPosts(response.data, "posts-container", role);
-      renderPagination();
+      renderPagination(currentPage, setCurrentPage, totalPages, loadPosts);
     } catch (err) {
       console.error("Search failed:", err.message);
       showToast("Search failed. Please try again.", "danger");
@@ -491,8 +365,8 @@ window.onload = () => {
     document.getElementById("nav-add-dropdown").style.display = "none";
   }
 
-  loadCategories();
-  loadTags();
+  loadCategories(setCurrentPage, loadPostsByCategory);
+  loadTags(setCurrentPage, activeTags, loadPosts);
   loadPublishedPosts();
 
   const searchBox = document.getElementById("search-box");

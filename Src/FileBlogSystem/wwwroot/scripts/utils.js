@@ -1,7 +1,8 @@
 /**
  * Fetches data from the specified endpoint.
  * @param {string} endpoint - The API endpoint to fetch data from.
- * @returns {Promise<{data: any, totalItems: number}>} The response data and total items.
+ * @param {boolean} paginated - Whether the response is paginated.
+ * @returns {Promise<{data: any, totalItems: number}|any>} The response data, with totalItems if paginated.
  */
 async function fetchData(endpoint, paginated = false) {
   try {
@@ -23,12 +24,21 @@ async function fetchData(endpoint, paginated = false) {
   }
 }
 
-// Get tag filter parameter
+/**
+ * Generates tag filter parameters for API requests.
+ * @param {Set} activeTags - Set of active tag slugs.
+ * @returns {string} URL parameter string for tags.
+ */
 function getTagFilterParam(activeTags) {
   return activeTags.size > 0 ? `&tags=${[...activeTags].join(",")}` : "";
 }
 
-// Render posts with dynamic content
+/**
+ * Renders posts to the specified container.
+ * @param {Array} posts - Array of post objects.
+ * @param {string} containerId - ID of the container to render posts into.
+ * @param {string|null} role - User role for conditional rendering.
+ */
 function renderPosts(posts, containerId, role = null) {
   const container = document.getElementById(containerId);
   container.innerHTML = "";
@@ -116,7 +126,6 @@ function renderPosts(posts, containerId, role = null) {
     `;
 
     if (role) {
-
       if (role === "admin") {
         const deleteBtn = document.createElement("button");
         deleteBtn.className = "btn btn-danger btn-sm m-1";
@@ -174,12 +183,13 @@ function renderPosts(posts, containerId, role = null) {
 
     container.appendChild(postEl);
   });
-
-  //document.getElementById("page-number").textContent = `Page ${currentPage}`;
-  //document.getElementById("next-page").style.visibility = posts.length < limit ? "hidden" : "visible";
 }
 
-// Show toast notification
+/**
+ * Shows a toast notification.
+ * @param {string} message - The message to display.
+ * @param {string} variant - The type of toast (e.g., "success", "danger").
+ */
 function showToast(message, variant = "primary") {
   const toastEl = document.getElementById("live-toast");
   const toastMsg = document.getElementById("toast-message");
@@ -188,5 +198,150 @@ function showToast(message, variant = "primary") {
   new bootstrap.Toast(toastEl).show();
 }
 
-// Export utilities
-export { fetchData, getTagFilterParam, renderPosts, showToast };
+/**
+ * Loads and renders tag checkboxes for filtering posts.
+ * Fetches tags from the /tags endpoint and sets up event listeners for checkbox changes.
+ * @param {Function} setCurrentPage - The function to set the current page number in the calling page
+ * @param {Set} activeTags - The set of active tags
+ * @param {Function} loadPosts - The function to call when tags change.
+ */
+async function loadTags(setCurrentPage, activeTags, loadPosts) {
+  const tags = await fetchData("/tags");
+  const container = document.getElementById("tag-checkboxes");
+
+  tags.forEach((tag) => {
+    const label = document.createElement("label");
+    label.className = "form-check-label";
+    const input = document.createElement("input");
+    input.className = "form-check-input";
+    input.type = "checkbox";
+    input.value = tag.slug;
+    input.id = `tag-${tag.slug}`;
+
+    input.onchange = () => {
+      if (input.checked) activeTags.add(tag.slug);
+      else activeTags.delete(tag.slug);
+      setCurrentPage(1);
+      loadPosts();
+    };
+
+    label.appendChild(input);
+    label.append(` ${tag.name}`);
+    container.appendChild(label);
+  });
+}
+
+/**
+ * Loads and populates the category dropdown menu.
+ * Fetches categories from the /categories endpoint and sets up event listeners for selection.
+ * @param {Function} setCurrentPage - The function to set the current page number in the calling page
+ * @param {Function} loadPostsByCategory - The function to call when a category is selected.
+ */
+async function loadCategories(setCurrentPage, loadPostsByCategory) {
+  const dropdown = document.getElementById("category-dropdown");
+  const categories = await fetchData("/categories");
+
+  categories.forEach((cat) => {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.className = "dropdown-item";
+    a.href = "#";
+    a.textContent = cat.name;
+    a.dataset.value = cat.slug;
+    a.onclick = () => {
+      dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
+        item.classList.remove("active")
+      );
+      a.classList.add("active");
+      document.getElementById("category-dropdown-button").textContent = cat.name;
+      setCurrentPage(1);
+      loadPostsByCategory(cat.slug, cat.name);
+    };
+    li.appendChild(a);
+    dropdown.appendChild(li);
+  });
+}
+
+/**
+ * Renders pagination links dynamically based on totalPages and currentPage.
+ * @param {number} currentPage - The current page number.
+ * @param {Function} setCurrentPage - The function to set the current page number in the calling page
+ * @param {number} totalPages - The total number of pages.
+ * @param {Function} loadPosts - The function to call when a page is clicked.
+ */
+function renderPagination(currentPage, setCurrentPage, totalPages, loadPosts) {
+  const pageNumbersContainer = document.getElementById("page-numbers");
+  pageNumbersContainer.innerHTML = "";
+
+  const maxPagesToShow = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+  let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+  if (endPage === totalPages) {
+    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+  }
+
+  const prevPageItem = document.getElementById("prev-page");
+  prevPageItem.classList.toggle("disabled", currentPage === 1);
+
+  if (startPage > 1) {
+    const ellipsis = document.createElement("li");
+    ellipsis.className = "page-item disabled";
+    ellipsis.innerHTML = '<span class="page-link">...</span>';
+    const firstPage = document.createElement("li");
+    firstPage.className = "page-item";
+    const pageLink = document.createElement("a");
+    pageLink.className = "page-link";
+    pageLink.href = "#";
+    pageLink.textContent = "1";
+    pageLink.onclick = (e) => {
+      e.preventDefault();
+      setCurrentPage(1);
+      loadPosts();
+    };
+    firstPage.appendChild(pageLink);
+    pageNumbersContainer.appendChild(firstPage);
+    pageNumbersContainer.appendChild(ellipsis);
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    const pageItem = document.createElement("li");
+    pageItem.className = `page-item ${i === currentPage ? "active" : ""}`;
+    const pageLink = document.createElement("a");
+    pageLink.className = "page-link";
+    pageLink.href = "#";
+    pageLink.textContent = i;
+    pageLink.onclick = (e) => {
+      e.preventDefault();
+      setCurrentPage(i);
+      loadPosts();
+    };
+    pageItem.appendChild(pageLink);
+    pageNumbersContainer.appendChild(pageItem);
+  }
+
+  if (endPage < totalPages) {
+    const ellipsis = document.createElement("li");
+    ellipsis.className = "page-item disabled";
+    ellipsis.innerHTML = '<span class="page-link">...</span>';
+    const lastPage = document.createElement("li");
+    lastPage.className = "page-item";
+    const pageLink = document.createElement("a");
+    pageLink.className = "page-link";
+    pageLink.href = "#";
+    pageLink.textContent = totalPages;
+    pageLink.onclick = (e) => {
+      e.preventDefault();
+      setCurrentPage(totalPages);
+      loadPosts();
+    };
+    lastPage.appendChild(pageLink);
+    pageNumbersContainer.appendChild(ellipsis);
+    pageNumbersContainer.appendChild(lastPage);
+  }
+
+  const nextPageItem = document.getElementById("next-page");
+  nextPageItem.classList.toggle("disabled", currentPage === totalPages);
+}
+
+export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination };

@@ -19,11 +19,35 @@ let queuedDeletions = [];
  */
 async function goToPreview() {
   const form = document.getElementById("postForm");
-  if (!form.reportValidity()) return;
+  const titleInput = document.querySelector("input[name='title']");
+  const descriptionInput = document.querySelector("textarea[name='description']");
+  const contentInput = document.querySelector("textarea[name='content']");
 
-  const title = document.querySelector("input[name='title']").value;
-  const description = document.querySelector("textarea[name='description']").value;
-  const content = document.querySelector("textarea[name='content']").value;
+  // Clear previous invalid highlights
+  [titleInput, descriptionInput, contentInput].forEach(input => input.classList.remove("is-invalid"));
+
+  // Validate required fields
+  const title = titleInput.value.trim();
+  const description = descriptionInput.value.trim();
+  const content = contentInput.value.trim();
+  let isValid = true;
+
+  if (!title) {
+    titleInput.classList.add("is-invalid");
+    isValid = false;
+  }
+  if (!description) {
+    descriptionInput.classList.add("is-invalid");
+    isValid = false;
+  }
+  if (!content) {
+    contentInput.classList.add("is-invalid");
+    isValid = false;
+  }
+
+  if (!isValid) {
+    return;
+  }
 
   const tags = [...document.querySelectorAll(".tag-checkbox:checked")].map((cb) => cb.value);
   const cats = [...document.querySelectorAll(".cat-checkbox:checked")].map((cb) => cb.value);
@@ -385,6 +409,13 @@ function showMedia(post) {
  * @returns {Promise<void>}
  */
 window.onload = async () => {
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme) {
+    document.documentElement.setAttribute("data-theme", savedTheme);
+  } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    document.documentElement.setAttribute("data-theme", "dark");
+  }
+
   try {
     await loadTagsAndCategories();
     const slug = new URLSearchParams(location.search).get("slug");

@@ -87,7 +87,7 @@ function renderPosts(posts, containerId, role = null) {
         </div>
       `
       : "";
-    const preview = (post.htmlContent || "").slice(0, 20);
+    const preview = (post.htmlContent || "").slice(0, 200);
     const dateOptions = {
       weekday: "short",
       day: "2-digit",

@@ -1,4 +1,4 @@
-import { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, toggleTheme } from "./utils.js";
+import { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags } from "./utils.js";
 
 /**
  * Manages the current page number, limit per page, total pages, active tags, current view, user role,
@@ -361,6 +361,11 @@ function getUserRoleFromCookie() {
   return value ? decodeURIComponent(value.split("=")[1]) : null;
 }
 
+function updateThemeToggleIcon(theme) {
+  const icon = document.getElementById("theme-toggle").querySelector("i");
+  icon.className = theme === "dark" ? "fas fa-sun" : "fas fa-moon";
+}
+
 /**
  * Initializes the dashboard by loading categories, tags, and published posts,
  * and sets up event listeners for buttons.
@@ -442,17 +447,21 @@ window.onload = () => {
     e.preventDefault();
     logout();
   });
-  document.getElementById("theme-toggle").addEventListener("click", (e) => {
-    toggleTheme();
+  document.getElementById("theme-toggle").addEventListener("click", () => {
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+    updateThemeToggleIcon(newTheme);
   });
 
   const savedTheme = localStorage.getItem("theme");
+  const theme = savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  document.documentElement.setAttribute("data-theme", theme);
   if (savedTheme) {
-    document.documentElement.setAttribute("data-theme", savedTheme);
-    document.getElementById("theme-toggle").checked = savedTheme === "dark";
+    updateThemeToggleIcon(savedTheme);
   } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    document.documentElement.setAttribute("data-theme", "dark");
-    document.getElementById("theme-toggle").checked = true;
+    updateThemeToggleIcon("dark");
   }
 
   // Event listeners for dynamically created post action buttons

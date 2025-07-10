@@ -38,6 +38,15 @@ header h1 {
     header h1 {
         font-size: 2rem;
     }
+
+    #theme-toggle {
+        width: 36px;
+        height: 36px;
+    }
+  
+    #theme-toggle i {
+        font-size: 1rem;
+    }
 }
 
 nav {
@@ -718,50 +727,31 @@ article div strong {
     margin-bottom: 10px;
 }
 
-.theme-toggle {
-    display: none;
-}
-
-.theme-toggle-label {
-    display: inline-flex;
-    align-items: center;
-    width: 50px;
-    height: 24px;
-    background-color: lightgray;
-    border-radius: 12px;
-    position: relative;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-left: 1rem;
-}
-
-.theme-toggle-label::before {
-    content: "\f185";
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    position: absolute;
-    left: 4px;
-    font-size: 16px;
-    color: #fff;
-    background-color: #007bff;
-    width: 20px;
-    height: 20px;
+#theme-toggle {
+    background-color: #fff;
+    border: 1px solid #6c757d;
+    color: #6c757d;
+    padding: 0.5rem;
     border-radius: 50%;
+    width: 35px;
+    height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.3s, background-color 0.3s;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    margin: 0.5rem;
 }
 
-.theme-toggle:checked+.theme-toggle-label {
-    background-color: #4a4a4a;
+#theme-toggle:hover {
+    background-color: #6c757d;
+    color: #fff;
+    border-color: #6c757d;
 }
 
-.theme-toggle:checked+.theme-toggle-label::before {
-    content: "\f186";
-    transform: translateX(26px);
-    background-color: #4dabf7;
+#theme-toggle i {
+    font-size: 1.2rem;
 }
+
 
 /* Dark Theme */
 [data-theme="dark"] {
@@ -1143,12 +1133,16 @@ article div strong {
         color: #666;
     }
 
-    .theme-toggle-label {
-        background-color: #4a4a4a;
+    #theme-toggle {
+        background-color: #3a3a3a;
+        border-color: #444;
+        color: #bbb;
     }
 
-    .theme-toggle:checked+.theme-toggle-label {
-        background-color: #007bff;
+    #theme-toggle:hover {
+        background-color: #4a4a4a;
+        color: #fff;
+        border-color: #4dabf7;
     }
 
     #create-post {

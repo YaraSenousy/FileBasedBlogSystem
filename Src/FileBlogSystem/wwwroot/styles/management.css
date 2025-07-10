@@ -16,17 +16,23 @@ body {
     align-items: center;
 }
 
-#search-users.form-control {
+#search-users.form-control,
+#search-tags.form-control,
+#search-categories.form-control {
     background-color: #fff;
     height: 38px;
     font-size: 0.9rem;
 }
 
-#search-users.form-control::placeholder {
+#search-users.form-control::placeholder,
+#search-tags.form-control::placeholder,
+#search-categories.form-control::placeholder {
     color: #666;
 }
 
-#search-users.form-control:focus {
+#search-users.form-control:focus,
+#search-tags.form-control:focus,
+#search-categories.form-control:focus {
     border-color: #007bff;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
@@ -339,17 +345,23 @@ header nav a:hover {
     }
 
 
-    #search-users.form-control {
+    #search-users.form-control,
+    #search-tags.form-control,
+    #search-categories.form-control {
         background-color: #3a3a3a;
         border-color: #444;
         color: #e0e0e0;
     }
 
-    #search-users.form-control::placeholder {
+    #search-users.form-control::placeholder,
+    #search-tags.form-control::placeholder,
+    #search-categories.form-control::placeholder {
         color: #bbb;
     }
 
-    #search-users.form-control:focus {
+    #search-users.form-control:focus,
+    #search-tags.form-control:focus,
+    #search-categories.form-control:focus {
         background-color: #3a3a3a;
         border-color: #4dabf7;
         color: #e0e0e0;
@@ -431,22 +443,27 @@ header nav a:hover {
 
     input[type="text"],
     input[type="password"],
+    textarea,
     select {
         background-color: #3a3a3a;
         border: 1px solid #444;
         color: #e0e0e0;
     }
 
-    input::placeholder {
+    input::placeholder,
+    textarea::placeholder {
         background-color: #3a3a3a;
         color: #e0e0e0;
     }
 
     input[type="text"]:focus,
     input[type="password"]:focus,
+    textarea:focus,
     select:focus {
         border-color: #4dabf7;
         box-shadow: 0 0 0 0.2rem rgba(77, 171, 247, 0.25);
+        background-color: #3a3a3a;
+        color: #e0e0e0;
     }
 
     input:disabled {

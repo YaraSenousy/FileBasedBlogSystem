@@ -16,12 +16,16 @@ public static class AdminFunctions
         app.MapPatch("/admin/users/{user}", EditUser).RequireAuthorization("AdminLevel");
         app.MapDelete("/admin/users/{user}", DeleteUser).RequireAuthorization("AdminLevel");
         app.MapPost("/admin/tags", AddTag).RequireAuthorization("AdminLevel");
+        app.MapPatch("/admin/tags/{slug}", EditTag).RequireAuthorization("AdminLevel");
+        app.MapDelete("/admin/tags/{slug}", DeleteTag).RequireAuthorization("AdminLevel");
         app.MapPost("/admin/categories", AddCategory).RequireAuthorization("AdminLevel");
+        app.MapPatch("/admin/categories/{slug}", EditCategory).RequireAuthorization("AdminLevel");
+        app.MapDelete("/admin/categories/{slug}", DeleteCategory).RequireAuthorization("AdminLevel");
     }
 
     /*
-    handles getting users info
-    returns for each user: username, name, role
+    Handles getting users info
+    Returns for each user: username, name, role
     */
     public static IResult GetUsers(HttpRequest request)
     {
@@ -30,16 +34,16 @@ public static class AdminFunctions
             return Results.Problem("Users folder missing", statusCode: 500);
 
         var users = Directory
-        .GetDirectories(usersDir)
-        .Select(folder => ReadUserFromFolder(folder))
-        .Where(u => u != null)
-        .ToList();
+            .GetDirectories(usersDir)
+            .Select(folder => ReadUserFromFolder(folder))
+            .Where(u => u != null)
+            .ToList();
 
         return Results.Ok(users);
     }
 
     /*
-    handles reading user profile given the user folder
+    Handles reading user profile given the user folder
     */
     public static User? ReadUserFromFolder(string userDir)
     {
@@ -71,14 +75,14 @@ public static class AdminFunctions
     */
     public static bool IsValidPassword(string password)
     {
-
         string pattern = @"(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$";
         return Regex.IsMatch(password, pattern);
     }
+
     /*
-    handles adding a new user by taking username and name and password
-    create slug from the username and make sure it is unique 
-    and stores the password hashed
+    Handles adding a new user by taking username, name, password, and role
+    Creates slug from the username and ensures it is unique 
+    Stores the password hashed
     */
     public static async Task<IResult> AddUser(HttpRequest request)
     {
@@ -116,7 +120,7 @@ public static class AdminFunctions
             Username = username!,
             Name = name!,
             PasswordHash = hash!,
-            Role = role!,
+            Role = role!
         };
 
         var userJson = JsonSerializer.Serialize(user, new JsonSerializerOptions
@@ -129,8 +133,8 @@ public static class AdminFunctions
     }
 
     /*
-    handles editing a user by taking name, password or role
-    make sure the user exists, validate the input and rewrite their file
+    Handles editing a user by taking name, password, or role
+    Ensures the user exists, validates input, and rewrites their file
     */
     public static async Task<IResult> EditUser(HttpRequest request, string user)
     {
@@ -141,7 +145,7 @@ public static class AdminFunctions
         var role = form["role"];
 
         var userPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "users", user, "profile.json");
-        if (!File.Exists(userPath)) return Results.BadRequest("User missing");
+        if (!File.Exists(userPath)) return Results.NotFound("User not found");
 
         if (!string.IsNullOrEmpty(password) && !IsValidPassword(password!))
             return Results.BadRequest("Invalid Password: Must be at least 8 characters, one uppercase, one lowercase, one digit");
@@ -172,20 +176,20 @@ public static class AdminFunctions
     }
 
     /*
-    handes deleting a user folder by taking its username
+    Handles deleting a user folder by taking its username
     */
     public static IResult DeleteUser(HttpRequest request, string user)
     {
         var userDir = Path.Combine(Directory.GetCurrentDirectory(), "content", "users", user);
-        if (!Directory.Exists(userDir)) return Results.BadRequest("Missing user");
+        if (!Directory.Exists(userDir)) return Results.NotFound("User not found");
 
         Directory.Delete(userDir, true);
         return Results.Ok();
     }
 
     /*
-    handles adding a new tag by taking tag name
-    create slug from the name and make sure it is unique 
+    Handles adding a new tag by taking tag name
+    Creates slug from the name and ensures it is unique 
     */
     public static async Task<IResult> AddTag(HttpRequest request)
     {
@@ -193,7 +197,7 @@ public static class AdminFunctions
         var tagName = form["name"];
 
         if (string.IsNullOrEmpty(tagName))
-            return Results.BadRequest("Tag data incomplete");
+            return Results.BadRequest("Tag name is required");
 
         var slug = SlugGenerator.ToSlug(tagName!);
 
@@ -203,7 +207,7 @@ public static class AdminFunctions
         var tag = new Tag
         {
             Name = tagName!,
-            Slug = slug!,
+            Slug = slug!
         };
 
         var tagJson = JsonSerializer.Serialize(tag, new JsonSerializerOptions
@@ -211,13 +215,63 @@ public static class AdminFunctions
             WriteIndented = true
         });
 
+        Directory.CreateDirectory(Path.GetDirectoryName(tagPath)!);
         await File.WriteAllTextAsync(tagPath, tagJson);
-        return Results.Ok();
+        return Results.Created($"/admin/tags/{slug}", tag);
     }
 
     /*
-    handles adding a new category by taking category name and description (optional)
-    create slug from the name and make sure it is unique 
+    Handles editing a tag by taking a new name
+    Updates slug if name changes and ensures it is unique
+    */
+    public static async Task<IResult> EditTag(HttpRequest request, string slug)
+    {
+        var form = await request.ReadFormAsync();
+        var name = form["name"];
+
+        if (string.IsNullOrEmpty(name))
+            return Results.BadRequest("Tag name is required");
+
+        var tagPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "tags", $"{slug}.json");
+        if (!File.Exists(tagPath)) return Results.NotFound("Tag not found");
+
+        var newSlug = SlugGenerator.ToSlug(name!);
+        var newTagPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "tags", $"{newSlug}.json");
+        if (newSlug != slug && File.Exists(newTagPath))
+            return Results.BadRequest("Tag with this name already exists");
+
+        var tag = new Tag
+        {
+            Name = name!,
+            Slug = newSlug
+        };
+
+        var tagJson = JsonSerializer.Serialize(tag, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
+        if (newSlug != slug)
+            File.Delete(tagPath);
+        await File.WriteAllTextAsync(newTagPath, tagJson);
+        return Results.Ok(tag);
+    }
+
+    /*
+    Handles deleting a tag by its slug
+    */
+    public static IResult DeleteTag(HttpRequest request, string slug)
+    {
+        var tagPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "tags", $"{slug}.json");
+        if (!File.Exists(tagPath)) return Results.NotFound("Tag not found");
+
+        File.Delete(tagPath);
+        return Results.NoContent();
+    }
+
+    /*
+    Handles adding a new category by taking category name and optional description
+    Creates slug from the name and ensures it is unique 
     */
     public static async Task<IResult> AddCategory(HttpRequest request)
     {
@@ -226,7 +280,7 @@ public static class AdminFunctions
         var description = form["description"];
 
         if (string.IsNullOrEmpty(categoryName))
-            return Results.BadRequest("Category data incomplete");
+            return Results.BadRequest("Category name is required");
 
         var slug = SlugGenerator.ToSlug(categoryName!);
 
@@ -236,8 +290,8 @@ public static class AdminFunctions
         var category = new Category
         {
             Name = categoryName!,
-            Slug = slug!,
-            Description = description,
+            Slug = slug,
+            Description = description
         };
 
         var categoryJson = JsonSerializer.Serialize(category, new JsonSerializerOptions
@@ -245,7 +299,65 @@ public static class AdminFunctions
             WriteIndented = true
         });
 
+        Directory.CreateDirectory(Path.GetDirectoryName(categoryPath)!);
         await File.WriteAllTextAsync(categoryPath, categoryJson);
-        return Results.Ok();
+        return Results.Created($"/admin/categories/{slug}", category);
+    }
+
+    /*
+    Handles editing a category by taking a new name and/or description
+    Updates slug if name changes and ensures it is unique
+    */
+    public static async Task<IResult> EditCategory(HttpRequest request, string slug)
+    {
+        var form = await request.ReadFormAsync();
+        var name = form["name"];
+        var description = form["description"];
+
+        if (string.IsNullOrEmpty(name))
+            return Results.BadRequest("Category name is required");
+
+        var categoryPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "categories", $"{slug}.json");
+        if (!File.Exists(categoryPath)) return Results.NotFound("Category not found");
+
+        var oldCategoryJson = File.ReadAllText(categoryPath);
+        var oldCategory = JsonSerializer.Deserialize<Category>(oldCategoryJson, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+
+        var newSlug = SlugGenerator.ToSlug(name!);
+        var newCategoryPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "categories", $"{newSlug}.json");
+        if (newSlug != slug && File.Exists(newCategoryPath))
+            return Results.BadRequest("Category with this name already exists");
+
+        var category = new Category
+        {
+            Name = name!,
+            Slug = newSlug,
+            Description = string.IsNullOrEmpty(description) ? oldCategory!.Description : description
+        };
+
+        var categoryJson = JsonSerializer.Serialize(category, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
+        if (newSlug != slug)
+            File.Delete(categoryPath);
+        await File.WriteAllTextAsync(newCategoryPath, categoryJson);
+        return Results.Ok(category);
+    }
+
+    /*
+    Handles deleting a category by its slug
+    */
+    public static IResult DeleteCategory(HttpRequest request, string slug)
+    {
+        var categoryPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "categories", $"{slug}.json");
+        if (!File.Exists(categoryPath)) return Results.NotFound("Category not found");
+
+        File.Delete(categoryPath);
+        return Results.NoContent();
     }
 }

@@ -97,7 +97,7 @@ app.MapFallback(context =>
 {
     var path = context.Request.Path.Value;
 
-    if (path == "/dashboard" || path == "/create" || path == "/addUser" || path == "/addTag" || path == "/addCategory")
+    if (path == "/dashboard" || path == "/create" || path == "/users" || path == "/tag" || path == "/category")
     {
         var user = context.User;
         if (!user.Identity?.IsAuthenticated ?? true)
@@ -117,10 +117,10 @@ app.MapFallback(context =>
         return context.Response.SendFileAsync("wwwroot/login.html");
     if (path == "/users")
         return context.Response.SendFileAsync("wwwroot/users.html");
-    if (path == "/addTag")
-        return context.Response.SendFileAsync("wwwroot/addTag.html");
-    if (path == "/addCategory")
-        return context.Response.SendFileAsync("wwwroot/addCategory.html");
+    if (path == "/tag")
+        return context.Response.SendFileAsync("wwwroot/tags.html");
+    if (path == "/category")
+        return context.Response.SendFileAsync("wwwroot/categories.html");
 
     return context.Response.SendFileAsync("wwwroot/index.html");
 });

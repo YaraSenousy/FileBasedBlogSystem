@@ -80,7 +80,7 @@
                         <div class="mb-3">
                             <label for="add-username" class="form-label">Username</label>
                             <input type="text" class="form-control" id="add-username" name="username"
-                                placeholder="Username" pattern="[a-zA-Z0-9]" title ="Username can't contain special characters" required />
+                                placeholder="Username" pattern="^[a-z0-9\-]+$" title ="Username can only contain small letter, digits and -" required />
                         </div>
                         <div class="mb-3">
                             <label for="add-name" class="form-label">Name</label>
@@ -122,7 +122,7 @@
                         <div class="mb-3">
                             <label for="edit-username" class="form-label">Username</label>
                             <input type="text" class="form-control" id="edit-username" name="username"
-                                placeholder="Username" required />
+                                placeholder="Username" disabled />
                         </div>
                         <div class="mb-3">
                             <label for="edit-name" class="form-label">Name</label>
@@ -132,7 +132,7 @@
                         <div class="mb-3">
                             <label for="edit-password" class="form-label">New Password (optional)</label>
                             <input type="password" class="form-control" id="edit-password" name="password"
-                                placeholder="New Password" />
+                                placeholder="New Password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters" />
                         </div>
                         <div class="mb-3">
                             <label for="edit-role" class="form-label">Role</label>

@@ -15,6 +15,7 @@ public static class EditPost
     searching for a post using its slug
     rewrting its content and meta data 
     edits the modification date
+    doen't allow editing of pubished posts
     */
     public static async Task<IResult> HandleEditPost(HttpRequest request, string slug)
     {

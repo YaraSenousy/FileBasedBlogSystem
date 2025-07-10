@@ -13,12 +13,14 @@ public static class AdminFunctions
     {
         app.MapGet("/admin/users", GetUsers).RequireAuthorization("AdminLevel");
         app.MapPost("/admin/users", AddUser).RequireAuthorization("AdminLevel");
+        app.MapPatch("/admin/users/{user}", EditUser).RequireAuthorization("AdminLevel");
         app.MapPost("/admin/tags", AddTag).RequireAuthorization("AdminLevel");
         app.MapPost("/admin/categories", AddCategory).RequireAuthorization("AdminLevel");
     }
 
     /*
     handles getting users info
+    returns for each user: username, name, role
     */
     public static IResult GetUsers(HttpRequest request)
     {
@@ -52,7 +54,7 @@ public static class AdminFunctions
             };
 
             var user = JsonSerializer.Deserialize<User>(profileJson, options);
-            user.PasswordHash = string.Empty!;
+            user!.PasswordHash = string.Empty!;
             return user;
         }
         catch (Exception ex)
@@ -93,8 +95,8 @@ public static class AdminFunctions
             return Results.BadRequest("Missing name");
         if (string.IsNullOrEmpty(role))
             return Results.BadRequest("Missing role");
-        if (Regex.IsMatch(username!, @"[^a-zA-Z0-9]"))
-            return Results.BadRequest("Invalid Username: Shouldn't contain special characters");
+        if (Regex.IsMatch(username!,  @"[^a-z0-9\s-]"))
+            return Results.BadRequest("Invalid Username: Small letters, digits and - only");
         if (!IsValidPassword(password!))
             return Results.BadRequest("Invalid Password: Must be at least 8 characters, one uppercase, one lowercase, one digit");
         if (role != "admin" && role != "author" && role != "editor")
@@ -123,6 +125,49 @@ public static class AdminFunctions
 
         await File.WriteAllTextAsync(userPath, userJson);
         return Results.Ok();
+    }
+
+    /*
+    handles editing a user by taking name, password or role
+    make sure the user exists, validate the input and rewrite their file
+    */
+    public static async Task<IResult> EditUser(HttpRequest request, string user)
+    {
+        var form = await request.ReadFormAsync();
+        if (form == null) return Results.BadRequest();
+        var password = form["password"];
+        var name = form["name"];
+        var role = form["role"];
+
+        var userPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "users", user, "profile.json");
+        if (!File.Exists(userPath)) return Results.BadRequest("User missing");
+
+        if (!string.IsNullOrEmpty(password) && !IsValidPassword(password!))
+            return Results.BadRequest("Invalid Password: Must be at least 8 characters, one uppercase, one lowercase, one digit");
+        if (!string.IsNullOrEmpty(role) && role != "admin" && role != "author" && role != "editor")
+            return Results.BadRequest("Invalid role");
+
+        var oldUserJson = File.ReadAllText(userPath);
+        var oldUserInfo = JsonSerializer.Deserialize<User>(oldUserJson, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+
+        var newUserInfo = new User
+        {
+            Username = oldUserInfo!.Username!,
+            Name = string.IsNullOrEmpty(name) ? oldUserInfo!.Name! : name!,
+            PasswordHash = string.IsNullOrEmpty(password) ? oldUserInfo!.PasswordHash! : BCrypt.Net.BCrypt.HashPassword(password)!,
+            Role = string.IsNullOrEmpty(role) ? oldUserInfo!.Role! : role!
+        };
+
+        var userJson = JsonSerializer.Serialize(newUserInfo, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
+        await File.WriteAllTextAsync(userPath, userJson);
+        return Results.Ok(newUserInfo);
     }
 
     /*

@@ -200,21 +200,19 @@ document.getElementById('editUserForm').addEventListener('submit', async (e) => 
     const toastMsg = document.getElementById('toast-message');
     try {
         const res = await fetch(`/admin/users/${originalUsername}`, {
-            method: 'PUT',
+            method: 'PATCH',
             body: formData,
             credentials: 'include',
         });
         if (res.ok) {
-            const updatedUser = await res.json();
-            const index = users.findIndex(u => u.username === originalUsername);
-            users[index] = { username: updatedUser.username, name: updatedUser.name, role: updatedUser.roles[0] };
+            fetchUsers();
             toastMsg.textContent = 'User updated successfully';
             toast.className = 'toast align-items-center text-bg-success border-0';
             bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
             searchUsers();
         } else {
-            const error = await res.json();
-            toastMsg.textContent = `Failed: ${error.error}`;
+            const error = await res.text();
+            toastMsg.textContent = `Failed: ${error}`;
             toast.className = 'toast align-items-center text-bg-danger border-0';
         }
     } catch (err) {

@@ -245,14 +245,14 @@ document.getElementById('confirm-delete-btn').addEventListener('click', async ()
             credentials: 'include',
         });
         if (res.ok) {
-            users.splice(users.findIndex(u => u.username === userToDelete), 1);
+            fetchUsers();
             toastMsg.textContent = 'User deleted successfully';
             toast.className = 'toast align-items-center text-bg-success border-0';
             bootstrap.Modal.getInstance(document.getElementById('deleteUserModal')).hide();
             searchUsers();
         } else {
-            const error = await res.json();
-            toastMsg.textContent = `Failed: ${error.error}`;
+            const error = await res.text();
+            toastMsg.textContent = `Failed: ${error}`;
             toast.className = 'toast align-items-center text-bg-danger border-0';
         }
     } catch (err) {

@@ -14,6 +14,7 @@ public static class AdminFunctions
         app.MapGet("/admin/users", GetUsers).RequireAuthorization("AdminLevel");
         app.MapPost("/admin/users", AddUser).RequireAuthorization("AdminLevel");
         app.MapPatch("/admin/users/{user}", EditUser).RequireAuthorization("AdminLevel");
+        app.MapDelete("/admin/users/{user}", DeleteUser).RequireAuthorization("AdminLevel");
         app.MapPost("/admin/tags", AddTag).RequireAuthorization("AdminLevel");
         app.MapPost("/admin/categories", AddCategory).RequireAuthorization("AdminLevel");
     }
@@ -95,7 +96,7 @@ public static class AdminFunctions
             return Results.BadRequest("Missing name");
         if (string.IsNullOrEmpty(role))
             return Results.BadRequest("Missing role");
-        if (Regex.IsMatch(username!,  @"[^a-z0-9\s-]"))
+        if (Regex.IsMatch(username!, @"[^a-z0-9\s-]"))
             return Results.BadRequest("Invalid Username: Small letters, digits and - only");
         if (!IsValidPassword(password!))
             return Results.BadRequest("Invalid Password: Must be at least 8 characters, one uppercase, one lowercase, one digit");
@@ -168,6 +169,18 @@ public static class AdminFunctions
 
         await File.WriteAllTextAsync(userPath, userJson);
         return Results.Ok(newUserInfo);
+    }
+
+    /*
+    handes deleting a user folder by taking its username
+    */
+    public static IResult DeleteUser(HttpRequest request, string user)
+    {
+        var userDir = Path.Combine(Directory.GetCurrentDirectory(), "content", "users", user);
+        if (!Directory.Exists(userDir)) return Results.BadRequest("Missing user");
+
+        Directory.Delete(userDir, true);
+        return Results.Ok();
     }
 
     /*

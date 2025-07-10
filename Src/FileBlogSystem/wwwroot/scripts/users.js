@@ -11,7 +11,7 @@ if (savedTheme) {
 /**
  * Configuration and state
  * @type {number} USERS_PER_PAGE - Number of users per page.
- * @type {json[]} users - Store users as objects.
+ * @type {Object[]} users - Store users as objects.
  * @type {number} currentPage - Current pagination page.
  * @type {string} sortField - Current sort field.
  * @type {string} sortDirection -  Sort direction: 'asc' or 'desc'.
@@ -85,12 +85,12 @@ function renderPagination(totalUsers) {
 /**
  * Filters users based on search query and re-renders the table
  */
-function searchUsers() {
+function searchUsers(given = 1) {
     const query = document.getElementById('search-users').value.toLowerCase();
     const filteredUsers = users.filter(user =>
         user.username.toLowerCase().includes(query) || user.name.toLowerCase().includes(query)
     );
-    currentPage = 1; // Reset to first page on search
+    currentPage = given;
     renderUsers(filteredUsers);
 }
 
@@ -104,7 +104,7 @@ document.getElementById('clear-search-btn').addEventListener('click', () => {
 });
 
 // Handle search input
-document.getElementById('search-users').addEventListener('input', searchUsers);
+document.getElementById('search-users').addEventListener('input', () => {searchUsers();});
 
 // Handle pagination clicks
 document.getElementById('pagination').addEventListener('click', (e) => {
@@ -118,7 +118,7 @@ document.getElementById('pagination').addEventListener('click', (e) => {
     } else if (pageLink.parentElement.id === 'next-page') {
         currentPage++;
     }
-    searchUsers();
+    searchUsers(currentPage);
 });
 
 // Handle sorting clicks

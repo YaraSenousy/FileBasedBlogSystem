@@ -15,8 +15,8 @@ public static class JwtHelper
         var claims = new List<Claim>
         {
             new(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Role, user.Role),
         };
-        claims.AddRange(new Claim(ClaimTypes.Role, user.Role));
 
         var token = new JwtSecurityToken(
             claims: claims,

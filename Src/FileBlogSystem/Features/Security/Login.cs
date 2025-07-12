@@ -43,19 +43,10 @@ public static class Login
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddDays(7)
+            Expires = DateTimeOffset.UtcNow.AddDays(1)
         });
 
-        request.HttpContext.Response.Cookies.Append("user-role", user.Role, new CookieOptions
-        {
-            HttpOnly = false,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddDays(7),
-            Path = "/"
-        });
-
-        return Results.Ok(new { success = true });
+        return Results.Ok(new { success = true, role = user.Role, name = user.Name});
     }
 
     public static IResult HandleLogout(HttpContext context)

@@ -9,6 +9,7 @@ import { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCat
  * @type {Set} activeTags - A Set of currently selected tag slugs.
  * @type {string} currentView - The current view (e.g., "published", "drafts", "scheduled").
  * @type {string|null} role - The user role (e.g., "admin", "editor", or null if unauthenticated).
+ * @type {string|null} name -  The user's name
  * @type {string} selectedCategoryName - The name of the currently selected category.
  * @type {string} searchTerm - The current search term, if any.
  */
@@ -18,6 +19,7 @@ let totalPages = 1;
 let activeTags = new Set();
 let currentView = "published";
 let role = null;
+let name = null;
 let selectedCategoryName = "All Categories";
 let searchTerm = "";
 
@@ -371,8 +373,10 @@ function updateThemeToggleIcon(theme) {
  * and sets up event listeners for buttons.
  */
 window.onload = () => {
-  role = getUserRoleFromCookie();
+  ({ name, role } = JSON.parse(localStorage.getItem('userInfo')));
   if (!role) window.open("/login", "_self");
+  console.log(name);
+  document.getElementById("accountOffcanvasLabel").textContent = `Hello, ${name.split(" ")[0]}`;
   if (role === "editor") {
     document.getElementById("nav-create").style.display = "none";
     document.getElementById("nav-add-dropdown").style.display = "none";

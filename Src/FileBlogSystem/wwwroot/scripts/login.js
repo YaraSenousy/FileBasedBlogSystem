@@ -44,7 +44,14 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
           credentials: "include"
       });
       if (res.ok) {
-          window.location.href = "/dashboard";
+          const data = await res.json();
+          if (data.success == true){
+            localStorage.setItem('userInfo', JSON.stringify({
+              name: data.name,
+              role: data.role
+            }));
+            window.location.href = "/dashboard";
+          }
       } else {
           toastMsg.textContent = "Invalid credentials";
           toast.className = "toast align-items-center text-bg-danger border-0";

@@ -13,4 +13,6 @@ public class Post
     public string HtmlContent { get; set; } = string.Empty;
     public string RawMarkdown { get; set; } = string.Empty;
     public List<string>? MediaUrls { get; set; }
+    public string CreatedBy { get; set; } = string.Empty;
+    public string? ModifiedBy { get; set; } = string.Empty;
 }

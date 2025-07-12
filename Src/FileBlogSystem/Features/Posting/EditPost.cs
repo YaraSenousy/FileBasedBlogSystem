@@ -17,8 +17,14 @@ public static class EditPost
     edits the modification date
     doen't allow editing of pubished posts
     */
-    public static async Task<IResult> HandleEditPost(HttpRequest request, string slug)
+    public static async Task<IResult> HandleEditPost(HttpRequest request, string slug, HttpContext context)
     {
+        var username = context.User.Identity?.Name;
+        if (string.IsNullOrEmpty(username))
+        {
+            return Results.Unauthorized();
+        }
+
         var form = await request.ReadFormAsync();
         if (form == null) return Results.BadRequest();
 
@@ -47,6 +53,7 @@ public static class EditPost
         meta.Tags = tags.ToList();
         meta.Categories = categories.ToList();
         meta.Modified = DateTime.Now;
+        meta.ModifiedBy = username;
 
         var markdown = form["content"];
         File.WriteAllText(metaPath, JsonSerializer.Serialize(meta, new JsonSerializerOptions { WriteIndented = true }));

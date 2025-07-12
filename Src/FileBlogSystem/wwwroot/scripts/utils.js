@@ -120,6 +120,10 @@ function renderPosts(posts, containerId, role = null) {
           </div>
           <div class="post-categories"><strong>Categories:</strong> ${cats}</div>
           <div class="post-tags"><strong>Tags:</strong> ${tags}</div>
+          <div class="post-meta"> 
+          ${post.createdBy ? `Created By: ${post.createdBy}<br>` : ""}
+          ${post.modifiedBy ? `Modified By: ${post.modifiedBy}` : ""}
+          </div>
         </div>
         ${images.length > 0 ? `<div class="col-md-5">${thumbnail}</div>` : ""}
       </div>

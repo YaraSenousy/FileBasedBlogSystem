@@ -18,8 +18,14 @@ public static class CreatePost
     sets status to draft and publish date to now
     return the generated slug
     */
-    public static async Task<IResult> HandleCreatePost(HttpRequest request)
+    public static async Task<IResult> HandleCreatePost(HttpRequest request, HttpContext context)
     {
+        var username = context.User.Identity?.Name;
+        if (string.IsNullOrEmpty(username))
+        {
+            return Results.Unauthorized();
+        }
+        
         var form = await request.ReadFormAsync();
         var title = form["title"];
         var description = form["description"];
@@ -47,7 +53,8 @@ public static class CreatePost
             Status = status!,
             Published = publishDate,
             Tags = tags.ToList(),
-            Categories = categories.ToList()
+            Categories = categories.ToList(),
+            CreatedBy = username
         };
 
         var metaJson = JsonSerializer.Serialize(meta, new JsonSerializerOptions

@@ -42,7 +42,10 @@
           minute: "2-digit",
           hour12: false,
         })}</i></p>
-            <div>${post.htmlContent}</div>
+          <p><i>
+          ${post.createdBy ? `Created By: ${post.createdBy}<br>` : ""}
+          </i></p>
+            <div class="post-content">${post.htmlContent}</div>
             <div id="media-section"></div>
             <div class="post-categories""><strong>Categories:</strong> ${(post.categories || []).map((c) => `<span>${c}</span>`).join("")}</div>
             <div class="post-tags"><strong>Tags:</strong> ${(post.tags || []).map((t) => `<span>${t}</span>`).join("")}</div>

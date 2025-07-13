@@ -47,6 +47,20 @@ public static class EditPost
         {
             return Results.BadRequest("Post data incomplete");
         }
+        
+        foreach (var category in categories)
+        {
+            var categoryPath = Path.Combine("content", "categories", $"{category}.json");
+            if (!File.Exists(categoryPath))
+                return Results.BadRequest($"Invalid category: {category}");
+        }
+
+        foreach (var tag in tags)
+        {
+            var tagPath = Path.Combine("content", "tags", $"{tag}.json");
+            if (!File.Exists(tagPath))
+                return Results.BadRequest($"Invalid tag: {tag}");
+        }
 
         meta.Title = title!;
         meta.Description = description!;

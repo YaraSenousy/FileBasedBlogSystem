@@ -22,10 +22,8 @@ public static class CreatePost
     {
         var username = context.User.Identity?.Name;
         if (string.IsNullOrEmpty(username))
-        {
             return Results.Unauthorized();
-        }
-        
+
         var form = await request.ReadFormAsync();
         var title = form["title"];
         var description = form["description"];
@@ -36,11 +34,23 @@ public static class CreatePost
         var publishDate = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
 
         if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(description) || string.IsNullOrEmpty(content))
-        {
             return Results.BadRequest("Post data incomplete");
-        }
-        var slug = SlugGenerator.GenerateSlug(title!);
 
+        foreach (var category in categories)
+        {
+            var categoryPath = Path.Combine("content", "categories", $"{category}.json");
+            if (!File.Exists(categoryPath))
+                return Results.BadRequest($"Invalid category: {category}");
+        }
+
+        foreach (var tag in tags)
+        {
+            var tagPath = Path.Combine("content", "tags", $"{tag}.json");
+            if (!File.Exists(tagPath))
+                return Results.BadRequest($"Invalid tag: {tag}");
+        }
+
+        var slug = SlugGenerator.GenerateSlug(title!);
         var folderName = $"{publishDate:yyyy-MM-dd}-{slug}";
         var postPath = Path.Combine("content", "posts", folderName);
         Directory.CreateDirectory(postPath);
@@ -64,7 +74,6 @@ public static class CreatePost
 
         await File.WriteAllTextAsync(Path.Combine(postPath, "meta.json"), metaJson);
         await File.WriteAllTextAsync(Path.Combine(postPath, "content.md"), content!);
-
         RouteMapper.AddRoute(slug, folderName);
 
         return Results.Created($"/posts/{slug}", new { slug });

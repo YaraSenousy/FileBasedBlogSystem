@@ -306,10 +306,6 @@ header nav a:hover {
     color: #007bff;
 }
 
-.bi-arrow-left {
-    margin: 0.25rem;
-}
-
 .back-arrow {
     display: inline-flex;
     align-items: center;

@@ -30,7 +30,7 @@
       })
       .then(post => {
         let html = `
-          <a href="javascript:history.back()" class="back-arrow">Back</a>
+          <a href="javascript:history.back()" class="back-arrow"><i class="bi bi-arrow-left"></i> Back</a>
           <article class="post-article">
             <header class="post-header">
               <h1 class="post-title">${post.title}</h1>
@@ -49,9 +49,9 @@
             </header>
             <div class="post-content-wrapper">
               <div class="post-content-container">
+                <div id="media-section" class="post-media-section"></div>
                 <div class="post-content">${post.htmlContent}</div>
               </div>
-              <div id="media-section" class="post-media-section"></div>
             </div>
             <footer class="post-footer">
               <div class="post-details">

@@ -235,16 +235,41 @@ async function loadPosts() {
 }
 
 /**
- * Deletes a post after user confirmation.
+ * Deletes a post with user confirmation.
  * @param {string} slug - The slug of the post to delete.
  * @param {string} title - The title of the post for confirmation.
  */
+let pendingDelete = { slug: "", title: "" };
 async function deletePost(slug, title) {
-  if (confirm(`Are you sure you want to delete: ${title}`)) {
-    await fetch(`/posts/${slug}/delete`, { method: "POST", credentials: "include" });
-    showToast("🗑️ Deleted Post Successfully", "success");
-    loadPosts();
-  }
+  pendingDelete.slug = slug;
+  pendingDelete.title = title;
+
+  document.querySelector(".modal-body").textContent =
+    `Are you sure you want to delete "${title}"?`;
+
+  const modal = new bootstrap.Modal(document.getElementById("deleteCategoryModal"));
+  modal.show();
+}
+
+function deleteButtonInitialise () {
+  document.getElementById("confirm-delete-btn").addEventListener("click", async () => {
+    const { slug, title } = pendingDelete;
+  
+    try {
+      await fetch(`/posts/${slug}/delete`, {
+        method: "POST",
+        credentials: "include"
+      });
+  
+      showToast("🗑️ Deleted Post Successfully", "success");
+      const modal = bootstrap.Modal.getInstance(document.getElementById("deleteCategoryModal"));
+      modal.hide();
+      loadPosts();
+    } catch (err) {
+      showToast("❌ Failed to delete post", "danger");
+    }
+  });
+  
 }
 
 /**
@@ -467,6 +492,7 @@ window.onload = () => {
   } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
     updateThemeToggleIcon("dark");
   }
+  deleteButtonInitialise();
 
   // Event listeners for dynamically created post action buttons
   const postsContainer = document.getElementById("posts-container");

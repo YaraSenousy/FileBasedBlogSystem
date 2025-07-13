@@ -663,8 +663,13 @@ input[type="datetime-local"]:focus {
     transition: color 0.3s, background-color 0.3s, border-color 0.3s;
 }
 
+a.view-post-btn:hover {
+    color: #fff !important;
+    text-decoration: none !important;
+}
+
 .view-post-btn:hover {
-    background-color: rgba(0, 123, 255, 0.2); /* Adjusted to a lighter blue tint */
+    background-color: rgba(0, 123, 255, 0.2);
     color: #007bff;
     border-color: #007bff;
     transform: translateX(3px);
@@ -693,7 +698,7 @@ input[type="datetime-local"]:focus {
     color: #007bff;
 }
 
-.back-arrow::before{
+.back-arrow::before {
     content: "←";
     margin-right: 0.5rem;
 }
@@ -1076,7 +1081,7 @@ input[type="datetime-local"]:focus {
     }
 
     .view-post-btn:hover {
-        background-color: rgba(77, 171, 247, 0.2);
+        background-color: #4dabf7;
         color: #4dabf7;
         border-color: #4dabf7;
         transform: translateX(3px);

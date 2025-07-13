@@ -113,9 +113,9 @@ function renderPosts(posts, containerId, role = null) {
           <div class="post-description"><span>Description: </span><p>${post.description}</p></div>
           <div class="post-preview"><p>${preview}</p></div>
           <div class="post-details">
-          <button onclick="window.location.href='/post?slug=${post.slug}${role && status !== 'published' ? '&preview=true' : ''}'" class="btn btn-outline-primary view-post-btn">
+          <a href="/post?slug=${post.slug}${role && status !== 'published' ? '&preview=true' : ''}" class="btn btn-outline-primary view-post-btn">
             View Full Post <i class="bi bi-arrow-right"></i>
-          </button>
+          </a>
           </div>
           <div class="post-meta">
           ${status === "draft" ? "" : `${status}: ${publishedDate}<br>`}
@@ -144,13 +144,13 @@ function renderPosts(posts, containerId, role = null) {
         editBtn.className = "btn btn-primary btn-sm m-1";
         editBtn.id = "edit-btn";
         editBtn.textContent = "Edit Post";
-        editBtn.onclick = () => window.open(`/create?slug=${post.slug}`, "_self");
+        //editBtn.onclick = () => window.open(`/create?slug=${post.slug}`, "_self");
         postEl.appendChild(editBtn);
         
         const publishBtn = document.createElement("button");
         publishBtn.textContent = "Publish Now";
         publishBtn.className = "btn btn-outline-secondary btn-sm ms-1";
-        publishBtn.onclick = () => publishNow(post.slug);
+        //publishBtn.onclick = () => publishNow(post.slug);
         actions.appendChild(publishBtn);
   
         const scheduleInput = document.createElement("input");
@@ -167,11 +167,11 @@ function renderPosts(posts, containerId, role = null) {
         const scheduleBtn = document.createElement("button");
         scheduleBtn.className = "btn btn-outline-secondary btn-sm mx-2";
         scheduleBtn.textContent = "Schedule";
-        scheduleBtn.onclick = () => {
-          const time = document.getElementById(`schedule-${post.slug}`).value;
-          if (!time) showToast("Please choose a time", "danger");
-          else schedulePost(post.slug, time);
-        };
+        // scheduleBtn.onclick = () => {
+        //   const time = document.getElementById(`schedule-${post.slug}`).value;
+        //   if (!time) showToast("Please choose a time", "danger");
+        //   else schedulePost(post.slug, time);
+        // };
         actions.appendChild(scheduleInput);
         actions.appendChild(scheduleBtn);
       }
@@ -179,7 +179,7 @@ function renderPosts(posts, containerId, role = null) {
         const draftBtn = document.createElement("button");
         draftBtn.className = "btn btn-outline-secondary btn-sm ms-1";
         draftBtn.textContent = "Save as Draft";
-        draftBtn.onclick = () => saveAsDraft(post.slug);
+        //draftBtn.onclick = () => saveAsDraft(post.slug);
         actions.appendChild(draftBtn);
       }
       postEl.appendChild(actions);

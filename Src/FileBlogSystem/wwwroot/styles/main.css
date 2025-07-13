@@ -699,7 +699,6 @@ a.view-post-btn:hover {
 }
 
 .back-arrow::before {
-    content: "←";
     margin-right: 0.5rem;
 }
 

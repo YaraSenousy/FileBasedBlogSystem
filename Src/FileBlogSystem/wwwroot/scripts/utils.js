@@ -144,13 +144,11 @@ function renderPosts(posts, containerId, role = null) {
         editBtn.className = "btn btn-primary btn-sm m-1";
         editBtn.id = "edit-btn";
         editBtn.textContent = "Edit Post";
-        //editBtn.onclick = () => window.open(`/create?slug=${post.slug}`, "_self");
         postEl.appendChild(editBtn);
         
         const publishBtn = document.createElement("button");
         publishBtn.textContent = "Publish Now";
         publishBtn.className = "btn btn-outline-secondary btn-sm ms-1";
-        //publishBtn.onclick = () => publishNow(post.slug);
         actions.appendChild(publishBtn);
   
         const scheduleInput = document.createElement("input");
@@ -167,11 +165,6 @@ function renderPosts(posts, containerId, role = null) {
         const scheduleBtn = document.createElement("button");
         scheduleBtn.className = "btn btn-outline-secondary btn-sm mx-2";
         scheduleBtn.textContent = "Schedule";
-        // scheduleBtn.onclick = () => {
-        //   const time = document.getElementById(`schedule-${post.slug}`).value;
-        //   if (!time) showToast("Please choose a time", "danger");
-        //   else schedulePost(post.slug, time);
-        // };
         actions.appendChild(scheduleInput);
         actions.appendChild(scheduleBtn);
       }
@@ -179,7 +172,6 @@ function renderPosts(posts, containerId, role = null) {
         const draftBtn = document.createElement("button");
         draftBtn.className = "btn btn-outline-secondary btn-sm ms-1";
         draftBtn.textContent = "Save as Draft";
-        //draftBtn.onclick = () => saveAsDraft(post.slug);
         actions.appendChild(draftBtn);
       }
       postEl.appendChild(actions);

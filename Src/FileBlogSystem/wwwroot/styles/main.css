@@ -109,57 +109,197 @@ nav a {
 
 .conveyor-belt {
     display: flex;
-    overflow-x: hidden;
+    overflow: hidden;
     padding: 20px 0;
-    background: #1a1a1a;
+    background: var(--bg-secondary, #1a1a1a);
     border-radius: 10px;
-  }
-  
-  .conveyor-belt .post-card {
+    position: relative;
+}
+
+[data-theme="light"] .conveyor-belt {
+    background: var(--bg-secondary, #f1f3f5);
+}
+
+.conveyor-belt-inner {
+    display: flex;
+    width: 200%;
+    animation: scroll 20s linear infinite;
+}
+
+.conveyor-belt:hover .conveyor-belt-inner {
+    animation-play-state: paused;
+}
+
+/* Post Card Styling */
+.post-card {
     flex: 0 0 auto;
     width: 300px;
     margin-right: 20px;
-    background: #2a2a2a;
-    border-radius: 10px;
+    background: var(--card-bg, #2a2a2a);
+    border-radius: 15px;
     overflow: hidden;
-    color: white;
+    color: var(--text-primary, #e0e0e0);
     text-align: center;
-    padding: 10px;
-  }
-  
-  .conveyor-belt .post-card img {
+    padding: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="light"] .post-card {
+    background: var(--card-bg, #ffffff);
+    color: var(--text-primary, #333);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.post-card img {
     width: 100%;
-    height: 200px;
+    height: 250px;
     object-fit: cover;
-  }
-  
-  .conveyor-belt .post-card h5 {
-    margin: 10px 0;
-    font-size: 1.2rem;
-  }
-  
-  .conveyor-belt .post-card p {
-    font-size: 0.9rem;
-    color: #ccc;
-  }
-  
-  .conveyor-belt .post-card a {
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.post-card h5 {
+    margin: 15px 0;
+    font-size: 1.4rem;
+    font-family: 'Georgia', serif;
+    color: var(--text-accent, #4dabf7);
+}
+
+[data-theme="light"] .post-card h5 {
+    color: var(--text-accent, #007bff);
+}
+
+.post-card p {
+    font-size: 1rem;
+    color: var(--text-secondary, #ccc);
+    line-height: 1.6;
+    padding: 0 10px;
+    min-height: 60px;
+}
+
+[data-theme="light"] .post-card p {
+    color: var(--text-secondary, #666);
+}
+
+.post-card a {
     display: inline-block;
-    margin-top: 10px;
-  }
-  
-  @keyframes scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-300px); }
-  }
-  
-  .conveyor-belt:hover .post-card {
-    animation-play-state: paused;
-  }
-  
-  .conveyor-belt .post-card {
-    animation: scroll 15s linear infinite;
-  }
+    margin-top: 15px;
+    padding: 8px 20px;
+    background: linear-gradient(90deg, #4dabf7, #007bff);
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.post-card a:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(90deg, #007bff, #4dabf7);
+}
+
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.conveyor-belt-inner {
+    animation: scroll 20s linear infinite;
+}
+
+.about-section {
+    padding: 40px 20px;
+    background: linear-gradient(90deg, #f4f5f5, #e9ecef);
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+[data-theme="dark"] .about-section {
+    background: linear-gradient(90deg, #1a1a1a, #2c2c2c);
+    color: var(--text-primary, #e0e0e0);
+}
+
+.about-section h2,
+.featured-posts-section h3 {
+    font-size: 2.5rem;
+    font-family: 'Georgia', serif;
+    margin-bottom: 20px;
+    color: var(--text-accent, #007bff);
+}
+
+[data-theme="dark"] .about-section h2,
+.featured-posts-section h3 {
+    color: var(--text-accent, #4dabf7);
+}
+
+.about-section p {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    max-width: 800px;
+    margin: 0 auto;
+    color: var(--text-secondary, #666);
+}
+
+[data-theme="dark"] .about-section p {
+    color: var(--text-secondary, #bbb);
+}
+
+.start-exploring {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 30px;
+    background: linear-gradient(90deg, #4dabf7, #007bff);
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+    position: relative;
+    bottom: -20px;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.start-exploring:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.5);
+}
+
+.start-exploring i {
+    margin-left: 8px;
+}
+
+@media (max-width: 768px) {
+    .post-card {
+        width: 250px;
+        margin-right: 15px;
+    }
+
+    .post-card img {
+        height: 200px;
+    }
+
+    .about-section h2 {
+        font-size: 2rem;
+    }
+
+    .about-section p {
+        font-size: 1rem;
+    }
+
+    .start-exploring {
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+}
 
 .dropdown-menu {
     min-width: 200px;
@@ -545,20 +685,20 @@ article {
 .post-content-container {
     overflow: hidden;
     position: relative;
-  }
-  
-  .post-media-section {
+}
+
+.post-media-section {
     float: right;
     width: 600px;
     margin-left: 1.5rem;
     margin-bottom: 1rem;
-  }
-  
-  .post-content {
+}
+
+.post-content {
     font-size: 1.1rem;
     line-height: 1.8;
     color: #444;
-  }
+}
 
 .post-content p {
     margin-bottom: 1.5rem;
@@ -868,9 +1008,6 @@ a.view-post-btn:hover {
         color: #e0e0e0;
     }
 
-    a {
-        color: #4dabf7;
-    }
 
     a:hover {
         color: #80bdff;

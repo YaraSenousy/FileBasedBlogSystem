@@ -10,8 +10,7 @@ async function loadFeaturedPosts() {
   const posts = response.data;
   const conveyor = document.getElementById("featured-posts");
 
-  // Duplicate posts for seamless looping
-  const allPosts = [...posts, ...posts];
+  const allPosts = [...posts, ...posts, ...posts];
 
   allPosts.forEach((post) => {
     const card = document.createElement("div");
@@ -20,19 +19,13 @@ async function loadFeaturedPosts() {
       /\.(png|jpe?g|webp|gif)$/i.test(url)
     )[0];
     card.innerHTML = `
-<img src="${
-      `${thumbnail}?width=300&height=200&mode=pad` || "/images/default.jpg"
-    }" alt="${post.title}">
-<h5>${post.title}</h5>
-<p>${post.description.substring(0, 100)}...</p>
-<a href="/post?slug=${post.slug}" class="btn btn-primary">Read More</a>
-`;
+      <img src="${`${thumbnail}?width=300&height=250&mode=pad` || "/images/default.jpg"}" alt="${post.title}">
+      <h5>${post.title}</h5>
+      <p>${post.description.substring(0, 100)}...</p>
+      <a href="/post?slug=${post.slug}" class="btn btn-primary">Read More</a>
+    `;
     conveyor.appendChild(card);
   });
-
-  // Adjust animation duration based on number of posts
-  const totalWidth = allPosts.length * 320; // 300px width + 20px margin
-  conveyor.style.animationDuration = `${totalWidth / 20}s`; // Speed: pixels per second
 }
 
 /**

@@ -9,10 +9,17 @@ A lightweight file-based blogging system built using **ASP.NET Core**, Markdown 
 - Write blog posts in Markdown
 - Role-based access control (admin, author, editor)
 - Schedule posts for future publication
+- Edit drafts and scheduled posts
 - Search functionality
 - JWT-based auth with cookies
 - RSS feed generation
 - Clean slug routing via `routes.json`
+- Media Upload and Management: Upload, edit and delete media attached to a blog
+- Theme Customization: Switch between light/dark theme
+- Search and Filter Interface: Interactive search bar and filters by category and tag on the homepage and dashboard
+- User Management: Admins can manage user profiles and roles via the /users page
+- Tag Management: Admins can add, edit, and delete tags via the /tag page
+- Category Management: Admins can add, edit, and delete categories via the /category page
 
 ---
 
@@ -54,17 +61,17 @@ dotnet run
 
 - /create — write a new post (admin/author only)
 
-- /addUser — add a new user (admin only)
+- /users — manage all users (admin only)
 
-- /addTag — add a new tag (admin only)
+- /tag — manage all tags (admin only)
 
-- /addCategory — add a new category (admin only)
+- /category — manage all categories (admin only)
 
 ---
 
 ## Roles & Permissions
-| Role   | Can View | Can Create| Can Edit | Can Delete | Can Publish | Can Add Users/Categories/Tag |
-| ------ | -------- | ----------| -------- | ---------- | ----------- | --------------------------   |
-| Admin  | ✅        | ✅      |    ✅    |    ✅      | ✅         |             ❌              |
-| Author | ✅        | ✅      |    ✅    |    ❌      | ✅         |             ❌              |
-| Editor | ✅        | ❌      |    ✅    |    ❌      | ✅         |             ✅              |
+| Role   | Can View | Can Create| Can Edit | Can Delete | Can Publish | Can Add/Edit/Delete Users/Categories/Tag |
+| ------ | -------- | ----------| -------- | ---------- | ----------- | ---------------------------------------- |
+| Admin  | ✅        | ✅      |    ✅    |    ✅      | ✅         |             ❌                          |
+| Author | ✅        | ✅      |    ✅    |    ❌      | ✅         |             ❌                          |
+| Editor | ✅        | ❌      |    ✅    |    ❌      | ✅         |             ✅                          |

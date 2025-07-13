@@ -107,12 +107,53 @@ nav a {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
+/* About and Featured Posts Sections */
+.about-section {
+    padding: 20px 15px;
+    background: linear-gradient(90deg, #f4f5f5, #e9ecef);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.featured-posts-section {
+    padding: 15px 10px;     
+    margin-bottom: 15px;
+    min-height: 400px;
+}
+
+.about-section h2,
+.featured-posts-section h3 {
+    font-size: 1.8rem;
+    font-family: 'Georgia', serif;
+    margin-bottom: 15px;
+    color: var(--text-accent, #007bff);
+}
+
+.featured-posts-section h3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.about-section p {
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 700px;
+    margin: 0 auto;
+    color: var(--text-secondary, #666);
+}
+
+/* Conveyor Belt and Post Card */
 .conveyor-belt {
     display: flex;
     overflow: hidden;
-    padding: 20px 0;
+    padding: 15px 0;
     background: var(--bg-secondary, #1a1a1a);
-    border-radius: 10px;
+    border-radius: 8px;
     position: relative;
 }
 
@@ -123,46 +164,63 @@ nav a {
 .conveyor-belt-inner {
     display: flex;
     width: 200%;
-    animation: scroll 20s linear infinite;
+    animation: scroll 30s linear infinite;
 }
 
 .conveyor-belt:hover .conveyor-belt-inner {
     animation-play-state: paused;
 }
 
-/* Post Card Styling */
 .post-card {
     flex: 0 0 auto;
-    width: 300px;
-    margin-right: 20px;
+    width: 350px;
+    margin-right: 15px;
     background: var(--card-bg, #2a2a2a);
-    border-radius: 15px;
+    border-radius: 10px;
     overflow: hidden;
     color: var(--text-primary, #e0e0e0);
     text-align: center;
     padding: 15px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    justify-items: center;
+    height: 400px;
 }
 
 [data-theme="light"] .post-card {
     background: var(--card-bg, #ffffff);
     color: var(--text-primary, #333);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.post-card img {
+.post-card .carousel-item img.carousel-img {
     width: 100%;
-    height: 250px;
-    object-fit: cover;
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
+    height: 200px;
+    object-fit: contain;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.post-card .carousel-item {
+    width: 100%;
+    object-fit: contain;
+}
+
+.post-card:hover img {
+    transform: scale(1.05);
 }
 
 .post-card h5 {
-    margin: 15px 0;
-    font-size: 1.4rem;
+    margin: 10px 0 6px;
     font-family: 'Georgia', serif;
     color: var(--text-accent, #4dabf7);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 1.2rem;
 }
 
 [data-theme="light"] .post-card h5 {
@@ -170,33 +228,36 @@ nav a {
 }
 
 .post-card p {
-    font-size: 1rem;
-    color: var(--text-secondary, #ccc);
-    line-height: 1.6;
-    padding: 0 10px;
-    min-height: 60px;
-}
-
-[data-theme="light"] .post-card p {
-    color: var(--text-secondary, #666);
+    font-size: 0.9rem;
+    font-style: 400;
+    color: var(--text-secondary, #000);
+    line-height: 1.4;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    flex-grow: 1;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .post-card a {
     display: inline-block;
-    margin-top: 15px;
-    padding: 8px 20px;
+    padding: 6px 12px;  
     background: linear-gradient(90deg, #4dabf7, #007bff);
     color: #fff;
     border: none;
-    border-radius: 25px;
+    border-radius: 20px;
     text-decoration: none;
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 0.8rem;  
+    font-weight: 600;
     transition: transform 0.3s ease, background 0.3s ease;
+    align-self: center;
 }
 
 .post-card a:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
     background: linear-gradient(90deg, #007bff, #4dabf7);
 }
 
@@ -204,103 +265,81 @@ nav a {
     0% {
         transform: translateX(0);
     }
-
     100% {
-        transform: translateX(-50%);
+        transform: translateX(-100%);
     }
 }
 
 .conveyor-belt-inner {
-    animation: scroll 20s linear infinite;
+    animation: scroll 30s linear infinite;
 }
 
-.about-section {
-    padding: 40px 20px;
-    background: linear-gradient(90deg, #f4f5f5, #e9ecef);
-    border-radius: 10px;
-    margin-bottom: 30px;
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .post-card {
+        width: 250px;
+        margin-right: 10px;
+        height: 350px;/
+    }
+
+    .post-card img {
+        height: 180px;
+    }
+
+    .post-card h5 {
+        font-size: 1rem;  
+    }
+
+    .post-card p {
+        font-size: 0.7rem;  
+    }
+
+    .post-card a {
+        padding: 5px 10px;  
+        font-size: 0.7rem;  
+    }
+
+    .about-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .about-section p {
+        font-size: 0.9rem;
+    }
+
+    .start-exploring {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
 }
 
-[data-theme="dark"] .about-section {
-    background: linear-gradient(90deg, #1a1a1a, #2c2c2c);
-    color: var(--text-primary, #e0e0e0);
-}
-
-.about-section h2,
-.featured-posts-section h3 {
-    font-size: 2.5rem;
-    font-family: 'Georgia', serif;
-    margin-bottom: 20px;
-    color: var(--text-accent, #007bff);
-}
-
-[data-theme="dark"] .about-section h2,
-.featured-posts-section h3 {
-    color: var(--text-accent, #4dabf7);
-}
-
-.about-section p {
-    font-size: 1.2rem;
-    line-height: 1.8;
-    max-width: 800px;
-    margin: 0 auto;
-    color: var(--text-secondary, #666);
-}
-
-[data-theme="dark"] .about-section p {
-    color: var(--text-secondary, #bbb);
-}
-
+/* Start Exploring Button */
 .start-exploring {
     display: inline-flex;
     align-items: center;
-    padding: 12px 30px;
+    padding: 10px 25px;
     background: linear-gradient(90deg, #4dabf7, #007bff);
     color: #fff;
     border: none;
     border-radius: 25px;
     text-decoration: none;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
-    position: relative;
-    bottom: -20px;
     box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-left: 1rem;
 }
 
 .start-exploring:hover {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
     box-shadow: 0 6px 15px rgba(0, 123, 255, 0.5);
 }
 
 .start-exploring i {
-    margin-left: 8px;
+    margin-left: 6px;
 }
 
-@media (max-width: 768px) {
-    .post-card {
-        width: 250px;
-        margin-right: 15px;
-    }
-
-    .post-card img {
-        height: 200px;
-    }
-
-    .about-section h2 {
-        font-size: 2rem;
-    }
-
-    .about-section p {
-        font-size: 1rem;
-    }
-
-    .start-exploring {
-        padding: 10px 20px;
-        font-size: 1rem;
-    }
-}
-
+/* Dropdown Menu Styles */
 .dropdown-menu {
     min-width: 200px;
     border-radius: 4px;
@@ -784,7 +823,6 @@ input[type="datetime-local"]:focus {
 }
 
 /* Media Styles */
-
 .post-media {
     margin: 0 0 1.5rem;
 }
@@ -1007,7 +1045,6 @@ a.view-post-btn:hover {
         background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
         color: #e0e0e0;
     }
-
 
     a:hover {
         color: #80bdff;
@@ -1420,5 +1457,27 @@ a.view-post-btn:hover {
 
     .modal-footer {
         border-top: 1px solid #444;
+    }
+
+    .about-section p {
+        color: var(--text-secondary, #bbb);
+    }
+
+    .about-section h2,
+    .featured-posts-section h3 {
+        color: var(--text-accent, #4dabf7);
+    }
+
+    .about-section {
+        background: linear-gradient(90deg, #1a1a1a, #2c2c2c);
+        color: var(--text-primary, #e0e0e0);
+    }
+
+    .featured-posts-section h3 {
+        color: var(--text-accent, #4dabf7);
+    }
+
+    .post-card p {
+        color: var(--text-secondary, white);
     }
 }

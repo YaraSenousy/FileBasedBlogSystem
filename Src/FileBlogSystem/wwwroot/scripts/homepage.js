@@ -10,21 +10,60 @@ async function loadFeaturedPosts() {
   const posts = response.data;
   const conveyor = document.getElementById("featured-posts");
 
-  const allPosts = [...posts, ...posts, ...posts];
+  const allPosts = [...posts, ...posts,];
 
   allPosts.forEach((post) => {
     const card = document.createElement("div");
     card.className = "post-card";
-    const thumbnail = (post.mediaUrls || []).filter((url) =>
+    const images = (post.mediaUrls || []).filter((url) =>
       /\.(png|jpe?g|webp|gif)$/i.test(url)
-    )[0];
+    );
+    const thumbnail = images.length > 0
+      ? `
+        <div id="carousel-${post.slug}" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+          <div class="carousel-inner">
+            ${images
+              .map(
+                (url, i) => `
+              <div class="carousel-item ${i === 0 ? "active" : ""}">
+                <img src="${url}?width=350&height=200&mode=pad" class="d-block w-100 carousel-img img-fluid" alt="Post image" loading="lazy">
+              </div>
+            `
+              )
+              .join("")}
+          </div>
+          ${
+            images.length > 1
+              ? `
+            <button id="carousel-control-prev" class="carousel-control-prev" type="button" data-bs-target="#carousel-${post.slug}" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </button>
+            <button id="carousel-control-next" class="carousel-control-next" type="button" data-bs-target="#carousel-${post.slug}" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </button>
+          `
+              : ""
+          }
+        </div>
+      `
+      : "";
     card.innerHTML = `
-      <img src="${`${thumbnail}?width=300&height=250&mode=pad` || "/images/default.jpg"}" alt="${post.title}">
+      ${thumbnail}
       <h5>${post.title}</h5>
-      <p>${post.description.substring(0, 100)}...</p>
-      <a href="/post?slug=${post.slug}" class="btn btn-primary">Read More</a>
+      <p>${post.description.substring(0, 150)}...</p>
+      <a href="/post?slug=${post.slug}" class="btn btn-primary">Read More <i class="fas fa-arrow-right"></i></a>
     `;
     conveyor.appendChild(card);
+  });
+
+  const carousels = document.querySelectorAll(".carousel");
+  carousels.forEach((carousel) => {
+    new bootstrap.Carousel(carousel, {
+      interval: 4000,
+      ride: "carousel",
+    });
   });
 }
 

@@ -256,17 +256,24 @@ function deleteButtonInitialise () {
     const { slug, title } = pendingDelete;
   
     try {
-      await fetch(`/posts/${slug}/delete`, {
+      const res = await fetch(`/posts/${slug}/delete`, {
         method: "POST",
         credentials: "include"
       });
-  
-      showToast("🗑️ Deleted Post Successfully", "success");
-      const modal = bootstrap.Modal.getInstance(document.getElementById("deleteCategoryModal"));
-      modal.hide();
-      loadPosts();
+
+      if (res.ok) { 
+        showToast("🗑️ Deleted Post Successfully", "success");
+        const modal = bootstrap.Modal.getInstance(document.getElementById("deleteCategoryModal"));
+        modal.hide();
+        loadPosts();
+      }
+      else {
+        showToast("❌ Failed to delete post", "danger");
+        modal.hide();
+      }
     } catch (err) {
       showToast("❌ Failed to delete post", "danger");
+      modal.hide();
     }
   });
   

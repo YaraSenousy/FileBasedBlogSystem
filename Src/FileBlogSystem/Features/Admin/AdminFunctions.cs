@@ -221,6 +221,48 @@ public static class AdminFunctions
     }
 
     /*
+    Handles editing the tags/categories slug inside the posts' meta files
+    if a tag/category is edited, its new slug replaces the old slugs in all posts
+    if delete is true, it deletes the tag/category from all posts
+    */
+    public static async void UpdatePosts(string type, string oldSlug, string newSlug, bool delete = false)
+    {
+        var postsDir = Path.Combine(Directory.GetCurrentDirectory(), "content", "posts");
+        foreach (var postDir in Directory.GetDirectories(postsDir))
+        {
+            var postFile = Path.Combine(postDir, "meta.json");
+            var postJson = File.ReadAllText(postFile);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+            var post = JsonSerializer.Deserialize<Post>(postJson, options);
+
+            List<string>? postData;
+            if (type == "tags")
+                postData = post?.Tags;
+            else
+                postData = post?.Categories;
+
+            if (postData != null && postData.Contains(oldSlug))
+            {
+                if (delete)
+                    postData.RemoveAll(n => n == oldSlug);
+                else
+                {
+                    for (int i = 0; i < postData.Count; i++)
+                    {
+                        if (postData[i] == oldSlug)
+                            postData[i] = newSlug;
+                    }
+                }
+
+                var updatedJson = JsonSerializer.Serialize(post, new JsonSerializerOptions { WriteIndented = true });
+                await File.WriteAllTextAsync(postFile, updatedJson);
+            }
+        }
+    }
+    /*
     Handles editing a tag by taking a new name
     Updates slug if name changes and ensures it is unique
     */
@@ -254,6 +296,7 @@ public static class AdminFunctions
         if (newSlug != slug)
             File.Delete(tagPath);
         await File.WriteAllTextAsync(newTagPath, tagJson);
+        UpdatePosts("tags", slug, newSlug);
         return Results.Ok(tag);
     }
 
@@ -266,6 +309,7 @@ public static class AdminFunctions
         if (!File.Exists(tagPath)) return Results.NotFound("Tag not found");
 
         File.Delete(tagPath);
+        UpdatePosts("tags", slug, "", true);
         return Results.NoContent();
     }
 
@@ -346,6 +390,7 @@ public static class AdminFunctions
         if (newSlug != slug)
             File.Delete(categoryPath);
         await File.WriteAllTextAsync(newCategoryPath, categoryJson);
+        UpdatePosts("categories", slug, newSlug);
         return Results.Ok(category);
     }
 
@@ -358,6 +403,7 @@ public static class AdminFunctions
         if (!File.Exists(categoryPath)) return Results.NotFound("Category not found");
 
         File.Delete(categoryPath);
+        UpdatePosts("categories", slug, "", true);
         return Results.NoContent();
     }
 }

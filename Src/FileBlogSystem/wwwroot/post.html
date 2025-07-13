@@ -31,9 +31,11 @@
       .then(post => {
         let html = `
           <a href="javascript:history.back()" class="back-arrow">Back</a>
-          <article>
-            <h1>${post.title}</h1>
-            <p><i>Published: ${new Date(post.published).toLocaleDateString("en-GB", {
+          <article class="post-article">
+            <header class="post-header">
+              <h1 class="post-title">${post.title}</h1>
+              <div class="post-meta">
+                <p><i>Published: ${new Date(post.published).toLocaleDateString("en-GB", {
           weekday: "short",
           day: "2-digit",
           month: "short",
@@ -42,13 +44,21 @@
           minute: "2-digit",
           hour12: false,
         })}</i></p>
-          <p><i>
-          ${post.createdBy ? `Created By: ${post.createdBy}<br>` : ""}
-          </i></p>
-            <div class="post-content">${post.htmlContent}</div>
-            <div id="media-section"></div>
-            <div class="post-categories""><strong>Categories:</strong> ${(post.categories || []).map((c) => `<span>${c}</span>`).join("")}</div>
-            <div class="post-tags"><strong>Tags:</strong> ${(post.tags || []).map((t) => `<span>${t}</span>`).join("")}</div>
+                ${post.createdBy ? `<p><i>Created By: ${post.createdBy}</i></p>` : ""}
+              </div>
+            </header>
+            <div class="post-content-wrapper">
+              <div class="post-content-container">
+                <div class="post-content">${post.htmlContent}</div>
+              </div>
+              <div id="media-section" class="post-media-section"></div>
+            </div>
+            <footer class="post-footer">
+              <div class="post-details">
+                <div class="post-categories"><strong>Categories:</strong> ${(post.categories || []).map((c) => `<span>${c}</span>`).join(" ")}</div>
+                <div class="post-tags"><strong>Tags:</strong> ${(post.tags || []).map((t) => `<span>${t}</span>`).join(" ")}</div>
+              </div>
+            </footer>
           </article>
         `;
 
@@ -72,11 +82,13 @@
                     ${carouselItems}
                   </div>
                   ${imageUrls.length > 1 ? `
-                    <button class="carousel-control-prev" type="button" data-bs-target="#mediaCarousel" data-bs-slide="prev">
+                    <button id="carousel-control-prev" class="carousel-control-prev" type="button" data-bs-target="#mediaCarousel" data-bs-slide="prev">
                       <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                      <span class="visually-hidden">Previous</span>
                     </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#mediaCarousel" data-bs-slide="next">
+                    <button id="carousel-control-next" class="carousel-control-next" type="button" data-bs-target="#mediaCarousel" data-bs-slide="next">
                       <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                      <span class="visually-hidden">Next</span>
                     </button>
                   ` : ''}
                 </div>
@@ -105,8 +117,8 @@
             const otherMediaLinks = otherMedia.map(url => {
               const fileName = url.split("/").pop() || "Media Link";
               const icon = getFileIcon(url);
-              return `<a href="${url}" target="_blank" class="media-link me-3">${icon} ${fileName}</a>`;
-            }).join("");
+              return `<a href="${url}" target="_blank" class="media-link">${icon} ${fileName}</a>`;
+            }).join(" | ");
 
             mediaHtml += `
               <div class="post-media other-media">

@@ -73,11 +73,11 @@ function renderPosts(posts, containerId, role = null) {
           ${
             images.length > 1
               ? `
-            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${post.slug}" data-bs-slide="prev">
+            <button id="carousel-control-prev" class="carousel-control-prev" type="button" data-bs-target="#carousel-${post.slug}" data-bs-slide="prev">
               <span class="carousel-control-prev-icon" aria-hidden="true"></span>
               <span class="visually-hidden">Previous</span>
             </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carousel-${post.slug}" data-bs-slide="next">
+            <button id="carousel-control-next" class="carousel-control-next" type="button" data-bs-target="#carousel-${post.slug}" data-bs-slide="next">
               <span class="carousel-control-next-icon" aria-hidden="true"></span>
               <span class="visually-hidden">Next</span>
             </button>
@@ -102,33 +102,32 @@ function renderPosts(posts, containerId, role = null) {
       post.modified !== "0001-01-01T00:00:00"
         ? new Date(post.modified).toLocaleString("en-GB", dateOptions)
         : "";
-
+  
     postEl.innerHTML = `
       <div class="row">
         <div class="col-md-7">
           <h2>${post.title}</h2>
           <div class="post-meta">
-            ${status === "draft" ? "" : `${status}: ${publishedDate} <br>`}
-            ${modifiedDate ? `modified: ${modifiedDate}` : ""}
+            ${post.createdBy ? `By: ${post.createdBy}` : ""}
           </div>
           <div class="post-description"><span>Description: </span><p>${post.description}</p></div>
           <div class="post-preview"><p>${preview}</p></div>
           <div class="post-details">
-            <a href="/post?slug=${post.slug}${
-              role && status !== "published" ? "&preview=true" : ""
-            }">View The Full Post</a>
+          <button onclick="window.location.href='/post?slug=${post.slug}${role && status !== 'published' ? '&preview=true' : ''}'" class="btn btn-outline-primary view-post-btn">
+            View Full Post <i class="bi bi-arrow-right"></i>
+          </button>
+          </div>
+          <div class="post-meta">
+          ${status === "draft" ? "" : `${status}: ${publishedDate}<br>`}
           </div>
           <div class="post-categories"><strong>Categories:</strong> ${cats}</div>
+          <br>
           <div class="post-tags"><strong>Tags:</strong> ${tags}</div>
-          <div class="post-meta"> 
-          ${post.createdBy ? `Created By: ${post.createdBy}<br>` : ""}
-          ${post.modifiedBy ? `Modified By: ${post.modifiedBy}` : ""}
-          </div>
         </div>
         ${images.length > 0 ? `<div class="col-md-5">${thumbnail}</div>` : ""}
       </div>
     `;
-
+  
     if (role) {
       if (role === "admin") {
         const deleteBtn = document.createElement("button");
@@ -137,7 +136,7 @@ function renderPosts(posts, containerId, role = null) {
         deleteBtn.onclick = () => deletePost(post.slug, post.title);
         postEl.appendChild(deleteBtn);
       }
-
+  
       const actions = document.createElement("div");
       actions.className = "post-actions";
       if (status === "draft" || status === "scheduled") {
@@ -153,18 +152,18 @@ function renderPosts(posts, containerId, role = null) {
         publishBtn.className = "btn btn-outline-secondary btn-sm ms-1";
         publishBtn.onclick = () => publishNow(post.slug);
         actions.appendChild(publishBtn);
-
+  
         const scheduleInput = document.createElement("input");
         scheduleInput.type = "datetime-local";
         scheduleInput.id = `schedule-${post.slug}`;
         scheduleInput.className = "ms-2";
-
+  
         const scheduleLabel = document.createElement("label");
         scheduleLabel.htmlFor = `schedule-${post.slug}`;
         scheduleLabel.textContent = "Schedule for: ";
         actions.appendChild(scheduleLabel);
         actions.appendChild(scheduleInput);
-
+  
         const scheduleBtn = document.createElement("button");
         scheduleBtn.className = "btn btn-outline-secondary btn-sm mx-2";
         scheduleBtn.textContent = "Schedule";
@@ -185,10 +184,9 @@ function renderPosts(posts, containerId, role = null) {
       }
       postEl.appendChild(actions);
     }
-
+  
     container.appendChild(postEl);
-  });
-}
+  });}
 
 /**
  * Shows a toast notification.

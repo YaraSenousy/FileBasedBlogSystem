@@ -5,6 +5,12 @@
 <link>http://localhost:5188</link>
 <description>Latest blog posts from FileBlogSystem</description>
 <item>
+  <title>dolor sit amet consectetur </title>
+  <link>http://localhost:5188/post.html?slug=fgttddd</link>
+  <pubDate>Sun, 13 Jul 2025 02:03:00 GMT</pubDate>
+  <description>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor.</description>
+</item>
+<item>
   <title>blog 5</title>
   <link>http://localhost:5188/post.html?slug=blog-5</link>
   <pubDate>Mon, 23 Jun 2025 22:27:00 GMT</pubDate>

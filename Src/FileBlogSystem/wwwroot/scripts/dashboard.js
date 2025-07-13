@@ -14,7 +14,7 @@ import { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCat
  * @type {string} searchTerm - The current search term, if any.
  */
 let currentPage = 1;
-const limit = 1;
+const limit = 3;
 let totalPages = 1;
 let activeTags = new Set();
 let currentView = "published";

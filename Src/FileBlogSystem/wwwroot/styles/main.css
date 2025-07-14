@@ -915,7 +915,8 @@ input[type="datetime-local"]:focus {
     transition: color 0.3s, background-color 0.3s, border-color 0.3s;
 }
 
-a.view-post-btn:hover {
+a.view-post-btn:hover,
+h1 a {
     color: #fff !important;
     text-decoration: none !important;
 }

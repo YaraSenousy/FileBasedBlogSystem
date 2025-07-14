@@ -1,4 +1,13 @@
-import { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags } from "./utils.js";
+import {
+  fetchData,
+  getTagFilterParam,
+  renderPosts,
+  showToast,
+  loadTags,
+  loadCategories,
+  renderPagination,
+  clearTags,
+} from "./utils.js";
 
 /**
  * Manages the current page number, limit per page, total pages, active tags, current view, user role,
@@ -48,11 +57,12 @@ async function loadPublishedPosts() {
   document.getElementById("search-part").style.display = "block";
   document.getElementById("category-filter").style.display = "block";
   const dropdown = document.getElementById("category-dropdown");
-  dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
-    item.classList.remove("active")
-  );
+  dropdown
+    .querySelectorAll(".dropdown-item")
+    .forEach((item) => item.classList.remove("active"));
   dropdown.querySelector("[data-value='']").classList.add("active");
-  document.getElementById("category-dropdown-button").textContent = "All Categories";
+  document.getElementById("category-dropdown-button").textContent =
+    "All Categories";
   selectedCategoryName = "All Categories";
   searchTerm = "";
   document.getElementById("search-box").value = "";
@@ -60,7 +70,9 @@ async function loadPublishedPosts() {
   updateActiveNav();
 
   const response = await fetchData(
-    `/published?page=${currentPage}&limit=${limit}${getTagFilterParam(activeTags)}`,
+    `/published?page=${currentPage}&limit=${limit}${getTagFilterParam(
+      activeTags
+    )}`,
     true
   );
   totalPages = Math.ceil(response.totalItems / limit) || 1;
@@ -76,18 +88,22 @@ async function loadDrafts() {
   document.getElementById("search-part").style.display = "none";
   document.getElementById("category-filter").style.display = "none";
   const dropdown = document.getElementById("category-dropdown");
-  dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
-    item.classList.remove("active")
-  );
+  dropdown
+    .querySelectorAll(".dropdown-item")
+    .forEach((item) => item.classList.remove("active"));
   dropdown.querySelector("[data-value='']").classList.add("active");
-  document.getElementById("category-dropdown-button").textContent = "All Categories";
+  document.getElementById("category-dropdown-button").textContent =
+    "All Categories";
   selectedCategoryName = "All Categories";
   searchTerm = "";
   document.getElementById("search-box").value = "";
   currentView = "drafts";
   updateActiveNav();
 
-  const response = await fetchData(`/drafts?page=${currentPage}&limit=${limit}`, true);
+  const response = await fetchData(
+    `/drafts?page=${currentPage}&limit=${limit}`,
+    true
+  );
   totalPages = Math.ceil(response.totalItems / limit) || 1;
   renderPosts(response.data, "posts-container", role);
   renderPagination(currentPage, setCurrentPage, totalPages, loadPosts);
@@ -101,18 +117,22 @@ async function loadScheduledPosts() {
   document.getElementById("search-part").style.display = "none";
   document.getElementById("category-filter").style.display = "none";
   const dropdown = document.getElementById("category-dropdown");
-  dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
-    item.classList.remove("active")
-  );
+  dropdown
+    .querySelectorAll(".dropdown-item")
+    .forEach((item) => item.classList.remove("active"));
   dropdown.querySelector("[data-value='']").classList.add("active");
-  document.getElementById("category-dropdown-button").textContent = "All Categories";
+  document.getElementById("category-dropdown-button").textContent =
+    "All Categories";
   selectedCategoryName = "All Categories";
   searchTerm = "";
   document.getElementById("search-box").value = "";
   currentView = "scheduled";
   updateActiveNav();
 
-  const response = await fetchData(`/scheduled?page=${currentPage}&limit=${limit}`, true);
+  const response = await fetchData(
+    `/scheduled?page=${currentPage}&limit=${limit}`,
+    true
+  );
   totalPages = Math.ceil(response.totalItems / limit) || 1;
   renderPosts(response.data, "posts-container", role);
   renderPagination(currentPage, setCurrentPage, totalPages, loadPosts);
@@ -190,10 +210,12 @@ function updateActiveNav() {
   navItems.forEach((item) => item.classList.remove("active"));
   document.getElementById("nav-home").classList.remove("active");
 
-  if (currentView === "drafts") document.getElementById("nav-drafts").classList.add("active");
+  if (currentView === "drafts")
+    document.getElementById("nav-drafts").classList.add("active");
   else if (currentView === "scheduled")
     document.getElementById("nav-scheduled").classList.add("active");
-  else if (currentView === "create") document.getElementById("nav-create").classList.add("active");
+  else if (currentView === "create")
+    document.getElementById("nav-create").classList.add("active");
   else document.getElementById("nav-home").classList.add("active");
 }
 
@@ -208,7 +230,9 @@ async function loadPosts() {
   } else if (searchTerm) {
     try {
       const response = await fetchData(
-        `/search?q=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${limit}`,
+        `/search?q=${encodeURIComponent(
+          searchTerm
+        )}&page=${currentPage}&limit=${limit}`,
         true
       );
       totalPages = Math.ceil(response.totalItems / limit) || 1;
@@ -221,13 +245,16 @@ async function loadPosts() {
         "<h4>Search failed. Please try again.</h4>";
     }
   } else {
-    const selected = document.getElementById("category-dropdown").querySelector(
-      ".dropdown-item.active"
-    )?.dataset.value;
+    const selected = document
+      .getElementById("category-dropdown")
+      .querySelector(".dropdown-item.active")?.dataset.value;
     const selectedName =
-      document.getElementById("category-dropdown").querySelector(".dropdown-item.active")
-        ?.textContent || "All Categories";
-    document.getElementById("category-dropdown-button").textContent = selectedName;
+      document
+        .getElementById("category-dropdown")
+        .querySelector(".dropdown-item.active")?.textContent ||
+      "All Categories";
+    document.getElementById("category-dropdown-button").textContent =
+      selectedName;
     selectedCategoryName = selectedName;
     if (selected) loadPostsByCategory(selected, selectedName);
     else loadPublishedPosts();
@@ -244,39 +271,44 @@ async function deletePost(slug, title) {
   pendingDelete.slug = slug;
   pendingDelete.title = title;
 
-  document.querySelector(".modal-body").textContent =
-    `Are you sure you want to delete "${title}"?`;
+  document.querySelector(
+    ".modal-body"
+  ).textContent = `Are you sure you want to delete "${title}"?`;
 
-  const modal = new bootstrap.Modal(document.getElementById("deleteCategoryModal"));
+  const modal = new bootstrap.Modal(
+    document.getElementById("deleteCategoryModal")
+  );
   modal.show();
 }
 
-function deleteButtonInitialise () {
-  document.getElementById("confirm-delete-btn").addEventListener("click", async () => {
-    const { slug, title } = pendingDelete;
-  
-    try {
-      const res = await fetch(`/posts/${slug}/delete`, {
-        method: "POST",
-        credentials: "include"
-      });
+function deleteButtonInitialise() {
+  document
+    .getElementById("confirm-delete-btn")
+    .addEventListener("click", async () => {
+      const { slug, title } = pendingDelete;
 
-      if (res.ok) { 
-        showToast("🗑️ Deleted Post Successfully", "success");
-        const modal = bootstrap.Modal.getInstance(document.getElementById("deleteCategoryModal"));
-        modal.hide();
-        loadPosts();
-      }
-      else {
+      try {
+        const res = await fetch(`/posts/${slug}/delete`, {
+          method: "POST",
+          credentials: "include",
+        });
+
+        if (res.ok) {
+          showToast("🗑️ Deleted Post Successfully", "success");
+          const modal = bootstrap.Modal.getInstance(
+            document.getElementById("deleteCategoryModal")
+          );
+          modal.hide();
+          loadPosts();
+        } else {
+          showToast("❌ Failed to delete post", "danger");
+          modal.hide();
+        }
+      } catch (err) {
         showToast("❌ Failed to delete post", "danger");
         modal.hide();
       }
-    } catch (err) {
-      showToast("❌ Failed to delete post", "danger");
-      modal.hide();
-    }
-  });
-  
+    });
 }
 
 /**
@@ -284,7 +316,10 @@ function deleteButtonInitialise () {
  * @param {string} slug - The slug of the post to publish.
  */
 async function publishNow(slug) {
-  await fetch(`/posts/${slug}/publish`, { method: "POST", credentials: "include" });
+  await fetch(`/posts/${slug}/publish`, {
+    method: "POST",
+    credentials: "include",
+  });
   showToast("✅ Published", "success");
   loadPosts();
 }
@@ -310,7 +345,10 @@ async function schedulePost(slug, time) {
  * @param {string} slug - The slug of the post to save as draft.
  */
 async function saveAsDraft(slug) {
-  await fetch(`/posts/${slug}/draft`, { method: "POST", credentials: "include" });
+  await fetch(`/posts/${slug}/draft`, {
+    method: "POST",
+    credentials: "include",
+  });
   showToast("💾 Saved as Draft", "success");
   loadPosts();
 }
@@ -327,17 +365,20 @@ async function onSearch() {
     document.getElementById("tag-filter").style.display = "none";
     document.getElementById("category-filter").style.display = "none";
     const dropdown = document.getElementById("category-dropdown");
-    dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
-      item.classList.remove("active")
-    );
+    dropdown
+      .querySelectorAll(".dropdown-item")
+      .forEach((item) => item.classList.remove("active"));
     dropdown.querySelector("[data-value='']").classList.add("active");
-    document.getElementById("category-dropdown-button").textContent = "All Categories";
+    document.getElementById("category-dropdown-button").textContent =
+      "All Categories";
     selectedCategoryName = "All Categories";
     currentView = "published";
     updateActiveNav();
     try {
       const response = await fetchData(
-        `/search?q=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${limit}`,
+        `/search?q=${encodeURIComponent(
+          searchTerm
+        )}&page=${currentPage}&limit=${limit}`,
         true
       );
       totalPages = Math.ceil(response.totalItems / limit) || 1;
@@ -363,11 +404,12 @@ function clearSearch() {
   document.getElementById("tag-filter").style.display = "block";
   document.getElementById("category-filter").style.display = "block";
   const dropdown = document.getElementById("category-dropdown");
-  dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
-    item.classList.remove("active")
-  );
+  dropdown
+    .querySelectorAll(".dropdown-item")
+    .forEach((item) => item.classList.remove("active"));
   dropdown.querySelector("[data-value='']").classList.add("active");
-  document.getElementById("category-dropdown-button").textContent = "All Categories";
+  document.getElementById("category-dropdown-button").textContent =
+    "All Categories";
   selectedCategoryName = "All Categories";
   currentView = "published";
   currentPage = 1;
@@ -401,17 +443,55 @@ function updateThemeToggleIcon(theme) {
 }
 
 /**
+ * Loads and renders the user's posts for the current page.
+ */
+async function loadMyPosts() {
+  document.getElementById("tag-filter").style.display = "none";
+  document.getElementById("search-part").style.display = "none";
+  document.getElementById("category-filter").style.display = "none";
+  const dropdown = document.getElementById("category-dropdown");
+  dropdown
+    .querySelectorAll(".dropdown-item")
+    .forEach((item) => item.classList.remove("active"));
+  dropdown.querySelector("[data-value='']").classList.add("active");
+  document.getElementById("category-dropdown-button").textContent =
+    "All Categories";
+  selectedCategoryName = "All Categories";
+  searchTerm = "";
+  document.getElementById("search-box").value = "";
+  currentView = "my-posts";
+  updateActiveNav();
+
+  try {
+    const response = await fetchData(
+      `/my-posts?page=${currentPage}&limit=${limit}`,
+      true
+    );
+    totalPages = Math.ceil(response.totalItems / limit) || 1;
+    renderPosts(response.data, "posts-container", role);
+    renderPagination(currentPage, setCurrentPage, totalPages, loadPosts);
+  } catch (err) {
+    console.error("Failed to load my posts:", err.message);
+    showToast("Failed to load my posts", "danger");
+    document.getElementById("posts-container").innerHTML =
+      "<h4>Failed to load my posts. Please try again.</h4>";
+  }
+}
+
+/**
  * Initializes the dashboard by loading categories, tags, and published posts,
  * and sets up event listeners for buttons.
  */
 window.onload = () => {
-  ({ name, role } = JSON.parse(localStorage.getItem('userInfo')));
+  ({ name, role } = JSON.parse(localStorage.getItem("userInfo")));
   if (!role) window.open("/login", "_self");
   console.log(name);
-  document.getElementById("accountOffcanvasLabel").textContent = `Hello, ${name.split(" ")[0]}`;
+  document.getElementById("accountOffcanvasLabel").textContent = `Hello, ${
+    name.split(" ")[0]
+  }`;
   if (role === "editor") {
     document.getElementById("create-post").style.display = "none";
-  } 
+  }
   if (role !== "admin") {
     document.getElementById("admin-functions").style.display = "none";
   }
@@ -441,7 +521,8 @@ window.onload = () => {
   });
   document.getElementById("all-categories").addEventListener("click", (e) => {
     e.preventDefault();
-    document.getElementById("category-dropdown-button").textContent = "All Categories";
+    document.getElementById("category-dropdown-button").textContent =
+      "All Categories";
     selectedCategoryName = "All Categories";
     searchTerm = "";
     document.getElementById("search-box").value = "";
@@ -459,7 +540,8 @@ window.onload = () => {
   document.getElementById("nav-home").addEventListener("click", (e) => {
     e.preventDefault();
     currentPage = 1;
-    document.getElementById("category-dropdown-button").textContent = "All Categories";
+    document.getElementById("category-dropdown-button").textContent =
+      "All Categories";
     selectedCategoryName = "All Categories";
     searchTerm = "";
     document.getElementById("search-box").value = "";
@@ -474,6 +556,14 @@ window.onload = () => {
     e.preventDefault();
     currentPage = 1;
     loadScheduledPosts();
+  });
+  document.getElementById("nav-my-posts").addEventListener("click", (e) => {
+    e.preventDefault();
+    currentPage = 1;
+    loadMyPosts().then(() => {
+      const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById("accountOffcanvas"));
+      if (offcanvas) offcanvas.hide();
+    });
   });
   document.getElementById("create-post").addEventListener("click", (e) => {
     e.preventDefault();
@@ -492,7 +582,11 @@ window.onload = () => {
   });
 
   const savedTheme = localStorage.getItem("theme");
-  const theme = savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const theme =
+    savedTheme ||
+    (window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light");
   document.documentElement.setAttribute("data-theme", theme);
   if (savedTheme) {
     updateThemeToggleIcon(savedTheme);
@@ -508,7 +602,10 @@ window.onload = () => {
     if (!button) return;
 
     const postEl = button.closest("article");
-    const slug = postEl.querySelector("a[href^='/post?slug=']").href.split("slug=")[1].split("&")[0];
+    const slug = postEl
+      .querySelector("a[href^='/post?slug=']")
+      .href.split("slug=")[1]
+      .split("&")[0];
 
     if (button.textContent === "Edit Post") {
       window.open(`/create?slug=${slug}`, "_self");

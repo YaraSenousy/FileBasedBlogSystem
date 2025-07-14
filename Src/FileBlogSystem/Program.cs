@@ -8,6 +8,7 @@ using FileBlogSystem.Features.Render.Feed;
 using FileBlogSystem.config;
 using FileBlogSystem.Features.Security;
 using FileBlogSystem.Features.Admin;
+using FileBlogSystem.Features.Render.User;
 
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.FileProviders;
@@ -99,6 +100,7 @@ app.MapPostEditEndpoint();
 app.MapLoginEndpoint();
 app.MapAdminEndPoint();
 app.MapSubscribe();
+app.MapUserPostsEndpoint();
 
 app.MapFallback(context =>
 {

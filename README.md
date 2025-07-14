@@ -20,6 +20,7 @@ A lightweight file-based blogging system built using **ASP.NET Core**, Markdown 
 - Tag Management: Admins can add, edit, and delete tags
 - Category Management: Admins can add, edit, and delete categories
 - Homepage: Dynamic homepage featuring latest posts and an about section
+- Newsletter Subscription: Option to subscribe to a newsletter for email notifications on new blog posts
 
 ---
 

@@ -57,7 +57,7 @@ nav a {
 }
 
 .navbar {
-    background: linear-gradient(90deg, #f4f5f5, #e9ecef);
+    background: linear-gradient(90deg, #f4f5f5, #d9dcdf);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -130,7 +130,7 @@ nav a {
     font-size: 1.8rem;
     font-family: 'Georgia', serif;
     margin-bottom: 15px;
-    color: var(--text-accent, #007bff);
+    color: linear-gradient(90deg, #4dabf7, #007bff);
 }
 
 .featured-posts-section h3 {
@@ -917,7 +917,7 @@ input[type="datetime-local"]:focus {
 
 a.view-post-btn:hover,
 h1 a {
-    color: #fff !important;
+    color: #222 !important;
     text-decoration: none !important;
 }
 
@@ -1086,6 +1086,10 @@ h1 a {
 
     nav a {
         color: #e0e0e0;
+    }
+
+    h1 a {
+        color: #fff !important;
     }
 
     .navbar {

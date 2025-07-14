@@ -16,10 +16,10 @@ A lightweight file-based blogging system built using **ASP.NET Core**, Markdown 
 - Clean slug routing via `routes.json`
 - Media Upload and Management: Upload, edit and delete media attached to a blog
 - Theme Customization: Switch between light/dark theme
-- Search and Filter Interface: Interactive search bar and filters by category and tag on the homepage and dashboard
-- User Management: Admins can manage user profiles and roles via the /users page
-- Tag Management: Admins can add, edit, and delete tags via the /tag page
-- Category Management: Admins can add, edit, and delete categories via the /category page
+- User Management: Admins can manage user profiles and roles
+- Tag Management: Admins can add, edit, and delete tags
+- Category Management: Admins can add, edit, and delete categories
+- Homepage: Dynamic homepage featuring latest posts and an about section
 
 ---
 
@@ -53,7 +53,9 @@ dotnet run
 ---
 
 ## Usage
-- /   — homepage to view and search published posts
+- / — homepage showing an about section and some recent posts
+
+- /blogs   — view and search published posts
 
 - /login  — authenticate with role-based credentials
 

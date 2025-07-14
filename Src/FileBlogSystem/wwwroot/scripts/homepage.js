@@ -10,7 +10,7 @@ async function loadFeaturedPosts() {
   const posts = response.data;
   const conveyor = document.getElementById("featured-posts");
 
-  const allPosts = [...posts, ...posts,];
+  const allPosts = [...posts, ...posts];
 
   allPosts.forEach((post) => {
     const card = document.createElement("div");
@@ -18,9 +18,12 @@ async function loadFeaturedPosts() {
     const images = (post.mediaUrls || []).filter((url) =>
       /\.(png|jpe?g|webp|gif)$/i.test(url)
     );
-    const thumbnail = images.length > 0
-      ? `
-        <div id="carousel-${post.slug}" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+    const thumbnail =
+      images.length > 0
+        ? `
+        <div id="carousel-${
+          post.slug
+        }" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
           <div class="carousel-inner">
             ${images
               .map(
@@ -48,13 +51,19 @@ async function loadFeaturedPosts() {
           }
         </div>
       `
-      : "";
+        : "";
     card.innerHTML = `
       ${thumbnail}
       <h5>${post.title}</h5>
       <p>${post.description.substring(0, 150)}...</p>
-      <a href="/post?slug=${post.slug}" class="btn btn-primary">Read More <i class="fas fa-arrow-right"></i></a>
+      <a href="/post?slug=${
+        post.slug
+      }" class="btn btn-primary">Read More <i class="fas fa-arrow-right"></i></a>
     `;
+    if (images.length === 0) {
+      card.classList.add("no-image");
+    }    
+
     conveyor.appendChild(card);
   });
 

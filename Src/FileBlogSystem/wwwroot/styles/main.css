@@ -120,7 +120,7 @@ nav a {
 }
 
 .featured-posts-section {
-    padding: 15px 10px;     
+    padding: 15px 10px;
     margin-bottom: 15px;
     min-height: 400px;
 }
@@ -242,15 +242,36 @@ nav a {
     text-overflow: ellipsis;
 }
 
+.post-card.no-image {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center;
+    height: 100%;
+    padding: 20px;
+}
+
+.post-card.no-image p {
+    flex-grow: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+    text-overflow: initial !important;
+    -webkit-line-clamp: unset !important;
+    line-clamp: unset !important;
+    -webkit-box-orient: unset !important;
+    margin: 0.5rem 0 0;
+}
+
 .post-card a {
     display: inline-block;
-    padding: 6px 12px;  
+    padding: 6px 12px;
     background: linear-gradient(90deg, #4dabf7, #007bff);
     color: #fff;
     border: none;
     border-radius: 20px;
     text-decoration: none;
-    font-size: 0.8rem;  
+    font-size: 0.8rem;
     font-weight: 600;
     transition: transform 0.3s ease, background 0.3s ease;
     align-self: center;
@@ -265,6 +286,7 @@ nav a {
     0% {
         transform: translateX(0);
     }
+
     100% {
         transform: translateX(-100%);
     }
@@ -287,16 +309,16 @@ nav a {
     }
 
     .post-card h5 {
-        font-size: 1rem;  
+        font-size: 1rem;
     }
 
     .post-card p {
-        font-size: 0.7rem;  
+        font-size: 0.7rem;
     }
 
     .post-card a {
-        padding: 5px 10px;  
-        font-size: 0.7rem;  
+        padding: 5px 10px;
+        font-size: 0.7rem;
     }
 
     .about-section h2 {

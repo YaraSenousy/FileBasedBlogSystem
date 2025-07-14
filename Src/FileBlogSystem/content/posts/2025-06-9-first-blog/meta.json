@@ -4,7 +4,7 @@
   "Slug": "first-blog",
   "Published": "2025-06-15T08:35:30.5054826+03:00",
   "Modified": "2025-07-06T16:22:55.7028475+03:00",
-  "Status": "published",
+  "Status": "draft",
   "Tags": [
     "greetings",
     "welcome"
@@ -12,5 +12,7 @@
   "Categories": [
     "design",
     "technology"
-  ]
+  ],
+  "CreatedBy": "",
+  "ModifiedBy": ""
 }

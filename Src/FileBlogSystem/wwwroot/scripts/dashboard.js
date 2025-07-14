@@ -410,10 +410,10 @@ window.onload = () => {
   console.log(name);
   document.getElementById("accountOffcanvasLabel").textContent = `Hello, ${name.split(" ")[0]}`;
   if (role === "editor") {
-    document.getElementById("nav-create").style.display = "none";
-    document.getElementById("nav-add-dropdown").style.display = "none";
-  } else if (role !== "admin") {
-    document.getElementById("nav-add-dropdown").style.display = "none";
+    document.getElementById("create-post").style.display = "none";
+  } 
+  if (role !== "admin") {
+    document.getElementById("admin-functions").style.display = "none";
   }
 
   loadCategories(setCurrentPage, loadPostsByCategory);

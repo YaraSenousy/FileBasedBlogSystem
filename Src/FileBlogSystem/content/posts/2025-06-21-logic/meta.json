@@ -2,7 +2,7 @@
   "Title": "logic",
   "Description": "some logic",
   "Slug": "logic",
-  "Published": "2025-06-21T23:13:02.4587576+03:00",
+  "Published": "2025-07-14T08:13:56.6886276+03:00",
   "Modified": "2025-06-21T23:13:02.4382847+03:00",
   "Status": "published",
   "Tags": [
@@ -11,5 +11,7 @@
   "Categories": [
     "design",
     "technology"
-  ]
+  ],
+  "CreatedBy": "",
+  "ModifiedBy": ""
 }

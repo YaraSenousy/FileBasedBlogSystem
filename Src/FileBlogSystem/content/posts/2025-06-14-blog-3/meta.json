@@ -2,14 +2,16 @@
   "Title": "blog 3",
   "Description": "testing schedule",
   "Slug": "blog-3",
-  "Published": "2025-07-10T09:54:00Z",
+  "Published": "2025-07-14T12:18:00",
   "Modified": "2025-07-08T14:23:41.2489634Z",
-  "Status": "draft",
+  "Status": "scheduled",
   "Tags": [
     "welcome"
   ],
   "Categories": [
     "design",
     "technology"
-  ]
+  ],
+  "CreatedBy": "",
+  "ModifiedBy": ""
 }

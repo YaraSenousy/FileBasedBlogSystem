@@ -5,17 +5,23 @@
 <link>http://localhost:5188</link>
 <description>Latest blog posts from FileBlogSystem</description>
 <item>
-  <title> Cras laoreet pharetra</title>
-  <link>http://localhost:5188/post.html?slug=cras-laoreet-pharetra-1</link>
-  <pubDate>Sun, 13 Jul 2025 04:10:00 GMT</pubDate>
-  <description>&quot;Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...&quot;
-&quot;There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...&quot;</description>
-</item>
-<item>
   <title>dolor sit amet consectetur </title>
   <link>http://localhost:5188/post.html?slug=fgttddd</link>
-  <pubDate>Sun, 13 Jul 2025 04:08:39 GMT</pubDate>
+  <pubDate>Mon, 14 Jul 2025 08:13:59 GMT</pubDate>
   <description>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor.</description>
+</item>
+<item>
+  <title>logic</title>
+  <link>http://localhost:5188/post.html?slug=logic</link>
+  <pubDate>Mon, 14 Jul 2025 08:13:56 GMT</pubDate>
+  <description>some logic</description>
+</item>
+<item>
+  <title> Cras laoreet pharetra</title>
+  <link>http://localhost:5188/post.html?slug=cras-laoreet-pharetra-1</link>
+  <pubDate>Mon, 14 Jul 2025 08:13:52 GMT</pubDate>
+  <description>&quot;Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...&quot;
+&quot;There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...&quot;</description>
 </item>
 <item>
   <title>blog 5</title>
@@ -24,22 +30,10 @@
   <description>testing </description>
 </item>
 <item>
-  <title>logic</title>
-  <link>http://localhost:5188/post.html?slug=logic</link>
-  <pubDate>Sat, 21 Jun 2025 23:13:02 GMT</pubDate>
-  <description>some logic</description>
-</item>
-<item>
   <title>Hello World</title>
   <link>http://localhost:5188/post.html?slug=hello-world</link>
   <pubDate>Mon, 16 Jun 2025 15:22:00 GMT</pubDate>
   <description>hello to everyone</description>
-</item>
-<item>
-  <title>First Blog</title>
-  <link>http://localhost:5188/post.html?slug=first-blog</link>
-  <pubDate>Sun, 15 Jun 2025 08:35:30 GMT</pubDate>
-  <description>My first blog post</description>
 </item>
 <item>
   <title>blog 4</title>

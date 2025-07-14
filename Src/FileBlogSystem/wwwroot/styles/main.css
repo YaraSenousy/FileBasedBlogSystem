@@ -1062,6 +1062,92 @@ h1 a {
     padding: 1rem;
 }
 
+/* Newsletter Section Styles */
+.newsletter-section {
+    padding: 20px 15px;
+    background: linear-gradient(90deg, #e9ecef, #f4f5f5);
+    border-radius: 10px;
+    margin: 20px 0;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.newsletter-section h4 {
+    font-size: 1.6rem;
+    font-family: 'Georgia', serif;
+    color: var(--text-accent, #007bff);
+    margin-bottom: 10px;
+}
+
+.newsletter-section p {
+    font-size: 1rem;
+    color: var(--text-secondary, #666);
+    max-width: 600px;
+    margin: 0 auto 15px;
+}
+
+#newsletter-form {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+#newsletter-email {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    width: 250px;
+    transition: border-color 0.3s;
+}
+
+#newsletter-email:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.newsletter-section .btn-primary {
+    padding: 8px 15px;
+    background: linear-gradient(90deg, #4dabf7, #007bff);
+    border: none;
+    border-radius: 20px;
+    color: #fff;
+    font-weight: 600;
+    transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.newsletter-section .btn-primary:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(90deg, #007bff, #4dabf7);
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .newsletter-section {
+    background: linear-gradient(90deg, #2c2c2c, #1a1a1a);
+}
+
+[data-theme="dark"] .newsletter-section h4 {
+    color: var(--text-accent, #4dabf7);
+}
+
+[data-theme="dark"] .newsletter-section p {
+    color: var(--text-secondary, #bbb);
+}
+
+[data-theme="dark"] #newsletter-email {
+    background-color: #3a3a3a;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] #newsletter-email:focus {
+    border-color: #4dabf7;
+    box-shadow: 0 0 0 0.2rem rgba(77, 171, 247, 0.25);
+}
+
 /* Dark Theme */
 [data-theme="dark"] {
     body {

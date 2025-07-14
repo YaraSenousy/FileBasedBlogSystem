@@ -1,4 +1,4 @@
-import { fetchData } from "./utils.js";
+import { fetchData, showToast } from "./utils.js";
 
 function updateThemeToggleIcon(theme) {
   const icon = document.getElementById("theme-toggle").querySelector("i");
@@ -76,12 +76,52 @@ async function loadFeaturedPosts() {
   });
 }
 
+async function newsletter() {
+  const newsletterForm = document.getElementById("newsletter-form");
+  if (newsletterForm) {
+    newsletterForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("newsletter-email").value;
+      if (email) {
+        try {
+          const response = await fetch(
+            `http://localhost:5188/subscribe?email=${encodeURIComponent(
+              email
+            )}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          if (response.ok) {
+            showToast("Successfully subscribed! Check your email for confirmation.", "success");
+            newsletterForm.reset();
+          } else if (response.status == "400"){
+            showToast("Subscription failed. Invalid email", "danger");
+          } else if (response.status == "409"){
+            showToast("Subscription failed. Email already used", "danger");
+          }
+          else {
+            showToast("Subscription failed.", "danger");
+          }
+        } catch (error) {
+          console.error("Error subscribing:", error);
+          alert("An error occurred. Please try again later.");
+        }
+      }
+    });
+  }
+}
+
 /**
  * Initializes the homepage by loading categories, tags, and published posts,
  * and sets up event listeners for search and navigation.
  */
 window.onload = () => {
   loadFeaturedPosts();
+  newsletter();
   document.getElementById("nav-home").classList.add("active");
   document.getElementById("theme-toggle").addEventListener("click", () => {
     const currentTheme = document.documentElement.getAttribute("data-theme");

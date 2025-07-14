@@ -1,4 +1,0 @@
-# blog gedeed
-```
-gowah kalam
-```

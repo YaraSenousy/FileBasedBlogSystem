@@ -45,8 +45,16 @@ content/
 ```
 JWT_SECRET=your_secret_key_here
 ```
-- Run the server:
+
+- Install dependencies:
 ```
+dotnet add package MailKit
+dotnet add package System.ServiceModel.Syndication
+```
+
+- Build & Run the server:
+```
+dotnet build
 dotnet run
 ```
 

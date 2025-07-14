@@ -5,6 +5,12 @@
 <link>http://localhost:5188</link>
 <description>Latest blog posts from FileBlogSystem</description>
 <item>
+  <title>hello</title>
+  <link>http://localhost:5188/post.html?slug=hello</link>
+  <pubDate>Mon, 14 Jul 2025 05:50:23 GMT</pubDate>
+  <description>dah blog gedeed 3ala fekra</description>
+</item>
+<item>
   <title> Cras laoreet pharetra</title>
   <link>http://localhost:5188/post.html?slug=cras-laoreet-pharetra-1</link>
   <pubDate>Sun, 13 Jul 2025 04:10:00 GMT</pubDate>
@@ -28,24 +34,6 @@
   <link>http://localhost:5188/post.html?slug=logic</link>
   <pubDate>Sat, 21 Jun 2025 23:13:02 GMT</pubDate>
   <description>some logic</description>
-</item>
-<item>
-  <title>blog 12</title>
-  <link>http://localhost:5188/post.html?slug=blog-11</link>
-  <pubDate>Fri, 20 Jun 2025 07:41:00 GMT</pubDate>
-  <description>short description about the blog</description>
-</item>
-<item>
-  <title>blog 13</title>
-  <link>http://localhost:5188/post.html?slug=blog-11</link>
-  <pubDate>Fri, 20 Jun 2025 07:41:00 GMT</pubDate>
-  <description>short description about the blog</description>
-</item>
-<item>
-  <title>blog 14</title>
-  <link>http://localhost:5188/post.html?slug=blog-11</link>
-  <pubDate>Fri, 20 Jun 2025 07:41:00 GMT</pubDate>
-  <description>short description about the blog</description>
 </item>
 <item>
   <title>Hello World</title>

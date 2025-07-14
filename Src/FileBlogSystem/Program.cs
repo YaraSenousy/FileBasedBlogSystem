@@ -65,6 +65,12 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("admin"));
 });
 
+builder.Services.AddHostedService<RssEmailNotifierService>();
+builder.Services.Configure<NotifierSettings>(
+    builder.Configuration.GetSection("Notifier")
+);
+
+builder.Services.AddSingleton<EmailSubscriberService>();
 
 var app = builder.Build();
 
@@ -92,6 +98,7 @@ app.MapRssFeed();
 app.MapPostEditEndpoint();
 app.MapLoginEndpoint();
 app.MapAdminEndPoint();
+app.MapSubscribe();
 
 app.MapFallback(context =>
 {

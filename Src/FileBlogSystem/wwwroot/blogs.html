@@ -17,21 +17,48 @@
     <nav class="navbar navbar-expand-sm bg-body-tertiary">
       <div class="container-fluid">
         <a class="navbar-brand" id="nav-home" href="/">Home</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
               <a class="nav-link" id="nav-blogs" href="#">Blogs</a>
             </li>
           </ul>
-          <div class="theme-toggle-container">
-            <button id="theme-toggle" class="btn btn-outline-secondary" aria-label="Toggle theme">
+          <div class="d-flex align-items-center">
+            <button id="theme-toggle" class="btn btn-outline-secondary me-2" aria-label="Toggle theme">
               <i class="fas fa-moon"></i>
+            </button>
+            <button id="subscribe-btn" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#subscribeModal">
+              Subscribe
             </button>
           </div>
         </div>
       </div>
     </nav>
   </header>
+  
+  <div class="modal fade" id="subscribeModal" tabindex="-1" aria-labelledby="subscribeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="subscribeModalLabel">Subscribe to Newsletter</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Enter your email to receive updates whenever a new blog is posted!</p>
+          <form id="newsletter-form">
+            <div class="mb-3">
+              <input type="email" id="newsletter-email" class="form-control" placeholder="Enter your email" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Subscribe</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="container-fluid">
     <div class="row">
@@ -88,7 +115,15 @@
       </main>
     </div>
   </div>
-
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="live-toast" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div id="toast-message" class="toast-body">Message goes here</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                aria-label="Close"></button>
+        </div>
+    </div>
+  </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
     crossorigin="anonymous"></script>

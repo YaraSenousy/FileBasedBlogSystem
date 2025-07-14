@@ -210,6 +210,47 @@ function updateThemeToggleIcon(theme) {
 }
 
 /**
+ * opens and handels the subscribing form
+ */
+async function newsletter() {
+  const newsletterForm = document.getElementById("newsletter-form");
+  if (newsletterForm) {
+    newsletterForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("newsletter-email").value;
+      if (email) {
+        try {
+          const response = await fetch(
+            `http://localhost:5188/subscribe?email=${encodeURIComponent(email)}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          if (response.ok) {
+            showToast("Successfully subscribed! Check your email for confirmation.", "success");
+            newsletterForm.reset();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('subscribeModal'));
+            modal.hide();
+          } else if (response.status === 400) {
+            showToast("Subscription failed. Invalid email", "danger");
+          } else if (response.status === 409) {
+            showToast("Subscription failed. Email already used", "danger");
+          } else {
+            showToast("Subscription failed.", "danger");
+          }
+        } catch (error) {
+          console.error("Error subscribing:", error);
+          showToast("An error occurred. Please try again later.", "danger");
+        }
+      }
+    });
+  }
+}
+
+/**
  * Initializes the homepage by loading categories, tags, and published posts,
  * and sets up event listeners for search and navigation.
  */
@@ -217,6 +258,7 @@ window.onload = () => {
   loadCategories(setCurrentPage, loadPostsByCategory);
   loadTags(setCurrentPage, activeTags, loadPosts);
   loadPublishedPosts();
+  newsletter();
 
   const searchBox = document.getElementById("search-box");
   searchBox.addEventListener("keydown", (event) => {

@@ -4,12 +4,14 @@
   "Slug": "blog-5",
   "Published": "2025-06-23T22:27:00Z",
   "Modified": "2025-06-21T19:26:33.114384Z",
-  "Status": "published",
+  "Status": "draft",
   "Tags": [
     "greetings",
     "welcome"
   ],
   "Categories": [
     "design"
-  ]
+  ],
+  "CreatedBy": "",
+  "ModifiedBy": ""
 }

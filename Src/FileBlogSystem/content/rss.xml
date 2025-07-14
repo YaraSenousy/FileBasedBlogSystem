@@ -7,8 +7,14 @@
 <item>
   <title>dolor sit amet consectetur </title>
   <link>http://localhost:5188/post.html?slug=fgttddd</link>
-  <pubDate>Mon, 14 Jul 2025 08:13:59 GMT</pubDate>
+  <pubDate>Mon, 14 Jul 2025 08:51:18 GMT</pubDate>
   <description>Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor.</description>
+</item>
+<item>
+  <title>First Blog</title>
+  <link>http://localhost:5188/post.html?slug=first-blog</link>
+  <pubDate>Mon, 14 Jul 2025 08:51:05 GMT</pubDate>
+  <description>My first blog post</description>
 </item>
 <item>
   <title>logic</title>
@@ -22,12 +28,6 @@
   <pubDate>Mon, 14 Jul 2025 08:13:52 GMT</pubDate>
   <description>&quot;Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...&quot;
 &quot;There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...&quot;</description>
-</item>
-<item>
-  <title>blog 5</title>
-  <link>http://localhost:5188/post.html?slug=blog-5</link>
-  <pubDate>Mon, 23 Jun 2025 22:27:00 GMT</pubDate>
-  <description>testing </description>
 </item>
 <item>
   <title>Hello World</title>

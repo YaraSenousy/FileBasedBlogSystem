@@ -493,7 +493,10 @@ window.onload = () => {
     document.getElementById("create-post").style.display = "none";
   }
   if (role !== "admin") {
-    document.getElementById("admin-functions").style.display = "none";
+    const adminFunctions = document.getElementsByClassName("admin-functions");
+    for (const element of adminFunctions) {
+      element.style.display = "none";
+    }
   }
 
   loadCategories(setCurrentPage, loadPostsByCategory);

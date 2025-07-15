@@ -12,24 +12,32 @@ let postSlug = null;
  */
 let queuedDeletions = [];
 
+var easyMDE;
+
 /**
  * Generates a preview of the post content and media.
  * Validates the form, renders markdown, and updates the preview UI.
  * @returns {Promise<void>}
  */
 async function goToPreview() {
-  const form = document.getElementById("postForm");
   const titleInput = document.querySelector("input[name='title']");
   const descriptionInput = document.querySelector("textarea[name='description']");
-  const contentInput = document.querySelector("textarea[name='content']");
+  const contentInputElement = document.querySelector("#markdown-textarea");
+  const contentInput = easyMDE.value();
 
-  // Clear previous invalid highlights
-  [titleInput, descriptionInput, contentInput].forEach(input => input.classList.remove("is-invalid"));
+  // Remove invalid classes
+  [titleInput, descriptionInput, contentInputElement].forEach(input => {
+    input.classList.remove("is-invalid");
+    const cmWrapper = input.nextElementSibling;
+    if (cmWrapper && cmWrapper.classList.contains("CodeMirror")) {
+      cmWrapper.classList.remove("is-invalid");
+    }
+  });
 
   // Validate required fields
   const title = titleInput.value.trim();
   const description = descriptionInput.value.trim();
-  const content = contentInput.value.trim();
+  const content = contentInput.trim();
   let isValid = true;
 
   if (!title) {
@@ -41,7 +49,11 @@ async function goToPreview() {
     isValid = false;
   }
   if (!content) {
-    contentInput.classList.add("is-invalid");
+    contentInputElement.classList.add("is-invalid");
+    const cmWrapper = contentInputElement.nextElementSibling;
+    if (cmWrapper && cmWrapper.classList.contains("CodeMirror")) {
+      cmWrapper.classList.add("is-invalid");
+    }
     isValid = false;
   }
 
@@ -123,6 +135,7 @@ async function prepareFormData() {
   const cats = [...document.querySelectorAll(".cat-checkbox:checked")].map((cb) => cb.value);
   formData.append("tags", tags.join(","));
   formData.append("categories", cats.join(","));
+  formData.append("content", easyMDE.value());
   return formData;
 }
 
@@ -304,7 +317,7 @@ async function loadExistingPost(slug) {
 
     document.querySelector("input[name='title']").value = post.title;
     document.querySelector("textarea[name='description']").value = post.description;
-    document.querySelector("textarea[name='content']").value = post.rawMarkdown;
+    easyMDE.value(post.rawMarkdown);
 
     post.tags?.forEach((t) =>
       document.querySelector(`.tag-checkbox[value="${t}"]`)?.click()
@@ -400,7 +413,7 @@ function showMedia(post) {
       const deleteButton = document.createElement("button");
       deleteButton.className = "btn btn-danger btn-sm ms-2";
       deleteButton.textContent = "Delete";
-      deleteButton.onclick= () => deleteMedia(postSlug, fileName);
+      deleteButton.onclick = () => deleteMedia(postSlug, fileName);
       div.appendChild(deleteButton);
       section.appendChild(div);
     });
@@ -413,6 +426,7 @@ function showMedia(post) {
  * @returns {Promise<void>}
  */
 window.onload = async () => {
+  easyMDE = new EasyMDE({ element: document.getElementById('markdown-textarea') });
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme) {
     document.documentElement.setAttribute("data-theme", savedTheme);

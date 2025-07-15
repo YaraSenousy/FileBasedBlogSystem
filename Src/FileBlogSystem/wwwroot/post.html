@@ -29,6 +29,7 @@
         return res.json();
       })
       .then(post => {
+        document.getElementsByTagName("title")[0].innerText = post.title;
         let html = `
           <a href=${(history.length > 1)? "javascript:history.back()" : "/"} class="back-arrow"><i class="bi bi-arrow-left"></i> Back</a>
           <article class="post-article">

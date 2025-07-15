@@ -27,6 +27,7 @@ public static class GetAllCategories
                 return JsonSerializer.Deserialize<Category>(categoryJson, options);
             })
             .Where(c => c != null)
+            .OrderBy(c => c!.Name)
             .ToList();
 
         return Results.Ok(categories);

@@ -121,7 +121,7 @@ app.MapFallback(context =>
         return context.Response.SendFileAsync("wwwroot/dashboard.html");
     if (path == "/create")
         return context.Response.SendFileAsync("wwwroot/create.html");
-    if (path.StartsWithSegments("/post", out var remaining) && remaining.Value.Trim('/').Length > 0)
+    if (path.StartsWithSegments("/post", out var remaining) && remaining!.Value.Trim('/').Length > 0)
         return context.Response.SendFileAsync("wwwroot/post.html");
     if (path == "/login")
         return context.Response.SendFileAsync("wwwroot/login.html");

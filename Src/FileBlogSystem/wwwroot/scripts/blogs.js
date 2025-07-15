@@ -219,6 +219,8 @@ async function newsletter() {
       e.preventDefault();
       const email = document.getElementById("newsletter-email").value;
       if (email) {
+        const spinner = document.getElementById("newsletter-spinner");
+        spinner.style.display = "inline-block"; 
         try {
           const response = await fetch(
             `http://localhost:5188/subscribe?email=${encodeURIComponent(email)}`,
@@ -244,6 +246,8 @@ async function newsletter() {
         } catch (error) {
           console.error("Error subscribing:", error);
           showToast("An error occurred. Please try again later.", "danger");
+        } finally {
+          spinner.style.display = "none";
         }
       }
     });

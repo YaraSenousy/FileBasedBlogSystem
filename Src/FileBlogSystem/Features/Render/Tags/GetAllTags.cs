@@ -28,6 +28,7 @@ public static class GetAllTags
                 return JsonSerializer.Deserialize<Tag>(json, options);
             })
             .Where(t => t != null)
+            .OrderBy(t => t!.Name)
             .ToList();
 
         return Results.Ok(tags);

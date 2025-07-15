@@ -394,25 +394,20 @@ nav a {
 
 .offcanvas-title {
     color: #333;
-    font-size: 1.25rem;
+    font-size: 1.6rem;
 }
 
 .offcanvas-body {
     padding: 1rem;
 }
 
-.offcanvas-body p {
-    font-size: 1rem;
-    color: #333;
-    margin-bottom: 1rem;
-}
-
 .offcanvas-body .nav-link {
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     color: #333;
     padding: 0.5rem 1rem;
     border-radius: 4px;
     transition: color 0.3s, background-color 0.3s;
+    text-align: left;
 }
 
 .offcanvas-body .nav-link:hover {
@@ -430,7 +425,7 @@ nav a {
 }
 
 .offcanvas-body .btn-outline-danger {
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     padding: 0.5rem 1rem;
     border-radius: 4px;
     width: 100%;
@@ -1380,16 +1375,11 @@ h1 a {
 
     .offcanvas-body p {
         color: #e0e0e0;
-        margin-bottom: 1rem;
     }
 
     .offcanvas-body .nav-link {
         color: #e0e0e0;
         background-color: #3a3a3a;
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        font-size: 0.9rem;
-        transition: color 0.3s, background-color 0.3s;
     }
 
     .offcanvas-body .nav-link:hover {
@@ -1401,7 +1391,6 @@ h1 a {
         border: 1px solid #dc3545;
         color: #dc3545;
         background-color: transparent;
-        transition: background-color 0.3s, color 0.3s;
     }
 
     .offcanvas-body .btn-outline-danger:hover {

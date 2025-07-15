@@ -96,6 +96,7 @@ function renderPosts(posts, containerId, role = null) {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
+      timeZoneName: "short"
     };
     const publishedDate = new Date(post.published).toLocaleString("en-GB", dateOptions);
     const modifiedDate =

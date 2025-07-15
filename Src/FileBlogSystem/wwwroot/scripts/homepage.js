@@ -56,7 +56,7 @@ async function loadFeaturedPosts() {
       ${thumbnail}
       <h5>${post.title}</h5>
       <p>${post.description.substring(0, 150)}...</p>
-      <a href="/post?slug=${
+      <a href="/post/${
         post.slug
       }" class="btn btn-primary">Read More <i class="fas fa-arrow-right"></i></a>
     `;

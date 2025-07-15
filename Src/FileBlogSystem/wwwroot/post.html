@@ -20,7 +20,7 @@
       document.documentElement.setAttribute("data-theme", "dark");
     }
     const url = new URLSearchParams(location.search);
-    const slug = url.get("slug");
+    const slug = location.pathname.split("/").filter(Boolean).pop();
     const preview = url.get("preview");
 
     fetch(preview ? `/posts/${slug}/preview` : `/posts/${slug}`)

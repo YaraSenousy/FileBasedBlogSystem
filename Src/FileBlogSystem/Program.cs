@@ -11,6 +11,7 @@ using FileBlogSystem.Features.Admin;
 using FileBlogSystem.Features.Render.User;
 
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 
@@ -104,7 +105,7 @@ app.MapUserPostsEndpoint();
 
 app.MapFallback(context =>
 {
-    var path = context.Request.Path.Value;
+    PathString path = context.Request.Path.Value;
 
     if (path == "/dashboard" || path == "/create" || path == "/users" || path == "/tag" || path == "/category")
     {
@@ -120,7 +121,7 @@ app.MapFallback(context =>
         return context.Response.SendFileAsync("wwwroot/dashboard.html");
     if (path == "/create")
         return context.Response.SendFileAsync("wwwroot/create.html");
-    if (path == "/post")
+    if (path.StartsWithSegments("/post", out var remaining) && remaining.Value.Trim('/').Length > 0)
         return context.Response.SendFileAsync("wwwroot/post.html");
     if (path == "/login")
         return context.Response.SendFileAsync("wwwroot/login.html");

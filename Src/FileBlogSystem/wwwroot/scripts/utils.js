@@ -114,7 +114,7 @@ function renderPosts(posts, containerId, role = null) {
           <div class="post-description"><span>Description: </span><p>${post.description}</p></div>
           <div class="post-preview"><p>${preview}</p></div>
           <div class="post-details">
-          <a href="/post?slug=${post.slug}${role && status !== 'published' ? '&preview=true' : ''}" class="btn btn-outline-primary view-post-btn">
+          <a href="/post/${post.slug}${role && status !== 'published' ? '?preview=true' : ''}" class="btn btn-outline-primary view-post-btn">
             View Full Post <i class="bi bi-arrow-right"></i>
           </a>
           </div>

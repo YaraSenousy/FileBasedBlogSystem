@@ -606,9 +606,8 @@ window.onload = () => {
 
     const postEl = button.closest("article");
     const slug = postEl
-      .querySelector("a[href^='/post?slug=']")
-      .href.split("slug=")[1]
-      .split("&")[0];
+    .querySelector("a[href^='/post/']")
+    .pathname.split("/").pop();  
 
     if (button.textContent === "Edit Post") {
       window.open(`/create?slug=${slug}`, "_self");

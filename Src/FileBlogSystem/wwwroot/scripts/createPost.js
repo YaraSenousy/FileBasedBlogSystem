@@ -164,7 +164,7 @@ async function saveAsDraft() {
     document.getElementById("save-draft").textContent = "Save Edits";
     document.querySelector(".back-btn").addEventListener("click", (e) => {
       e.preventDefault();
-      window.open(`/create?slug=${postSlug}`, "_self");
+      window.open(`/create/${postSlug}`, "_self");
     });
   } catch (error) {
     showToast("Save failed due to an error.", "danger");

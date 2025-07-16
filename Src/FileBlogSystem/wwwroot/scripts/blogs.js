@@ -7,6 +7,7 @@ import { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCat
  * @type {number} totalPages - The total number of pages available.
  * @type {Set} activeTags - A Set of currently selected tag slugs.
  * @type {string} selectedCategoryName - The name of the currently selected category.
+ * @type {string} selectedCategory - The slug of the currently selected category.
  * @type {string} searchTerm - The current search term, if any.
  */
 let currentPage = 1;
@@ -14,50 +15,62 @@ const limit = 3;
 let totalPages = 1;
 let activeTags = new Set();
 let selectedCategoryName = "All Categories";
+let selectedCategory = "";
 let searchTerm = "";
 
 /**
- * Gets the page number from the URL query parameter.
- * @returns {number} The page number from the URL, or 1 if not specified.
+ * Gets the page number, tags, and category from the URL query parameters.
+ * @returns {Object} An object containing page, tags, and category.
  */
-function getPageFromURL() {
+function getStateFromURL() {
   const params = new URLSearchParams(window.location.search);
   const page = parseInt(params.get("page"), 10);
-  return isNaN(page) || page < 1 ? 1 : page;
+  const tags = params.get("tags") ? params.get("tags").split(",").filter(tag => tag) : [];
+  const category = params.get("category") || "";
+  return {
+    page: isNaN(page) || page < 1 ? 1 : page,
+    tags: new Set(tags),
+    category
+  };
 }
 
 /**
- * Updates the URL with the current page number.
+ * Updates the URL with the current page, tags, and category.
  * @param {number} page - The page number to set in the URL.
+ * @param {Set} tags - The set of active tag slugs.
+ * @param {string} category - The slug of the selected category.
  */
-function updateURL(page) {
-  const params = new URLSearchParams(window.location.search);
-  if (page === 1) {
-    params.delete("page");
-  } else {
-    params.set("page", page);
-  }
+function updateURL(page, tags, category) {
+  const params = new URLSearchParams();
+  if (page !== 1) params.set("page", page);
+  if (tags.size > 0) params.set("tags", [...tags].join(","));
+  if (category) params.set("category", category);
   const newURL = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}`;
-  window.history.pushState({ page }, "", newURL);
+  window.history.pushState({ page, tags: [...tags], category }, "", newURL);
 }
 
 /**
- * Sets the current page and updates the URL.
- * @param {number} current - The page number to set.
+ * Sets the current page, tags, and category, and updates the URL.
+ * @param {number} page - The page number to set.
+ * @param {Set} tags - The set of active tag slugs.
+ * @param {string} category - The slug of the selected category.
  */
-function setCurrentPage(current) {
-  currentPage = current;
-  updateURL(current);
+function setCurrentState(page, tags, category) {
+  currentPage = page;
+  activeTags = new Set(tags);
+  selectedCategory = category;
+  updateURL(page, activeTags, selectedCategory);
 }
 
 /**
  * Clears all tag filters and reloads posts.
  */
-function clearTagsHandler() {
-  activeTags.clear();
-  currentPage = 1;
+async function clearTagsHandler() {
+  activeTags = new Set();
+  setCurrentState(1, activeTags, selectedCategory);
   clearTags();
-  loadPosts();
+  await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory); // Re-render tags
+  await loadPosts();
 }
 
 /**
@@ -74,6 +87,7 @@ async function loadPublishedPosts() {
   dropdown.querySelector("[data-value='']").classList.add("active");
   document.getElementById("category-dropdown-button").textContent = "All Categories";
   selectedCategoryName = "All Categories";
+  selectedCategory = "";
   searchTerm = "";
   document.getElementById("search-box").value = "";
   updateActiveNav();
@@ -84,7 +98,8 @@ async function loadPublishedPosts() {
   );
   totalPages = Math.ceil(response.totalItems / limit) || 1;
   renderPosts(response.data, "posts-container");
-  renderPagination(currentPage, setCurrentPage, totalPages, loadPosts);
+  renderPagination(currentPage, totalPages, loadPosts, activeTags, selectedCategory, setCurrentState);
+  await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory); // Re-render tags to sync with activeTags
 }
 
 /**
@@ -98,6 +113,7 @@ async function loadPostsByCategory(slug, name) {
   document.getElementById("category-filter").style.display = "block";
   document.getElementById("category-dropdown-button").textContent = name;
   selectedCategoryName = name;
+  selectedCategory = slug;
   searchTerm = "";
   document.getElementById("search-box").value = "";
 
@@ -108,7 +124,8 @@ async function loadPostsByCategory(slug, name) {
     );
     totalPages = Math.ceil(response.totalItems / limit) || 1;
     renderPosts(response.data, "posts-container");
-    renderPagination(currentPage, setCurrentPage, totalPages, loadPosts);
+    renderPagination(currentPage, totalPages, loadPosts, activeTags, selectedCategory, setCurrentState);
+    await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory); // Re-render tags to sync with activeTags
   } catch (err) {
     console.error("Failed to load posts:", err.message);
     document.getElementById("posts-container").innerHTML = "<h4>Failed to load posts</h4>";
@@ -122,7 +139,7 @@ async function loadPostsByCategory(slug, name) {
  */
 function goToPage(page) {
   if (page >= 1 && page <= totalPages) {
-    setCurrentPage(page);
+    setCurrentState(page, activeTags, selectedCategory);
     loadPosts();
   }
 }
@@ -132,7 +149,7 @@ function goToPage(page) {
  */
 function nextPage() {
   if (currentPage < totalPages) {
-    setCurrentPage(currentPage + 1);
+    setCurrentState(currentPage + 1, activeTags, selectedCategory);
     loadPosts();
   }
 }
@@ -142,7 +159,7 @@ function nextPage() {
  */
 function prevPage() {
   if (currentPage > 1) {
-    setCurrentPage(currentPage - 1);
+    setCurrentState(currentPage - 1, activeTags, selectedCategory);
     loadPosts();
   }
 }
@@ -163,11 +180,12 @@ function loadPosts() {
     onSearch();
   } else {
     const dropdown = document.getElementById("category-dropdown");
-    const selected = dropdown.querySelector(".dropdown-item.active")?.dataset.value;
+    const selected = dropdown.querySelector(".dropdown-item.active")?.dataset.value || "";
     const selectedName =
       dropdown.querySelector(".dropdown-item.active")?.textContent || "All Categories";
     document.getElementById("category-dropdown-button").textContent = selectedName;
     selectedCategoryName = selectedName;
+    selectedCategory = selected;
     if (selected) loadPostsByCategory(selected, selectedName);
     else loadPublishedPosts();
   }
@@ -181,7 +199,8 @@ async function onSearch() {
   const term = document.getElementById("search-box").value.trim();
   if (term) {
     searchTerm = term;
-    setCurrentPage(1);
+    activeTags = new Set();
+    setCurrentState(1, activeTags, "");
     document.getElementById("tag-filter").style.display = "none";
     document.getElementById("category-filter").style.display = "none";
     const dropdown = document.getElementById("category-dropdown");
@@ -191,6 +210,7 @@ async function onSearch() {
     dropdown.querySelector("[data-value='']").classList.add("active");
     document.getElementById("category-dropdown-button").textContent = "All Categories";
     selectedCategoryName = "All Categories";
+    selectedCategory = "";
     updateActiveNav();
     try {
       const response = await fetchData(
@@ -199,7 +219,8 @@ async function onSearch() {
       );
       totalPages = Math.ceil(response.totalItems / limit) || 1;
       renderPosts(response.data, "posts-container");
-      renderPagination(currentPage, setCurrentPage, totalPages, loadPosts);
+      renderPagination(currentPage, totalPages, loadPosts, activeTags, selectedCategory, setCurrentState);
+      await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory); // Re-render tags to sync with activeTags
     } catch (err) {
       console.error("Search failed:", err.message);
       showToast("Search failed. Please try again.", "danger");
@@ -217,6 +238,8 @@ async function onSearch() {
 function clearSearch() {
   document.getElementById("search-box").value = "";
   searchTerm = "";
+  activeTags = new Set();
+  setCurrentState(1, activeTags, "");
   document.getElementById("tag-filter").style.display = "block";
   document.getElementById("category-filter").style.display = "block";
   const dropdown = document.getElementById("category-dropdown");
@@ -226,7 +249,7 @@ function clearSearch() {
   dropdown.querySelector("[data-value='']").classList.add("active");
   document.getElementById("category-dropdown-button").textContent = "All Categories";
   selectedCategoryName = "All Categories";
-  setCurrentPage(1);
+  selectedCategory = "";
   updateActiveNav();
   loadPublishedPosts();
 }
@@ -247,7 +270,7 @@ async function newsletter() {
       const email = document.getElementById("newsletter-email").value;
       if (email) {
         const spinner = document.getElementById("newsletter-spinner");
-        spinner.style.display = "inline-block"; 
+        spinner.style.display = "inline-block";
         try {
           const response = await fetch(
             `http://localhost:5188/subscribe?email=${encodeURIComponent(email)}`,
@@ -285,12 +308,34 @@ async function newsletter() {
  * Initializes the homepage by loading categories, tags, and published posts,
  * and sets up event listeners for search, navigation, and popstate.
  */
-window.onload = () => {
-  currentPage = getPageFromURL();
+window.onload = async () => {
+  // Set initial state from URL
+  const { page, tags, category } = getStateFromURL();
+  currentPage = page;
+  activeTags = new Set(tags);
+  selectedCategory = category;
 
-  loadCategories(setCurrentPage, loadPostsByCategory);
-  loadTags(setCurrentPage, activeTags, loadPosts);
-  loadPublishedPosts();
+  await loadCategories(setCurrentState, loadPostsByCategory, activeTags, loadPublishedPosts);
+  await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory);
+
+  // Set category dropdown based on URL
+  const dropdown = document.getElementById("category-dropdown");
+  if (category) {
+    const categoryItem = dropdown.querySelector(`.dropdown-item[data-value='${category}']`);
+    if (categoryItem) {
+      dropdown.querySelectorAll(".dropdown-item").forEach((item) => item.classList.remove("active"));
+      categoryItem.classList.add("active");
+      selectedCategoryName = categoryItem.textContent;
+      document.getElementById("category-dropdown-button").textContent = selectedCategoryName;
+    } else {
+      selectedCategory = "";
+      selectedCategoryName = "All Categories";
+      document.getElementById("category-dropdown-button").textContent = "All Categories";
+      dropdown.querySelector("[data-value='']").classList.add("active");
+    }
+  }
+
+  await loadPosts();
   newsletter();
 
   const searchBox = document.getElementById("search-box");
@@ -312,10 +357,6 @@ window.onload = () => {
     e.preventDefault();
     clearTagsHandler();
   });
-  document.getElementById("all-categories").addEventListener("click", (e) => {
-    e.preventDefault();
-    clearSearch();
-  });
   document.getElementById("next-page").addEventListener("click", (e) => {
     e.preventDefault();
     nextPage();
@@ -326,7 +367,7 @@ window.onload = () => {
   });
   document.getElementById("nav-blogs").addEventListener("click", (e) => {
     e.preventDefault();
-    setCurrentPage(1);
+    setCurrentState(1, activeTags, ""); // Preserve activeTags when navigating to home
     clearSearch();
   });
   document.getElementById("theme-toggle").addEventListener("click", () => {
@@ -337,10 +378,33 @@ window.onload = () => {
     updateThemeToggleIcon(newTheme);
   });
 
-  window.addEventListener("popstate", (event) => {
-    if (event.state && event.state.page) {
-      currentPage = event.state.page;
-      loadPosts();
+  // Handle browser back/forward navigation
+  window.addEventListener("popstate", async (event) => {
+    if (event.state) {
+      currentPage = event.state.page || 1;
+      activeTags = new Set(event.state.tags || []);
+      selectedCategory = event.state.category || "";
+      const dropdown = document.getElementById("category-dropdown");
+      if (selectedCategory) {
+        const categoryItem = dropdown.querySelector(`.dropdown-item[data-value='${selectedCategory}']`);
+        if (categoryItem) {
+          dropdown.querySelectorAll(".dropdown-item").forEach((item) => item.classList.remove("active"));
+          categoryItem.classList.add("active");
+          selectedCategoryName = categoryItem.textContent;
+          document.getElementById("category-dropdown-button").textContent = selectedCategoryName;
+        } else {
+          selectedCategory = "";
+          selectedCategoryName = "All Categories";
+          document.getElementById("category-dropdown-button").textContent = "All Categories";
+          dropdown.querySelector("[data-value='']").classList.add("active");
+        }
+      } else {
+        selectedCategoryName = "All Categories";
+        document.getElementById("category-dropdown-button").textContent = "All Categories";
+        dropdown.querySelector("[data-value='']").classList.add("active");
+      }
+      await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory);
+      await loadPosts();
     }
   });
 

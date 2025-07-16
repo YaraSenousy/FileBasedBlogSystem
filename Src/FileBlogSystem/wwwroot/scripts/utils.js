@@ -214,11 +214,12 @@ function showToast(message, variant = "primary") {
 /**
  * Loads and renders tag checkboxes for filtering posts.
  * Fetches tags from the /tags endpoint and sets up event listeners for checkbox changes.
- * @param {Function} setCurrentPage - The function to set the current page number in the calling page
- * @param {Set} activeTags - The set of active tags
+ * @param {Function} setCurrentState - The function to set the current state in the calling page.
+ * @param {Set} activeTags - The set of active tags.
  * @param {Function} loadPosts - The function to call when tags change.
+ * @param {string} selectedCategory - The slug of the selected category.
  */
-async function loadTags(setCurrentPage, activeTags, loadPosts) {
+async function loadTags(setCurrentState, activeTags, loadPosts, selectedCategory) {
   const tags = await fetchData("/tags");
   const container = document.getElementById("tag-checkboxes");
   container.innerHTML = "";
@@ -230,11 +231,16 @@ async function loadTags(setCurrentPage, activeTags, loadPosts) {
     input.type = "checkbox";
     input.value = tag.slug;
     input.id = `tag-${tag.slug}`;
+    input.checked = activeTags.has(tag.slug);
 
     input.onchange = () => {
-      if (input.checked) activeTags.add(tag.slug);
-      else activeTags.delete(tag.slug);
-      setCurrentPage(1);
+      const newTags = new Set(activeTags);
+      if (input.checked) {
+        newTags.add(tag.slug);
+      } else {
+        newTags.delete(tag.slug);
+      }
+      setCurrentState(1, newTags, selectedCategory);
       loadPosts();
     };
 
@@ -258,13 +264,33 @@ function clearTags() {
 /**
  * Loads and populates the category dropdown menu.
  * Fetches categories from the /categories endpoint and sets up event listeners for selection.
- * @param {Function} setCurrentPage - The function to set the current page number in the calling page
+ * @param {Function} setCurrentState - The function to set the current state in the calling page.
  * @param {Function} loadPostsByCategory - The function to call when a category is selected.
+ * @param {Set} activeTags - The set of active tags.
  */
-async function loadCategories(setCurrentPage, loadPostsByCategory) {
+async function loadCategories(setCurrentState, loadPostsByCategory, activeTags, loadPublishedPosts) {
   const dropdown = document.getElementById("category-dropdown");
-  const categories = await fetchData("/categories");
+  dropdown.innerHTML = "";
 
+  const allCategoriesLi = document.createElement("li");
+  const allCategoriesA = document.createElement("a");
+  allCategoriesA.className = "dropdown-item";
+  allCategoriesA.href = "#";
+  allCategoriesA.textContent = "All Categories";
+  allCategoriesA.dataset.value = "";
+  allCategoriesA.onclick = () => {
+    dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
+      item.classList.remove("active")
+    );
+    allCategoriesA.classList.add("active");
+    document.getElementById("category-dropdown-button").textContent = "All Categories";
+    setCurrentState(1, activeTags, "");
+    loadPublishedPosts();
+  };
+  allCategoriesLi.appendChild(allCategoriesA);
+  dropdown.appendChild(allCategoriesLi);
+
+  const categories = await fetchData("/categories");
   categories.forEach((cat) => {
     const li = document.createElement("li");
     const a = document.createElement("a");
@@ -278,7 +304,7 @@ async function loadCategories(setCurrentPage, loadPostsByCategory) {
       );
       a.classList.add("active");
       document.getElementById("category-dropdown-button").textContent = cat.name;
-      setCurrentPage(1);
+      setCurrentState(1, activeTags, cat.slug);
       loadPostsByCategory(cat.slug, cat.name);
     };
     li.appendChild(a);
@@ -287,13 +313,14 @@ async function loadCategories(setCurrentPage, loadPostsByCategory) {
 }
 
 /**
- * Renders pagination links dynamically based on totalPages and currentPage, updating the URL.
+ * Renders pagination links dynamically based on totalPages, currentPage, tags, and category.
  * @param {number} currentPage - The current page number.
- * @param {Function} setCurrentPage - The function to set the current page number in the calling page.
  * @param {number} totalPages - The total number of pages.
  * @param {Function} loadPosts - The function to call when a page is clicked.
+ * @param {Set} activeTags - The set of active tag slugs.
+ * @param {string} selectedCategory - The slug of the selected category.
  */
-function renderPagination(currentPage, setCurrentPage, totalPages, loadPosts) {
+function renderPagination(currentPage, totalPages, loadPosts, activeTags, selectedCategory, setCurrentState) {
   const pageNumbersContainer = document.getElementById("page-numbers");
   pageNumbersContainer.innerHTML = "";
 
@@ -308,6 +335,14 @@ function renderPagination(currentPage, setCurrentPage, totalPages, loadPosts) {
   const prevPageItem = document.getElementById("prev-page");
   prevPageItem.classList.toggle("disabled", currentPage === 1);
 
+  const buildQueryString = (page) => {
+    const params = new URLSearchParams();
+    if (page !== 1) params.set("page", page);
+    if (activeTags.size > 0) params.set("tags", [...activeTags].join(","));
+    if (selectedCategory) params.set("category", selectedCategory);
+    return params.toString() ? `?${params.toString()}` : "";
+  };
+
   if (startPage > 1) {
     const ellipsis = document.createElement("li");
     ellipsis.className = "page-item disabled";
@@ -316,11 +351,11 @@ function renderPagination(currentPage, setCurrentPage, totalPages, loadPosts) {
     firstPage.className = "page-item";
     const pageLink = document.createElement("a");
     pageLink.className = "page-link";
-    pageLink.href = `?page=1`;
+    pageLink.href = buildQueryString(1);
     pageLink.textContent = "1";
     pageLink.onclick = (e) => {
       e.preventDefault();
-      setCurrentPage(1);
+      setCurrentState(1, activeTags, selectedCategory);
       loadPosts();
     };
     firstPage.appendChild(pageLink);
@@ -333,11 +368,11 @@ function renderPagination(currentPage, setCurrentPage, totalPages, loadPosts) {
     pageItem.className = `page-item ${i === currentPage ? "active" : ""}`;
     const pageLink = document.createElement("a");
     pageLink.className = "page-link";
-    pageLink.href = `?page=${i}`;
+    pageLink.href = buildQueryString(i);
     pageLink.textContent = i;
     pageLink.onclick = (e) => {
       e.preventDefault();
-      setCurrentPage(i);
+      setCurrentState(i, activeTags, selectedCategory);
       loadPosts();
     };
     pageItem.appendChild(pageLink);
@@ -352,11 +387,11 @@ function renderPagination(currentPage, setCurrentPage, totalPages, loadPosts) {
     lastPage.className = "page-item";
     const pageLink = document.createElement("a");
     pageLink.className = "page-link";
-    pageLink.href = `?page=${totalPages}`;
+    pageLink.href = buildQueryString(totalPages);
     pageLink.textContent = totalPages;
     pageLink.onclick = (e) => {
       e.preventDefault();
-      setCurrentPage(totalPages);
+      setCurrentState(totalPages, activeTags, selectedCategory);
       loadPosts();
     };
     lastPage.appendChild(pageLink);

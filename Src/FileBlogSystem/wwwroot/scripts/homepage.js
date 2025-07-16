@@ -10,7 +10,7 @@ async function loadFeaturedPosts() {
   const posts = response.data;
   const conveyor = document.getElementById("featured-posts");
 
-  const allPosts = [...posts, ...posts];
+  const allPosts = [...posts, ...posts, ...posts];
 
   allPosts.forEach((post) => {
     const card = document.createElement("div");
@@ -55,7 +55,7 @@ async function loadFeaturedPosts() {
     card.innerHTML = `
       ${thumbnail}
       <h5>${post.title}</h5>
-      <p>${post.description.substring(0, 150)}...</p>
+      <p>${post.description.substring(0, 200)}...</p>
       <a href="/post/${
         post.slug
       }" class="btn btn-primary">Read More <i class="fas fa-arrow-right"></i></a>

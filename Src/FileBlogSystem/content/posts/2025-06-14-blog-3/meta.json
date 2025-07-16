@@ -1,9 +1,9 @@
 {
-  "Title": "blog 3",
+  "Title": "Cs",
   "Description": "testing schedule",
   "Slug": "blog-3",
   "Published": "2025-07-14T11:14:00Z",
-  "Modified": "2025-07-08T14:23:41.2489634Z",
+  "Modified": "2025-07-16T06:23:33.7426577+03:00",
   "Status": "draft",
   "Tags": [
     "welcome"
@@ -13,5 +13,5 @@
     "technology"
   ],
   "CreatedBy": "",
-  "ModifiedBy": ""
+  "ModifiedBy": "admin"
 }

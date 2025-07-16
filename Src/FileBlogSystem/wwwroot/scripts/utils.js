@@ -87,7 +87,23 @@ function renderPosts(posts, containerId, role = null) {
         </div>
       `
       : "";
-    const preview = (post.htmlContent || "").slice(0, 200);
+
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = post.htmlContent || "";
+
+    const imgTags = tempDiv.querySelectorAll("img");
+    imgTags.forEach(img => img.remove());
+
+    const links = tempDiv.querySelectorAll("a");
+    links.forEach(link => {
+      const href = link.getAttribute("href") || "";
+      if (href.match(/\.(jpg|jpeg|png|gif|mp4|mp3|wav|pdf|docx|xlsx|pptx)$/i)) {
+        link.remove();
+      }
+    });
+
+    const preview = tempDiv.textContent.slice(0, 200);
+
     const dateOptions = {
       weekday: "short",
       day: "2-digit",

@@ -33,10 +33,37 @@ let selectedCategoryName = "All Categories";
 let searchTerm = "";
 
 /**
- * Sets the current page
+ * Gets the page number from the URL query parameter.
+ * @returns {number} The page number from the URL, or 1 if not specified.
+ */
+function getPageFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const page = parseInt(params.get("page"), 10);
+  return isNaN(page) || page < 1 ? 1 : page;
+}
+
+/**
+ * Updates the URL with the current page number.
+ * @param {number} page - The page number to set in the URL.
+ */
+function updateURL(page) {
+  const params = new URLSearchParams(window.location.search);
+  if (page === 1) {
+    params.delete("page");
+  } else {
+    params.set("page", page);
+  }
+  const newURL = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}`;
+  window.history.pushState({ page }, "", newURL);
+}
+
+/**
+ * Sets the current page and updates the URL.
+ * @param {number} current - The page number to set.
  */
 function setCurrentPage(current) {
   currentPage = current;
+  updateURL(current);
 }
 
 /**
@@ -44,7 +71,7 @@ function setCurrentPage(current) {
  */
 function clearTagsHandler() {
   activeTags.clear();
-  currentPage = 1;
+  setCurrentPage(1);
   clearTags();
   loadPosts();
 }
@@ -176,7 +203,7 @@ async function loadPostsByCategory(slug, name) {
  */
 function goToPage(page) {
   if (page >= 1 && page <= totalPages) {
-    currentPage = page;
+    setCurrentPage(page);
     loadPosts();
   }
 }
@@ -186,7 +213,7 @@ function goToPage(page) {
  */
 function nextPage() {
   if (currentPage < totalPages) {
-    currentPage++;
+    setCurrentPage(currentPage + 1);
     loadPosts();
   }
 }
@@ -196,7 +223,7 @@ function nextPage() {
  */
 function prevPage() {
   if (currentPage > 1) {
-    currentPage--;
+    setCurrentPage(currentPage - 1);
     loadPosts();
   }
 }
@@ -361,7 +388,7 @@ async function onSearch() {
   const term = document.getElementById("search-box").value.trim();
   if (term) {
     searchTerm = term;
-    currentPage = 1;
+    setCurrentPage(1);
     document.getElementById("tag-filter").style.display = "none";
     document.getElementById("category-filter").style.display = "none";
     const dropdown = document.getElementById("category-dropdown");
@@ -412,7 +439,7 @@ function clearSearch() {
     "All Categories";
   selectedCategoryName = "All Categories";
   currentView = "published";
-  currentPage = 1;
+  setCurrentPage(1);
   updateActiveNav();
   loadPublishedPosts();
 }
@@ -499,6 +526,8 @@ window.onload = () => {
     }
   }
 
+  currentPage = getPageFromURL();
+
   loadCategories(setCurrentPage, loadPostsByCategory);
   loadTags(setCurrentPage, activeTags, loadPosts);
   loadPublishedPosts();
@@ -529,7 +558,7 @@ window.onload = () => {
     selectedCategoryName = "All Categories";
     searchTerm = "";
     document.getElementById("search-box").value = "";
-    currentPage = 1;
+    setCurrentPage(1);
     loadPublishedPosts();
   });
   document.getElementById("next-page").addEventListener("click", (e) => {
@@ -542,7 +571,7 @@ window.onload = () => {
   });
   document.getElementById("nav-home").addEventListener("click", (e) => {
     e.preventDefault();
-    currentPage = 1;
+    setCurrentPage(1);
     document.getElementById("category-dropdown-button").textContent =
       "All Categories";
     selectedCategoryName = "All Categories";
@@ -552,17 +581,17 @@ window.onload = () => {
   });
   document.getElementById("nav-drafts").addEventListener("click", (e) => {
     e.preventDefault();
-    currentPage = 1;
+    setCurrentPage(1);
     loadDrafts();
   });
   document.getElementById("nav-scheduled").addEventListener("click", (e) => {
     e.preventDefault();
-    currentPage = 1;
+    setCurrentPage(1);
     loadScheduledPosts();
   });
   document.getElementById("nav-my-posts").addEventListener("click", (e) => {
     e.preventDefault();
-    currentPage = 1;
+    setCurrentPage(1);
     loadMyPosts().then(() => {
       const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById("accountOffcanvas"));
       if (offcanvas) offcanvas.hide();
@@ -582,6 +611,13 @@ window.onload = () => {
     document.documentElement.setAttribute("data-theme", newTheme);
     localStorage.setItem("theme", newTheme);
     updateThemeToggleIcon(newTheme);
+  });
+
+  window.addEventListener("popstate", (event) => {
+    if (event.state && event.state.page) {
+      currentPage = event.state.page;
+      loadPosts();
+    }
   });
 
   const savedTheme = localStorage.getItem("theme");

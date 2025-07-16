@@ -179,7 +179,8 @@ function renderPosts(posts, containerId, role = null) {
     }
   
     container.appendChild(postEl);
-  });}
+  });
+}
 
 /**
  * Shows a toast notification.
@@ -270,9 +271,9 @@ async function loadCategories(setCurrentPage, loadPostsByCategory) {
 }
 
 /**
- * Renders pagination links dynamically based on totalPages and currentPage.
+ * Renders pagination links dynamically based on totalPages and currentPage, updating the URL.
  * @param {number} currentPage - The current page number.
- * @param {Function} setCurrentPage - The function to set the current page number in the calling page
+ * @param {Function} setCurrentPage - The function to set the current page number in the calling page.
  * @param {number} totalPages - The total number of pages.
  * @param {Function} loadPosts - The function to call when a page is clicked.
  */
@@ -299,7 +300,7 @@ function renderPagination(currentPage, setCurrentPage, totalPages, loadPosts) {
     firstPage.className = "page-item";
     const pageLink = document.createElement("a");
     pageLink.className = "page-link";
-    pageLink.href = "#";
+    pageLink.href = `?page=1`;
     pageLink.textContent = "1";
     pageLink.onclick = (e) => {
       e.preventDefault();
@@ -316,7 +317,7 @@ function renderPagination(currentPage, setCurrentPage, totalPages, loadPosts) {
     pageItem.className = `page-item ${i === currentPage ? "active" : ""}`;
     const pageLink = document.createElement("a");
     pageLink.className = "page-link";
-    pageLink.href = "#";
+    pageLink.href = `?page=${i}`;
     pageLink.textContent = i;
     pageLink.onclick = (e) => {
       e.preventDefault();
@@ -335,7 +336,7 @@ function renderPagination(currentPage, setCurrentPage, totalPages, loadPosts) {
     lastPage.className = "page-item";
     const pageLink = document.createElement("a");
     pageLink.className = "page-link";
-    pageLink.href = "#";
+    pageLink.href = `?page=${totalPages}`;
     pageLink.textContent = totalPages;
     pageLink.onclick = (e) => {
       e.preventDefault();
@@ -350,8 +351,9 @@ function renderPagination(currentPage, setCurrentPage, totalPages, loadPosts) {
   const nextPageItem = document.getElementById("next-page");
   nextPageItem.classList.toggle("disabled", currentPage === totalPages);
 }
+
 /**
- * toggles the colour theme and save it in the local storage
+ * Toggles the color theme and saves it in local storage.
  */
 function toggleTheme() {
   const html = document.documentElement;

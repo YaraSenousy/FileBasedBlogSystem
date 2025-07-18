@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.Extensions.Primitives;
+using System.Security.Claims;
 
 namespace FileBlogSystem.Features.Posting;
 
@@ -20,7 +21,8 @@ public static class EditPost
     public static async Task<IResult> HandleEditPost(HttpRequest request, string slug, HttpContext context)
     {
         var username = context.User.Identity?.Name;
-        if (string.IsNullOrEmpty(username))
+        var role = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(role))
         {
             return Results.Unauthorized();
         }
@@ -36,6 +38,7 @@ public static class EditPost
 
         var meta = JsonSerializer.Deserialize<PostMeta>(File.ReadAllText(metaPath));
         if (meta == null) return Results.BadRequest();
+        if (role != "editor" && meta.CreatedBy != username) return Results.Unauthorized();
         if (meta.Status == "published") return Results.BadRequest();
 
         var title = form["title"];

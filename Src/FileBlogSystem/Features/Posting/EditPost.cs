@@ -17,6 +17,7 @@ public static class EditPost
     rewrting its content and meta data 
     edits the modification date
     doen't allow editing of pubished posts
+    only owners of the blog and editors allowed
     */
     public static async Task<IResult> HandleEditPost(HttpRequest request, string slug, HttpContext context)
     {

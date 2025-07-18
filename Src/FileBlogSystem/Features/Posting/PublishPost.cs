@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FileBlogSystem.Features.Render.Feed;
 using FileBlogSystem.config;
+using System.Security.Claims;
 
 namespace FileBlogSystem.Features.Posting;
 
@@ -11,17 +12,25 @@ public static class PublishPost
         app.MapPost("/posts/{slug}/publish", PublishNow).RequireAuthorization("EditorLevel");
         app.MapPost("/posts/{slug}/schedule", SchedulePublish).RequireAuthorization("EditorLevel");
         app.MapPost("/posts/{slug}/draft", SaveAsDraft).RequireAuthorization("EditorLevel");
-        app.MapPost("/posts/{slug}/delete", DeletePost).RequireAuthorization("AdminLevel");
+        app.MapPost("/posts/{slug}/delete", DeletePost).RequireAuthorization("AdminAuthor");
     }
 
     // changes the status of a given post to published and sets the Publish Date update the rss
-    public static async Task<IResult> PublishNow(string slug)
+    // only allow owner of the blog
+    public static async Task<IResult> PublishNow(string slug, HttpContext context)
     {
+        var username = context.User.Identity?.Name;
+        if (string.IsNullOrEmpty(username))
+        {
+            return Results.Unauthorized();
+        }
+
         var folder = PostReader.FindPostFolder(slug);
         if (folder == null) return Results.NotFound();
 
         var metaPath = Path.Combine(folder, "meta.json");
         var meta = JsonSerializer.Deserialize<PostMeta>(File.ReadAllText(metaPath));
+        if (meta!.CreatedBy != username) return Results.Unauthorized();
         meta!.Status = "published";
         meta.Published = DateTime.Now;
 
@@ -36,8 +45,15 @@ public static class PublishPost
     }
 
     // schedule publish time of a given post using its slug and a given time
-    public static async Task<IResult> SchedulePublish(HttpRequest req, string slug)
+    // only allow owner of the blog
+    public static async Task<IResult> SchedulePublish(HttpRequest req, string slug, HttpContext context)
     {
+        var username = context.User.Identity?.Name;
+        if (string.IsNullOrEmpty(username))
+        {
+            return Results.Unauthorized();
+        }
+
         var body = await JsonSerializer.DeserializeAsync<JsonElement>(req.Body);
         var publishAt = DateTime.Parse(body.GetProperty("published").GetString()!);
 
@@ -46,6 +62,7 @@ public static class PublishPost
 
         var metaPath = Path.Combine(folder, "meta.json");
         var meta = JsonSerializer.Deserialize<PostMeta>(File.ReadAllText(metaPath));
+        if (meta!.CreatedBy != username) return Results.Unauthorized();
         meta!.Status = "scheduled";
         meta.Published = publishAt;
 
@@ -58,13 +75,22 @@ public static class PublishPost
     }
 
     // changes the status of a given post to draft and update the rss
-    public static async Task<IResult> SaveAsDraft(string slug)
+    // only allow owners and admins
+    public static async Task<IResult> SaveAsDraft(string slug, HttpContext context)
     {
+        var username = context.User.Identity?.Name;
+        var role = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(role))
+        {
+            return Results.Unauthorized();
+        }
+
         var folder = PostReader.FindPostFolder(slug);
         if (folder == null) return Results.NotFound();
 
         var metaPath = Path.Combine(folder, "meta.json");
         var meta = JsonSerializer.Deserialize<PostMeta>(File.ReadAllText(metaPath));
+        if (role != "admin" && meta!.CreatedBy != username) return Results.Unauthorized();
         meta!.Status = "draft";
 
         await File.WriteAllTextAsync(metaPath, JsonSerializer.Serialize(meta, new JsonSerializerOptions
@@ -78,16 +104,28 @@ public static class PublishPost
     }
 
     // delete a given postfrom the content and the routes and update the rss
-    public static IResult DeletePost(string slug)
+    // only allow admins or owners if the blog isn't published
+    public static IResult DeletePost(string slug, HttpContext context)
     {
+        var username = context.User.Identity?.Name;
+        var role = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+        if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(role))
+        {
+            return Results.Unauthorized();
+        }
+
         var folder = PostReader.FindPostFolder(slug);
         if (folder == null) return Results.NotFound();
+        var metaPath = Path.Combine(folder, "meta.json");
+        var meta = JsonSerializer.Deserialize<PostMeta>(File.ReadAllText(metaPath));
+        if (meta!.Status == "published" && role != "admin") return Results.Unauthorized();
+        if (meta!.CreatedBy != username || role != "admin") return Results.Unauthorized();
 
         Directory.Delete(folder, true);
         RouteMapper.RemoveRoute(slug);
 
         RssWriter.WriteRssFile();
-        
+
         return Results.Ok();
     }
 }

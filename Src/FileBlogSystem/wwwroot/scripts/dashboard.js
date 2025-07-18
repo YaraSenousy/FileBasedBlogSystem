@@ -348,12 +348,16 @@ function deleteButtonInitialise() {
  * @param {string} slug - The slug of the post to publish.
  */
 async function publishNow(slug) {
-  await fetch(`/posts/${slug}/publish`, {
+  const res = await fetch(`/posts/${slug}/publish`, {
     method: "POST",
     credentials: "include",
   });
+  if (res.ok) {
   showToast("✅ Published", "success");
   loadPosts();
+  } else {
+    showToast("Failed to schedule post", "danger");
+  }
 }
 
 /**
@@ -362,14 +366,18 @@ async function publishNow(slug) {
  * @param {string} time - The scheduled publication time in ISO format.
  */
 async function schedulePost(slug, time) {
-  await fetch(`/posts/${slug}/schedule`, {
+  const res = await fetch(`/posts/${slug}/schedule`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ published: time }),
     credentials: "include",
   });
-  showToast("📅 Scheduled", "success");
-  loadPosts();
+  if (res.ok) {
+    showToast("📅 Scheduled", "success");
+    loadPosts();
+  } else {
+    showToast("Failed to schedule post", "danger");
+  }
 }
 
 /**
@@ -377,12 +385,16 @@ async function schedulePost(slug, time) {
  * @param {string} slug - The slug of the post to save as draft.
  */
 async function saveAsDraft(slug) {
-  await fetch(`/posts/${slug}/draft`, {
+  const res = await fetch(`/posts/${slug}/draft`, {
     method: "POST",
     credentials: "include",
   });
+  if (res.ok) {
   showToast("💾 Saved as Draft", "success");
   loadPosts();
+  } else {
+    showToast("Failed to schedule post", "danger");
+  }
 }
 
 /**

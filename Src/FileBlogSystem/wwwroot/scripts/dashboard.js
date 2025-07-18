@@ -356,7 +356,7 @@ async function publishNow(slug) {
   showToast("✅ Published", "success");
   loadPosts();
   } else {
-    showToast("Failed to schedule post", "danger");
+    showToast("Failed to publish post", "danger");
   }
 }
 
@@ -393,7 +393,7 @@ async function saveAsDraft(slug) {
   showToast("💾 Saved as Draft", "success");
   loadPosts();
   } else {
-    showToast("Failed to schedule post", "danger");
+    showToast("Failed to save post as a draft", "danger");
   }
 }
 

@@ -35,7 +35,7 @@ let selectedCategory = "";
 let searchTerm = "";
 
 /**
- * Gets the page number, tags, and category from the URL query parameters.
+ * Gets the page number, tags, category, and view from the URL query parameters.
  * @returns {Object} An object containing page, tags, and category.
  */
 function getStateFromURL() {
@@ -43,10 +43,13 @@ function getStateFromURL() {
   const page = parseInt(params.get("page"), 10);
   const tags = params.get("tags") ? params.get("tags").split(",").filter(tag => tag) : [];
   const category = params.get("category") || "";
+  const pathParts = window.location.pathname.split("/").filter(part => part);
+  const view = pathParts[pathParts.length - 1] === "dashboard" ? "published" : pathParts[pathParts.length - 1] || "published";
   return {
     page: isNaN(page) || page < 1 ? 1 : page,
     tags: new Set(tags),
-    category
+    category,
+    view: ["published", "drafts", "scheduled", "my-posts"].includes(view) ? view : "published"
   };
 }
 
@@ -59,10 +62,12 @@ function getStateFromURL() {
 function updateURL(page, tags, category) {
   const params = new URLSearchParams();
   if (page !== 1) params.set("page", page);
-  if (tags.size > 0) params.set("tags", [...tags].join(","));
-  if (category) params.set("category", category);
-  const newURL = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}`;
-  window.history.pushState({ page, tags: [...tags], category }, "", newURL);
+  if (currentView === "published" && tags.size > 0) params.set("tags", [...tags].join(","));
+  if (currentView === "published" && category) params.set("category", category);
+  const basePath = "/dashboard";
+  const path = currentView === "published" ? basePath : `${basePath}/${currentView}`;
+  const newURL = `${path}${params.toString() ? `?${params.toString()}` : ""}`;
+  window.history.pushState({ currentView, page, tags: [...tags], category }, "", newURL);
 }
 
 /**
@@ -133,9 +138,9 @@ async function loadDrafts() {
   searchTerm = "";
   document.getElementById("search-box").value = "";
   activeTags = new Set();
-  setCurrentState(1, activeTags, selectedCategory);
   currentView = "drafts";
   updateActiveNav();
+  setCurrentState(currentPage, activeTags, selectedCategory);
 
   const response = await fetchData(
     `/drafts?page=${currentPage}&limit=${limit}`,
@@ -162,8 +167,8 @@ async function loadScheduledPosts() {
   searchTerm = "";
   document.getElementById("search-box").value = "";
   activeTags = new Set();
-  setCurrentState(1, activeTags, selectedCategory);
   currentView = "scheduled";
+  setCurrentState(currentPage, activeTags, selectedCategory);
   updateActiveNav();
 
   const response = await fetchData(
@@ -481,8 +486,8 @@ async function loadMyPosts() {
   searchTerm = "";
   document.getElementById("search-box").value = "";
   activeTags = new Set();
-  setCurrentState(1, activeTags, selectedCategory);
   currentView = "my-posts";
+  setCurrentState(currentPage, activeTags, selectedCategory);
   updateActiveNav();
 
   try {
@@ -522,19 +527,18 @@ window.onload = async () => {
     }
   }
 
-  // Set initial state from URL
-  const { page, tags, category } = getStateFromURL();
+  const { page, tags, category, view } = getStateFromURL();
   currentPage = page;
   activeTags = new Set(tags);
-  selectedCategory = category;
+  selectedCategory = view === "published" ? category : "";
+  currentView = view;
 
   await loadCategories(setCurrentState, loadPostsByCategory, activeTags, loadPublishedPosts);
   await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory);
 
-  // Set category dropdown based on URL
   const dropdown = document.getElementById("category-dropdown");
-  if (category) {
-    const categoryItem = dropdown.querySelector(`.dropdown-item[data-value='${category}']`);
+  if (selectedCategory && currentView === "published") {
+    const categoryItem = dropdown.querySelector(`.dropdown-item[data-value='${selectedCategory}']`);
     if (categoryItem) {
       dropdown.querySelectorAll(".dropdown-item").forEach((item) => item.classList.remove("active"));
       categoryItem.classList.add("active");
@@ -546,6 +550,10 @@ window.onload = async () => {
       document.getElementById("category-dropdown-button").textContent = "All Categories";
       dropdown.querySelector("[data-value='']").classList.add("active");
     }
+  } else {
+    selectedCategoryName = "All Categories";
+    document.getElementById("category-dropdown-button").textContent = "All Categories";
+    dropdown.querySelector("[data-value='']").classList.add("active");
   }
 
   await loadPosts();
@@ -579,6 +587,7 @@ window.onload = async () => {
   });
   document.getElementById("nav-home").addEventListener("click", (e) => {
     e.preventDefault();
+    currentView = "published";
     setCurrentState(1, activeTags, "");
     document.getElementById("category-dropdown-button").textContent = "All Categories";
     selectedCategoryName = "All Categories";
@@ -589,16 +598,19 @@ window.onload = async () => {
   });
   document.getElementById("nav-drafts").addEventListener("click", (e) => {
     e.preventDefault();
+    currentView = "drafts";
     setCurrentState(1, new Set(), "");
     loadDrafts();
   });
   document.getElementById("nav-scheduled").addEventListener("click", (e) => {
     e.preventDefault();
+    currentView = "scheduled";
     setCurrentState(1, new Set(), "");
     loadScheduledPosts();
   });
   document.getElementById("nav-my-posts").addEventListener("click", (e) => {
     e.preventDefault();
+    currentView = "my-posts";
     setCurrentState(1, new Set(), "");
     loadMyPosts().then(() => {
       const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById("accountOffcanvas"));
@@ -623,12 +635,12 @@ window.onload = async () => {
 
   window.addEventListener("popstate", async (event) => {
     if (event.state) {
+      currentView = event.state.view || "published";
       currentPage = event.state.page || 1;
       activeTags = new Set(event.state.tags || []);
       selectedCategory = event.state.category || "";
-      currentView = "published"; // Default to published view for URL navigation
       const dropdown = document.getElementById("category-dropdown");
-      if (selectedCategory) {
+      if (selectedCategory && currentView === "published") {
         const categoryItem = dropdown.querySelector(`.dropdown-item[data-value='${selectedCategory}']`);
         if (categoryItem) {
           dropdown.querySelectorAll(".dropdown-item").forEach((item) => item.classList.remove("active"));
@@ -661,7 +673,6 @@ window.onload = async () => {
   }
   deleteButtonInitialise();
 
-  // Event listeners for dynamically created post action buttons
   const postsContainer = document.getElementById("posts-container");
   postsContainer.addEventListener("click", (e) => {
     const button = e.target.closest("button");

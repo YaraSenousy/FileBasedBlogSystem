@@ -107,7 +107,7 @@ app.MapFallback(context =>
 {
     PathString path = context.Request.Path.Value;
 
-    if (path == "/dashboard" || path == "/create" || path == "/users" || path == "/tag" || path == "/category")
+    if (path.StartsWithSegments("/dashboard") || path == "/create" || path == "/users" || path == "/tag" || path == "/category")
     {
         var user = context.User;
         if (!user.Identity?.IsAuthenticated ?? true)
@@ -117,11 +117,11 @@ app.MapFallback(context =>
         }
     }
 
-    if (path == "/dashboard")
+    if (path.StartsWithSegments("/dashboard"))
         return context.Response.SendFileAsync("wwwroot/dashboard.html");
     if (path == "/create")
         return context.Response.SendFileAsync("wwwroot/create.html");
-    if (path.StartsWithSegments("/post", out var remaining) && remaining!.Value.Trim('/').Length > 0)
+    if (path.StartsWithSegments("/post", out var remaining) && remaining!.Value!.Trim('/').Length > 0)
         return context.Response.SendFileAsync("wwwroot/post.html");
     if (path == "/login")
         return context.Response.SendFileAsync("wwwroot/login.html");

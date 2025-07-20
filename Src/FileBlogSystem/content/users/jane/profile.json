@@ -2,5 +2,7 @@
   "Username": "jane",
   "Name": "Jane Doe",
   "PasswordHash": "$2a$11$yK3kQ0opPlZViMMQwy7TvedCWkCb7Tx7WAYt4XOxxvWDhEa2opgpG",
-  "Role": "author"
+  "Role": "author",
+  "Email": "jane1@gmail.com",
+  "ProfilePicture": "/content/users/jane/profile-pic.webp"
 }

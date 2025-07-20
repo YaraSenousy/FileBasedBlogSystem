@@ -67,6 +67,10 @@ function renderPosts(posts, containerId, role, name) {
           </div>
         `
         : "";
+      // Log warning if scheduled post lacks scheduled date
+      if (post.status === "scheduled" && !post.scheduled) {
+        console.warn(`Scheduled post "${post.title}" missing scheduled date`);
+      }
       return `
         <article class="post card mb-3">
           <div class="card-body d-flex">

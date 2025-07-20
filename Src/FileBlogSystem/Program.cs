@@ -135,6 +135,8 @@ app.MapFallback(context =>
         return context.Response.SendFileAsync("wwwroot/blogs.html");
     if (path == "/my-posts")
         return context.Response.SendFileAsync("wwwroot/my-posts.html");
+    if (path == "/profile")
+        return context.Response.SendFileAsync("wwwroot/profile.html");
 
     return context.Response.SendFileAsync("wwwroot/index.html");
 });

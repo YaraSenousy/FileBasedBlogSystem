@@ -62,9 +62,9 @@
   border: 1px solid #dee2e6;
   border-radius: 8px;
   transition: box-shadow 0.3s ease;
-  max-width: 800px; /* Wider posts */
-  margin: 0 auto; /* Center cards */
-  overflow: visible; /* Ensure dropdown is not clipped */
+  max-width: 800px;
+  margin: 0 auto;
+  overflow: visible;
 }
 
 .post.card:hover {
@@ -72,14 +72,24 @@
 }
 
 .post-thumbnail {
-  max-height: 150px; /* Limit thumbnail height */
+  width: 200px; /* Fixed width */
+  height: 150px; /* Fixed height */
   overflow: hidden;
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
-.post-thumbnail img {
-  object-fit: cover;
+.post-thumbnail .carousel,
+.post-thumbnail .carousel-inner,
+.post-thumbnail .carousel-item {
+  width: 100%;
+  height: 100%;
+}
+
+.post-thumbnail img.carousel-img {
+  width: 200px;
+  height: 150px;
+  object-fit: cover; /* Ensure images scale correctly */
   border-radius: 4px;
-  max-height: 150px;
 }
 
 .post-content h2 {
@@ -93,10 +103,10 @@
 }
 
 .post-status {
-  font-size: 1.1rem; /* Larger font */
+  font-size: 1.1rem; 
   font-weight: bold;
   padding-bottom: 0.25rem;
-  border-bottom: 2px solid currentColor; /* Underline in status color */
+  border-bottom: 2px solid currentColor;
   margin-bottom: 0.75rem;
 }
 
@@ -155,8 +165,13 @@
   }
   .post-thumbnail {
     margin-bottom: 1rem;
+    width: 100%; /* Full width on mobile */
+    max-width: 200px; /* Limit max width */
+    margin-left: auto;
+    margin-right: auto;
   }
-  .post-thumbnail img {
-    max-width: 100%;
+  .post-thumbnail img.carousel-img {
+    width: 100%;
+    height: 150px;
   }
 }

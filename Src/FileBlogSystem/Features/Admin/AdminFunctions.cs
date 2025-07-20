@@ -24,8 +24,8 @@ public static class AdminFunctions
         app.MapPost("/admin/categories", AddCategory).RequireAuthorization("AdminLevel");
         app.MapPatch("/admin/categories/{slug}", EditCategory).RequireAuthorization("AdminLevel");
         app.MapDelete("/admin/categories/{slug}", DeleteCategory).RequireAuthorization("AdminLevel");
-        app.MapGet("/profile", GetProfile).RequireAuthorization();
-        app.MapPost("/profile/edit", EditProfile).RequireAuthorization();
+        app.MapGet("/user-profile", GetProfile).RequireAuthorization();
+        app.MapPost("/profile/edit", (Delegate)EditProfile).RequireAuthorization();
     }
 
     /*
@@ -108,14 +108,14 @@ public static class AdminFunctions
     */
     public static bool IsValidEmail(string email)
     {
-        if (string.IsNullOrEmpty(email)) return false;
+        if (string.IsNullOrEmpty(email)) return true; // Email is optional
         string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
         return Regex.IsMatch(email, pattern);
     }
 
     /*
     Handles adding a new user by taking username, name, password, role, and optional email
-    Creates slug from the username and ensures it is unique
+    Creates slug from the username and ensures it is unique 
     Stores the password hashed
     */
     public static async Task<IResult> AddUser(HttpRequest request)
@@ -135,8 +135,6 @@ public static class AdminFunctions
             return Results.BadRequest("Missing name");
         if (string.IsNullOrEmpty(role))
             return Results.BadRequest("Missing role");
-        if (string.IsNullOrEmpty(email))
-            return Results.BadRequest("Missing email");
         if (Regex.IsMatch(username!, @"[^a-z0-9\s-]"))
             return Results.BadRequest("Invalid Username: Small letters, digits and - only");
         if (!IsValidPassword(password!))
@@ -160,8 +158,8 @@ public static class AdminFunctions
             Name = name!,
             PasswordHash = hash!,
             Role = role!,
-            Email = email!,
-            ProfilePicture = null,
+            Email = (string.IsNullOrEmpty(email!))? email! : string.Empty,
+            ProfilePicture = null
         };
 
         var userJson = JsonSerializer.Serialize(user, new JsonSerializerOptions
@@ -239,9 +237,7 @@ public static class AdminFunctions
 
         if (string.IsNullOrEmpty(name))
             return Results.BadRequest("Name is required");
-        if (string.IsNullOrEmpty(email))
-            return Results.BadRequest("Email is required");
-        if (!IsValidEmail(email!))
+        if (!string.IsNullOrEmpty(email) && !IsValidEmail(email!))
             return Results.BadRequest("Invalid email format");
 
         var oldUserJson = File.ReadAllText(userPath);
@@ -256,9 +252,9 @@ public static class AdminFunctions
             if (!profilePicFile.ContentType.StartsWith("image/"))
                 return Results.BadRequest("Profile picture must be an image");
             var extension = Path.GetExtension(profilePicFile.FileName).ToLower();
-            if (extension != ".jpg" && extension != ".jpeg" && extension != ".png")
-                return Results.BadRequest("Profile picture must be JPG or PNG");
-
+            if (extension != ".jpg" && extension != ".jpeg" && extension != ".png" && extension != ".webp")
+                return Results.BadRequest("Profile picture must be JPG or PNG or WEBP");
+            
             var picPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "users", username, "profile-pic" + extension);
             using (var stream = new FileStream(picPath, FileMode.Create))
             {

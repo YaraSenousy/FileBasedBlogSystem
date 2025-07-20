@@ -78,7 +78,7 @@ dotnet run
 | Role   | View Drafts | View Scheduled | View Published | Create Post | Edit Post | Save as Draft | Delete Post | Publish/Schedule | Manage Users/Categories/Tags |
 |--------|-------------|----------------|----------------|-------------|-----------|---------------|-------------|-----------------|-----------------------------|
 | Admin  | ✅ All       | ✅ All          | ✅ All          | ✅           | ✅ Own      | ✅ All        | ✅ All       | ✅ Own           | ✅                           |
-| Author | ✅ Own       | ✅ Own          | ✅ All          | ✅           | ✅ Own      | ✅ Own         | ✅ Own (non-published) | ✅ Own | ❌                           |
+| Author | ✅ Own       | ✅ Own          | ✅ All          | ✅           | ✅ Own      | ✅ Own         | ✅ Own  | ✅ Own | ❌                           |
 | Editor | ✅ All       | ✅ All          | ✅ All          | ❌           | ✅ All      | ❌             | ❌           | ❌               | ❌                           |
 
 **Notes**:
@@ -87,7 +87,7 @@ dotnet run
 - **View Published**: All roles can view all published posts.
 - **Create Post**: Admins and authors can create new posts; editors cannot.
 - **Edit Post**: Admins and authors can edit their own posts (drafts or scheduled); editors can edit all drafts and scheduled posts.
-- **Save as Draft**: Admins and authors can save their own posts as drafts; editors cannot.
-- **Delete Post**: Admins can delete any post (published, scheduled, or draft); authors can delete their own non-published posts (drafts or scheduled).
-- **Publish/Schedule**: Only post owners (admins or authors) can publish or schedule their posts.
+- **Save as Draft**: Admins can save as draft any post; authors can save as draft their own posts.
+- **Delete Post**: Admins can delete any post; authors can delete their own posts.
+- **Publish/Schedule**: Only post owners can publish or schedule their posts.
 - **Manage Users/Categories/Tags**: Only admins can manage users, categories, and tags.

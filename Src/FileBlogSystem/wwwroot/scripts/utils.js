@@ -39,7 +39,7 @@ function getTagFilterParam(activeTags) {
  * @param {string} containerId - ID of the container to render posts into.
  * @param {string|null} role - User role for conditional rendering.
  */
-function renderPosts(posts, containerId, role = null) {
+function renderPosts(posts, containerId, role = null, name = null) {
   const container = document.getElementById(containerId);
   container.innerHTML = "";
 
@@ -146,46 +146,63 @@ function renderPosts(posts, containerId, role = null) {
     `;
   
     if (role) {
-      if (role === "admin") {
+      console.log("Role:", role);
+      console.log("Post Created By:", post.createdBy);
+      console.log("Current User Name:", name);
+      const actions = document.createElement("div");
+      actions.className = "post-actions";
+      if (status === "draft" || status === "scheduled") {
+        if (role === "admin" || post.createdBy === name) {
+          const deleteBtn = document.createElement("button");
+          deleteBtn.className = "btn btn-danger btn-sm m-1";
+          deleteBtn.textContent = "Delete Post";
+          deleteBtn.onclick = () => deletePost(post.slug, post.title);
+          postEl.appendChild(deleteBtn);
+        }
+        if (post.createdBy === name || role === "editor") {
+          const editBtn = document.createElement("button");
+          editBtn.className = "btn btn-primary btn-sm m-1";
+          editBtn.id = "edit-btn";
+          editBtn.textContent = "Edit Post";
+          postEl.appendChild(editBtn);
+        }
+        if (post.createdBy === name) {
+          const publishBtn = document.createElement("button");
+          publishBtn.textContent = "Publish Now";
+          publishBtn.className = "btn btn-outline-secondary btn-sm ms-1";
+          actions.appendChild(publishBtn);
+    
+          const scheduleInput = document.createElement("input");
+          scheduleInput.type = "datetime-local";
+          scheduleInput.id = `schedule-${post.slug}`;
+          scheduleInput.className = "ms-2";
+    
+          const scheduleLabel = document.createElement("label");
+          scheduleLabel.htmlFor = `schedule-${post.slug}`;
+          scheduleLabel.textContent = "Schedule for: ";
+          actions.appendChild(scheduleLabel);
+          actions.appendChild(scheduleInput);
+    
+          const scheduleBtn = document.createElement("button");
+          scheduleBtn.className = "btn btn-outline-secondary btn-sm mx-2";
+          scheduleBtn.textContent = "Schedule";
+          actions.appendChild(scheduleInput);
+          actions.appendChild(scheduleBtn);
+        }
+      }
+      if (status === "scheduled" && (post.createdBy === name || role === "admin")) {
+        const draftBtn = document.createElement("button");
+        draftBtn.className = "btn btn-outline-secondary btn-sm ms-1";
+        draftBtn.textContent = "Save as Draft";
+        actions.appendChild(draftBtn);
+      }
+      if (status === "published" && role === "admin") {
         const deleteBtn = document.createElement("button");
         deleteBtn.className = "btn btn-danger btn-sm m-1";
         deleteBtn.textContent = "Delete Post";
         deleteBtn.onclick = () => deletePost(post.slug, post.title);
         postEl.appendChild(deleteBtn);
-      }
-  
-      const actions = document.createElement("div");
-      actions.className = "post-actions";
-      if (status === "draft" || status === "scheduled") {
-        const editBtn = document.createElement("button");
-        editBtn.className = "btn btn-primary btn-sm m-1";
-        editBtn.id = "edit-btn";
-        editBtn.textContent = "Edit Post";
-        postEl.appendChild(editBtn);
-        
-        const publishBtn = document.createElement("button");
-        publishBtn.textContent = "Publish Now";
-        publishBtn.className = "btn btn-outline-secondary btn-sm ms-1";
-        actions.appendChild(publishBtn);
-  
-        const scheduleInput = document.createElement("input");
-        scheduleInput.type = "datetime-local";
-        scheduleInput.id = `schedule-${post.slug}`;
-        scheduleInput.className = "ms-2";
-  
-        const scheduleLabel = document.createElement("label");
-        scheduleLabel.htmlFor = `schedule-${post.slug}`;
-        scheduleLabel.textContent = "Schedule for: ";
-        actions.appendChild(scheduleLabel);
-        actions.appendChild(scheduleInput);
-  
-        const scheduleBtn = document.createElement("button");
-        scheduleBtn.className = "btn btn-outline-secondary btn-sm mx-2";
-        scheduleBtn.textContent = "Schedule";
-        actions.appendChild(scheduleInput);
-        actions.appendChild(scheduleBtn);
-      }
-      if (status === "scheduled" || status === "published") {
+
         const draftBtn = document.createElement("button");
         draftBtn.className = "btn btn-outline-secondary btn-sm ms-1";
         draftBtn.textContent = "Save as Draft";

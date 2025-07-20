@@ -117,7 +117,7 @@ async function loadPublishedPosts() {
     true
   );
   totalPages = Math.ceil(response.totalItems / limit) || 1;
-  renderPosts(response.data, "posts-container", role);
+  renderPosts(response.data, "posts-container", role, name);
   renderPagination(currentPage, totalPages, loadPosts, activeTags, selectedCategory, setCurrentState);
   await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory);
 }
@@ -147,7 +147,7 @@ async function loadDrafts() {
     true
   );
   totalPages = Math.ceil(response.totalItems / limit) || 1;
-  renderPosts(response.data, "posts-container", role);
+  renderPosts(response.data, "posts-container", role, name);
   renderPagination(currentPage, totalPages, loadPosts, activeTags, selectedCategory, setCurrentState);
 }
 
@@ -176,23 +176,23 @@ async function loadScheduledPosts() {
     true
   );
   totalPages = Math.ceil(response.totalItems / limit) || 1;
-  renderPosts(response.data, "posts-container", role);
+  renderPosts(response.data, "posts-container", role, name);
   renderPagination(currentPage, totalPages, loadPosts, activeTags, selectedCategory, setCurrentState);
 }
 
 /**
  * Loads and renders posts for a specific category.
  * @param {string} slug - The slug of the category to load.
- * @param {string} name - The name of the category to display.
+ * @param {string} categoryName - The name of the category to display.
  */
-async function loadPostsByCategory(slug, name) {
+async function loadPostsByCategory(slug, categoryName) {
   document.getElementById("tag-filter").style.display = "block";
   document.getElementById("search-part").style.display = "block";
   document.getElementById("category-filter").style.display = "block";
   currentView = "published";
   updateActiveNav();
-  document.getElementById("category-dropdown-button").textContent = name;
-  selectedCategoryName = name;
+  document.getElementById("category-dropdown-button").textContent = categoryName;
+  selectedCategoryName = categoryName;
   selectedCategory = slug;
   searchTerm = "";
   document.getElementById("search-box").value = "";
@@ -203,7 +203,7 @@ async function loadPostsByCategory(slug, name) {
       true
     );
     totalPages = Math.ceil(response.totalItems / limit) || 1;
-    renderPosts(response.data, "posts-container", role);
+    renderPosts(response.data, "posts-container", role, name);
     renderPagination(currentPage, totalPages, loadPosts, activeTags, selectedCategory, setCurrentState);
     await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory);
   } catch (err) {
@@ -281,7 +281,7 @@ async function loadPosts() {
         true
       );
       totalPages = Math.ceil(response.totalItems / limit) || 1;
-      renderPosts(response.data, "posts-container", role);
+      renderPosts(response.data, "posts-container", role, name);
       renderPagination(currentPage, totalPages, loadPosts, activeTags, selectedCategory, setCurrentState);
     } catch (err) {
       console.error("Search failed:", err.message);
@@ -423,7 +423,7 @@ async function onSearch() {
         true
       );
       totalPages = Math.ceil(response.totalItems / limit) || 1;
-      renderPosts(response.data, "posts-container", role);
+      renderPosts(response.data, "posts-container", role, name);
       renderPagination(currentPage, totalPages, loadPosts, activeTags, selectedCategory, setCurrentState);
     } catch (err) {
       console.error("Search failed:", err.message);
@@ -508,7 +508,7 @@ async function loadMyPosts() {
       true
     );
     totalPages = Math.ceil(response.totalItems / limit) || 1;
-    renderPosts(response.data, "posts-container", role);
+    renderPosts(response.data, "posts-container", role, name);
     renderPagination(currentPage, totalPages, loadPosts, activeTags, selectedCategory, setCurrentState);
   } catch (err) {
     console.error("Failed to load my posts:", err.message);
@@ -531,12 +531,17 @@ window.onload = async () => {
   document.getElementById("accountOffcanvasLabel").textContent = `Hello, ${name.split(" ")[0]}`;
   if (role === "editor") {
     document.getElementById("create-post").style.display = "none";
+    document.getElementById("nav-drafts").innerText = "My Drafts";
+    document.getElementById("nav-my-posts").style.display = "none";
   }
   if (role !== "admin") {
     const adminFunctions = document.getElementsByClassName("admin-functions");
     for (const element of adminFunctions) {
       element.style.display = "none";
     }
+  }
+  if (role === "author") {
+    document.getElementById("nav-scheduled").innerText = "My Scheduled Posts";
   }
 
   const { page, tags, category, view } = getStateFromURL();

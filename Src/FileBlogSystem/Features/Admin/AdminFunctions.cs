@@ -1,12 +1,12 @@
+using System.IO;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using FileBlogSystem.Features.Security;
-using FileBlogSystem.Features.Render.Tags;
+using System.Threading.Tasks;
 using FileBlogSystem.Features.Posting;
 using FileBlogSystem.Features.Render.Categories;
+using FileBlogSystem.Features.Render.Tags;
+using FileBlogSystem.Features.Security;
 using Microsoft.AspNetCore.Http;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace FileBlogSystem.Features.Admin;
 
@@ -23,7 +23,8 @@ public static class AdminFunctions
         app.MapDelete("/admin/tags/{slug}", DeleteTag).RequireAuthorization("AdminLevel");
         app.MapPost("/admin/categories", AddCategory).RequireAuthorization("AdminLevel");
         app.MapPatch("/admin/categories/{slug}", EditCategory).RequireAuthorization("AdminLevel");
-        app.MapDelete("/admin/categories/{slug}", DeleteCategory).RequireAuthorization("AdminLevel");
+        app.MapDelete("/admin/categories/{slug}", DeleteCategory)
+            .RequireAuthorization("AdminLevel");
         app.MapGet("/user-profile", GetProfile).RequireAuthorization();
         app.MapPost("/profile/edit", (Delegate)EditProfile).RequireAuthorization();
     }
@@ -53,15 +54,13 @@ public static class AdminFunctions
     public static User? ReadUserFromFolder(string userDir)
     {
         var profilePath = Path.Combine(userDir, "profile.json");
-        if (!File.Exists(profilePath)) return null;
+        if (!File.Exists(profilePath))
+            return null;
 
         try
         {
             var profileJson = File.ReadAllText(profilePath);
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
             var user = JsonSerializer.Deserialize<User>(profileJson, options);
             user!.PasswordHash = string.Empty;
@@ -108,14 +107,15 @@ public static class AdminFunctions
     */
     public static bool IsValidEmail(string email)
     {
-        if (string.IsNullOrEmpty(email)) return true; // Email is optional
+        if (string.IsNullOrEmpty(email))
+            return true; // Email is optional
         string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
         return Regex.IsMatch(email, pattern);
     }
 
     /*
     Handles adding a new user by taking username, name, password, role, and optional email
-    Creates slug from the username and ensures it is unique 
+    Creates slug from the username and ensures it is unique
     Stores the password hashed
     */
     public static async Task<IResult> AddUser(HttpRequest request)
@@ -138,7 +138,9 @@ public static class AdminFunctions
         if (Regex.IsMatch(username!, @"[^a-z0-9\s-]"))
             return Results.BadRequest("Invalid Username: Small letters, digits and - only");
         if (!IsValidPassword(password!))
-            return Results.BadRequest("Invalid Password: Must be at least 8 characters, one uppercase, one lowercase, one digit");
+            return Results.BadRequest(
+                "Invalid Password: Must be at least 8 characters, one uppercase, one lowercase, one digit"
+            );
         if (!IsValidEmail(email!))
             return Results.BadRequest("Invalid email format");
         if (role != "admin" && role != "author" && role != "editor")
@@ -147,7 +149,8 @@ public static class AdminFunctions
         var userFolder = Path.Combine("content", "users", username!);
         var userPath = Path.Combine(userFolder, "profile.json");
 
-        if (File.Exists(userPath)) return Results.BadRequest("Username already used");
+        if (File.Exists(userPath))
+            return Results.BadRequest("Username already used");
         Directory.CreateDirectory(userFolder);
 
         var hash = BCrypt.Net.BCrypt.HashPassword(password);
@@ -158,14 +161,14 @@ public static class AdminFunctions
             Name = name!,
             PasswordHash = hash!,
             Role = role!,
-            Email = (string.IsNullOrEmpty(email!))? email! : string.Empty,
-            ProfilePicture = null
+            Email = (string.IsNullOrEmpty(email!)) ? email! : string.Empty,
+            ProfilePicture = null,
         };
 
-        var userJson = JsonSerializer.Serialize(user, new JsonSerializerOptions
-        {
-            WriteIndented = true
-        });
+        var userJson = JsonSerializer.Serialize(
+            user,
+            new JsonSerializerOptions { WriteIndented = true }
+        );
 
         await File.WriteAllTextAsync(userPath, userJson);
         return Results.Ok();
@@ -183,36 +186,47 @@ public static class AdminFunctions
         var role = form["role"];
         var email = form["email"];
 
-        var userPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "users", user, "profile.json");
-        if (!File.Exists(userPath)) return Results.NotFound("User not found");
+        var userPath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "content",
+            "users",
+            user,
+            "profile.json"
+        );
+        if (!File.Exists(userPath))
+            return Results.NotFound("User not found");
 
         if (!string.IsNullOrEmpty(password) && !IsValidPassword(password!))
-            return Results.BadRequest("Invalid Password: Must be at least 8 characters, one uppercase, one lowercase, one digit");
+            return Results.BadRequest(
+                "Invalid Password: Must be at least 8 characters, one uppercase, one lowercase, one digit"
+            );
         if (!string.IsNullOrEmpty(role) && role != "admin" && role != "author" && role != "editor")
             return Results.BadRequest("Invalid role");
         if (!string.IsNullOrEmpty(email) && !IsValidEmail(email!))
             return Results.BadRequest("Invalid email format");
 
         var oldUserJson = File.ReadAllText(userPath);
-        var oldUserInfo = JsonSerializer.Deserialize<User>(oldUserJson, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
+        var oldUserInfo = JsonSerializer.Deserialize<User>(
+            oldUserJson,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+        );
 
         var newUserInfo = new User
         {
             Username = oldUserInfo!.Username!,
             Name = string.IsNullOrEmpty(name) ? oldUserInfo!.Name! : name!,
-            PasswordHash = string.IsNullOrEmpty(password) ? oldUserInfo!.PasswordHash! : BCrypt.Net.BCrypt.HashPassword(password)!,
+            PasswordHash = string.IsNullOrEmpty(password)
+                ? oldUserInfo!.PasswordHash!
+                : BCrypt.Net.BCrypt.HashPassword(password)!,
             Role = string.IsNullOrEmpty(role) ? oldUserInfo!.Role! : role!,
             Email = string.IsNullOrEmpty(email) ? oldUserInfo!.Email! : email!,
-            ProfilePicture = oldUserInfo!.ProfilePicture
+            ProfilePicture = oldUserInfo!.ProfilePicture,
         };
 
-        var userJson = JsonSerializer.Serialize(newUserInfo, new JsonSerializerOptions
-        {
-            WriteIndented = true
-        });
+        var userJson = JsonSerializer.Serialize(
+            newUserInfo,
+            new JsonSerializerOptions { WriteIndented = true }
+        );
 
         await File.WriteAllTextAsync(userPath, userJson);
         return Results.Ok(newUserInfo);
@@ -231,9 +245,17 @@ public static class AdminFunctions
         var name = form["name"];
         var email = form["email"];
         var profilePicFile = form.Files["profilePic"];
+        var description = form["description"];
 
-        var userPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "users", username, "profile.json");
-        if (!File.Exists(userPath)) return Results.NotFound("User not found");
+        var userPath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "content",
+            "users",
+            username,
+            "profile.json"
+        );
+        if (!File.Exists(userPath))
+            return Results.NotFound("User not found");
 
         if (string.IsNullOrEmpty(name))
             return Results.BadRequest("Name is required");
@@ -241,10 +263,10 @@ public static class AdminFunctions
             return Results.BadRequest("Invalid email format");
 
         var oldUserJson = File.ReadAllText(userPath);
-        var oldUserInfo = JsonSerializer.Deserialize<User>(oldUserJson, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
+        var oldUserInfo = JsonSerializer.Deserialize<User>(
+            oldUserJson,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+        );
 
         string? profilePicPath = oldUserInfo!.ProfilePicture;
         if (profilePicFile != null && profilePicFile.Length > 0)
@@ -252,10 +274,21 @@ public static class AdminFunctions
             if (!profilePicFile.ContentType.StartsWith("image/"))
                 return Results.BadRequest("Profile picture must be an image");
             var extension = Path.GetExtension(profilePicFile.FileName).ToLower();
-            if (extension != ".jpg" && extension != ".jpeg" && extension != ".png" && extension != ".webp")
+            if (
+                extension != ".jpg"
+                && extension != ".jpeg"
+                && extension != ".png"
+                && extension != ".webp"
+            )
                 return Results.BadRequest("Profile picture must be JPG or PNG or WEBP");
-            
-            var picPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "users", username, "profile-pic" + extension);
+
+            var picPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "content",
+                "users",
+                username,
+                "profile-pic" + extension
+            );
             using (var stream = new FileStream(picPath, FileMode.Create))
             {
                 await profilePicFile.CopyToAsync(stream);
@@ -270,13 +303,16 @@ public static class AdminFunctions
             PasswordHash = oldUserInfo!.PasswordHash!,
             Role = oldUserInfo!.Role!,
             Email = string.IsNullOrEmpty(email) ? oldUserInfo!.Email! : email!,
-            ProfilePicture = profilePicPath
+            ProfilePicture = profilePicPath,
+            Description = string.IsNullOrEmpty(description)
+                ? oldUserInfo!.Description
+                : description,
         };
 
-        var userJson = JsonSerializer.Serialize(newUserInfo, new JsonSerializerOptions
-        {
-            WriteIndented = true
-        });
+        var userJson = JsonSerializer.Serialize(
+            newUserInfo,
+            new JsonSerializerOptions { WriteIndented = true }
+        );
 
         await File.WriteAllTextAsync(userPath, userJson);
         return Results.Ok(newUserInfo);
@@ -288,7 +324,8 @@ public static class AdminFunctions
     public static IResult DeleteUser(HttpRequest request, string user)
     {
         var userDir = Path.Combine(Directory.GetCurrentDirectory(), "content", "users", user);
-        if (!Directory.Exists(userDir)) return Results.NotFound("User not found");
+        if (!Directory.Exists(userDir))
+            return Results.NotFound("User not found");
 
         Directory.Delete(userDir, true);
         return Results.Ok();
@@ -296,7 +333,7 @@ public static class AdminFunctions
 
     /*
     Handles adding a new tag by taking tag name
-    Creates slug from the name and ensures it is unique 
+    Creates slug from the name and ensures it is unique
     */
     public static async Task<IResult> AddTag(HttpRequest request)
     {
@@ -309,18 +346,15 @@ public static class AdminFunctions
         var slug = SlugGenerator.ToSlug(tagName!);
 
         var tagPath = Path.Combine("content", "tags", $"{slug}.json");
-        if (File.Exists(tagPath)) return Results.BadRequest("Tag already exists");
+        if (File.Exists(tagPath))
+            return Results.BadRequest("Tag already exists");
 
-        var tag = new Tag
-        {
-            Name = tagName!,
-            Slug = slug!
-        };
+        var tag = new Tag { Name = tagName!, Slug = slug! };
 
-        var tagJson = JsonSerializer.Serialize(tag, new JsonSerializerOptions
-        {
-            WriteIndented = true
-        });
+        var tagJson = JsonSerializer.Serialize(
+            tag,
+            new JsonSerializerOptions { WriteIndented = true }
+        );
 
         Directory.CreateDirectory(Path.GetDirectoryName(tagPath)!);
         await File.WriteAllTextAsync(tagPath, tagJson);
@@ -332,17 +366,19 @@ public static class AdminFunctions
     if a tag/category is edited, its new slug replaces the old slugs in all posts
     if delete is true, it deletes the tag/category from all posts
     */
-    public static async void UpdatePosts(string type, string oldSlug, string newSlug, bool delete = false)
+    public static async void UpdatePosts(
+        string type,
+        string oldSlug,
+        string newSlug,
+        bool delete = false
+    )
     {
         var postsDir = Path.Combine(Directory.GetCurrentDirectory(), "content", "posts");
         foreach (var postDir in Directory.GetDirectories(postsDir))
         {
             var postFile = Path.Combine(postDir, "meta.json");
             var postJson = File.ReadAllText(postFile);
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var post = JsonSerializer.Deserialize<Post>(postJson, options);
 
             List<string>? postData;
@@ -364,7 +400,10 @@ public static class AdminFunctions
                     }
                 }
 
-                var updatedJson = JsonSerializer.Serialize(post, new JsonSerializerOptions { WriteIndented = true });
+                var updatedJson = JsonSerializer.Serialize(
+                    post,
+                    new JsonSerializerOptions { WriteIndented = true }
+                );
                 await File.WriteAllTextAsync(postFile, updatedJson);
             }
         }
@@ -382,24 +421,31 @@ public static class AdminFunctions
         if (string.IsNullOrEmpty(name))
             return Results.BadRequest("Tag name is required");
 
-        var tagPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "tags", $"{slug}.json");
-        if (!File.Exists(tagPath)) return Results.NotFound("Tag not found");
+        var tagPath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "content",
+            "tags",
+            $"{slug}.json"
+        );
+        if (!File.Exists(tagPath))
+            return Results.NotFound("Tag not found");
 
         var newSlug = SlugGenerator.ToSlug(name!);
-        var newTagPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "tags", $"{newSlug}.json");
+        var newTagPath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "content",
+            "tags",
+            $"{newSlug}.json"
+        );
         if (newSlug != slug && File.Exists(newTagPath))
             return Results.BadRequest("Tag with this name already exists");
 
-        var tag = new Tag
-        {
-            Name = name!,
-            Slug = newSlug
-        };
+        var tag = new Tag { Name = name!, Slug = newSlug };
 
-        var tagJson = JsonSerializer.Serialize(tag, new JsonSerializerOptions
-        {
-            WriteIndented = true
-        });
+        var tagJson = JsonSerializer.Serialize(
+            tag,
+            new JsonSerializerOptions { WriteIndented = true }
+        );
 
         if (newSlug != slug)
             File.Delete(tagPath);
@@ -413,8 +459,14 @@ public static class AdminFunctions
     */
     public static IResult DeleteTag(HttpRequest request, string slug)
     {
-        var tagPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "tags", $"{slug}.json");
-        if (!File.Exists(tagPath)) return Results.NotFound("Tag not found");
+        var tagPath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "content",
+            "tags",
+            $"{slug}.json"
+        );
+        if (!File.Exists(tagPath))
+            return Results.NotFound("Tag not found");
 
         File.Delete(tagPath);
         UpdatePosts("tags", slug, "", true);
@@ -423,7 +475,7 @@ public static class AdminFunctions
 
     /*
     Handles adding a new category by taking category name and optional description
-    Creates slug from the name and ensures it is unique 
+    Creates slug from the name and ensures it is unique
     */
     public static async Task<IResult> AddCategory(HttpRequest request)
     {
@@ -437,19 +489,20 @@ public static class AdminFunctions
         var slug = SlugGenerator.ToSlug(categoryName!);
 
         var categoryPath = Path.Combine("content", "categories", $"{slug}.json");
-        if (File.Exists(categoryPath)) return Results.BadRequest("Category already exists");
+        if (File.Exists(categoryPath))
+            return Results.BadRequest("Category already exists");
 
         var category = new Category
         {
             Name = categoryName!,
             Slug = slug,
-            Description = description
+            Description = description,
         };
 
-        var categoryJson = JsonSerializer.Serialize(category, new JsonSerializerOptions
-        {
-            WriteIndented = true
-        });
+        var categoryJson = JsonSerializer.Serialize(
+            category,
+            new JsonSerializerOptions { WriteIndented = true }
+        );
 
         Directory.CreateDirectory(Path.GetDirectoryName(categoryPath)!);
         await File.WriteAllTextAsync(categoryPath, categoryJson);
@@ -469,17 +522,28 @@ public static class AdminFunctions
         if (string.IsNullOrEmpty(name))
             return Results.BadRequest("Category name is required");
 
-        var categoryPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "categories", $"{slug}.json");
-        if (!File.Exists(categoryPath)) return Results.NotFound("Category not found");
+        var categoryPath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "content",
+            "categories",
+            $"{slug}.json"
+        );
+        if (!File.Exists(categoryPath))
+            return Results.NotFound("Category not found");
 
         var oldCategoryJson = File.ReadAllText(categoryPath);
-        var oldCategory = JsonSerializer.Deserialize<Category>(oldCategoryJson, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
+        var oldCategory = JsonSerializer.Deserialize<Category>(
+            oldCategoryJson,
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+        );
 
         var newSlug = SlugGenerator.ToSlug(name!);
-        var newCategoryPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "categories", $"{newSlug}.json");
+        var newCategoryPath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "content",
+            "categories",
+            $"{newSlug}.json"
+        );
         if (newSlug != slug && File.Exists(newCategoryPath))
             return Results.BadRequest("Category with this name already exists");
 
@@ -487,13 +551,15 @@ public static class AdminFunctions
         {
             Name = name!,
             Slug = newSlug,
-            Description = string.IsNullOrEmpty(description) ? oldCategory!.Description : description
+            Description = string.IsNullOrEmpty(description)
+                ? oldCategory!.Description
+                : description,
         };
 
-        var categoryJson = JsonSerializer.Serialize(category, new JsonSerializerOptions
-        {
-            WriteIndented = true
-        });
+        var categoryJson = JsonSerializer.Serialize(
+            category,
+            new JsonSerializerOptions { WriteIndented = true }
+        );
 
         if (newSlug != slug)
             File.Delete(categoryPath);
@@ -507,8 +573,14 @@ public static class AdminFunctions
     */
     public static IResult DeleteCategory(HttpRequest request, string slug)
     {
-        var categoryPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "categories", $"{slug}.json");
-        if (!File.Exists(categoryPath)) return Results.NotFound("Category not found");
+        var categoryPath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "content",
+            "categories",
+            $"{slug}.json"
+        );
+        if (!File.Exists(categoryPath))
+            return Results.NotFound("Category not found");
 
         File.Delete(categoryPath);
         UpdatePosts("categories", slug, "", true);

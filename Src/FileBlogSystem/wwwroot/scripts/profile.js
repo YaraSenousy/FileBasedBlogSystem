@@ -17,10 +17,12 @@ async function loadProfile() {
     document.getElementById("profile-name").textContent = user.name;
     document.getElementById("profile-username").textContent = `@${user.username}`;
     document.getElementById("profile-email").textContent = user.email || "No email provided";
+    document.getElementById("profile-description").textContent = user.description || "No description provided";
     document.getElementById("profile-role").textContent = user.role;
     document.getElementById("profile-pic").src = user.profilePicture || placeholderProfilePic;
     document.getElementById("profile-name-input").value = user.name;
     document.getElementById("profile-email-input").value = user.email || "";
+    document.getElementById("profile-description-input").value = user.description || "";
   } catch (err) {
     console.error("Failed to load profile:", err.message, err);
     showToast("Failed to load profile", "danger");
@@ -59,6 +61,7 @@ async function handleProfileSubmit(e) {
   e.preventDefault();
   const nameInput = document.getElementById("profile-name-input");
   const emailInput = document.getElementById("profile-email-input");
+  const descriptionInput = document.getElementById("profile-description-input");
   const profilePicInput = document.getElementById("profile-pic-input");
 
   if (!nameInput.value.trim()) {
@@ -73,6 +76,7 @@ async function handleProfileSubmit(e) {
   const formData = new FormData();
   formData.append("name", nameInput.value.trim());
   formData.append("email", emailInput.value);
+  formData.append("description", descriptionInput.value.trim());
   if (profilePicInput.files.length > 0) {
     formData.append("profilePic", profilePicInput.files[0]);
   }

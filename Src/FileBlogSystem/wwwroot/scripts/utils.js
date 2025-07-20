@@ -125,8 +125,8 @@ function renderPosts(posts, containerId, role = null, name = null) {
         <div class="col-md-7">
           <h2>${post.title}</h2>
           <div class="post-meta">
-            ${post.createdBy ? `By: ${post.createdBy}` : ""}
-            ${post.modifiedBy ? `<br>Edit by: ${post.modifiedBy}` : ""}
+            ${post.createdBy ? `<a href="/profiles/${post.createdBy}"> By: ${post.createdBy} </a>` : ""}
+            ${post.modifiedBy ? `<a href="/profiles/${post.modifiedBy}"><br>Edit by: ${post.modifiedBy}</a>` : ""}
           </div>
           <div class="post-description"><span>Description: </span><p>${post.description}</p></div>
           <div class="post-preview"><p>${preview}</p></div>

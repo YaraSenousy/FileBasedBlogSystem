@@ -46,7 +46,7 @@
           hour12: false,
           timeZoneName: "short"
         })}</i></p>
-                ${post.createdBy ? `<p><i>Created By: ${post.createdBy} ${post.modifiedBy ? `<br> Edited By: ${post.modifiedBy}</i></p>` : "</i></p>"}` : ""}
+                ${post.createdBy ? `<p><i>Created By: <a href="/profiles/${post.createdBy}">${post.createdBy}</a> ${post.modifiedBy ? `<br> Edited By: <a href="/profiles/${post.modifiedBy}">${post.modifiedBy}</a></i></p>` : "</i></p>"}` : ""}
               </div>
             </header>
             <div class="post-content-wrapper">

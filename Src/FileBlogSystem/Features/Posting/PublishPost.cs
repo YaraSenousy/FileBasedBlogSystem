@@ -83,7 +83,7 @@ public static class PublishPost
     }
 
     // changes the status of a given post to draft and update the rss
-    // only allow admins or owners if the blog isn't published
+    // only allow admins or owners
     public static async Task<IResult> SaveAsDraft(string slug, HttpContext context)
     {
         var username = context.User.Identity?.Name;
@@ -99,8 +99,6 @@ public static class PublishPost
 
         var metaPath = Path.Combine(folder, "meta.json");
         var meta = JsonSerializer.Deserialize<PostMeta>(File.ReadAllText(metaPath));
-        if (meta!.Status == "published" && role != "admin")
-            return Results.Unauthorized();
         if (meta!.CreatedBy != username && role != "admin")
             return Results.Unauthorized();
         meta!.Status = "draft";
@@ -116,7 +114,7 @@ public static class PublishPost
     }
 
     // delete a given postfrom the content and the routes and update the rss
-    // only allow admins or owners if the blog isn't published
+    // only allow admins or owners
     public static IResult DeletePost(string slug, HttpContext context)
     {
         var username = context.User.Identity?.Name;
@@ -131,8 +129,6 @@ public static class PublishPost
             return Results.NotFound();
         var metaPath = Path.Combine(folder, "meta.json");
         var meta = JsonSerializer.Deserialize<PostMeta>(File.ReadAllText(metaPath));
-        if (meta!.Status == "published" && role != "admin")
-            return Results.Unauthorized();
         if (meta!.CreatedBy != username && role != "admin")
             return Results.Unauthorized();
 

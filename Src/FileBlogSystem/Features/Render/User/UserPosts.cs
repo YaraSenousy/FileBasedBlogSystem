@@ -15,9 +15,6 @@ public static class UserPosts
     */
     public static IResult GetUserPosts(HttpRequest request, HttpContext context)
     {
-        var page = int.TryParse(context.Request.Query["page"], out var p) ? p : 1;
-        var limit = int.TryParse(context.Request.Query["limit"], out var l) ? l : 5;
-
         var username = context.User.Identity?.Name;
         if (string.IsNullOrEmpty(username))
             return Results.Unauthorized();
@@ -33,15 +30,6 @@ public static class UserPosts
             .OrderByDescending(p => p!.Published)
             .ToList();
 
-        var totalItems = allPosts.Count;
-        var paged = allPosts
-            .Skip((page - 1) * limit)
-            .Take(limit)
-            .ToList();
-        return Results.Ok(new
-        {
-            data = paged,
-            totalItems
-        });
+        return Results.Ok(allPosts);
     }
 }

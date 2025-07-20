@@ -194,7 +194,7 @@ function renderPosts(posts, containerId, role = null, name = null) {
         draftBtn.textContent = "Save as Draft";
         actions.appendChild(draftBtn);
       }
-      if (status === "published" && role === "admin") {
+      if (status === "published" && (role === "admin" || post.createdBy === name)) {
         const deleteBtn = document.createElement("button");
         deleteBtn.className = "btn btn-danger btn-sm m-1";
         deleteBtn.textContent = "Delete Post";

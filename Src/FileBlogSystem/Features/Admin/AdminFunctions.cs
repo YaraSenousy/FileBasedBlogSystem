@@ -14,7 +14,7 @@ public static class AdminFunctions
 {
     public static void MapAdminEndPoint(this WebApplication app)
     {
-        app.MapGet("/admin/users", GetUsers).RequireAuthorization("AdminLevel");
+        app.MapGet("/admin/users", GetUsers);
         app.MapPost("/admin/users", AddUser).RequireAuthorization("AdminLevel");
         app.MapPatch("/admin/users/{user}", EditUser).RequireAuthorization("AdminLevel");
         app.MapDelete("/admin/users/{user}", DeleteUser).RequireAuthorization("AdminLevel");

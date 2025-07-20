@@ -126,6 +126,7 @@ function renderPosts(posts, containerId, role = null, name = null) {
           <h2>${post.title}</h2>
           <div class="post-meta">
             ${post.createdBy ? `By: ${post.createdBy}` : ""}
+            ${post.modifiedBy ? `<br>Edit by: ${post.modifiedBy}` : ""}
           </div>
           <div class="post-description"><span>Description: </span><p>${post.description}</p></div>
           <div class="post-preview"><p>${preview}</p></div>
@@ -146,9 +147,6 @@ function renderPosts(posts, containerId, role = null, name = null) {
     `;
   
     if (role) {
-      console.log("Role:", role);
-      console.log("Post Created By:", post.createdBy);
-      console.log("Current User Name:", name);
       const actions = document.createElement("div");
       actions.className = "post-actions";
       if (status === "draft" || status === "scheduled") {

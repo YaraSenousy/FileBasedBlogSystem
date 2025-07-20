@@ -531,7 +531,7 @@ window.onload = async () => {
   document.getElementById("accountOffcanvasLabel").textContent = `Hello, ${name.split(" ")[0]}`;
   if (role === "editor") {
     document.getElementById("create-post").style.display = "none";
-    document.getElementById("nav-drafts").innerText = "My Drafts";
+    document.getElementById("nav-drafts").innerText = "Drafts";
     document.getElementById("nav-my-posts").style.display = "none";
   }
   if (role !== "admin") {

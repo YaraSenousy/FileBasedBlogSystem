@@ -9,7 +9,7 @@ public static class GetSearch
         app.MapGet("/search", HandleSearch);
     }
 
-    /* 
+    /*
     GET /search?q=term&page=1&limit=5
     Handles searching publshed posts by title, description, or content
     paginates them, and returns posts ordered by publish time as JSON.
@@ -29,18 +29,16 @@ public static class GetSearch
             .Select(PostReader.ReadPostFromFolder)
             .Where(p => p != null && p.Status == "published")
             .Where(p =>
-                p!.Title.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                p.Description.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                p.HtmlContent.Contains(q, StringComparison.OrdinalIgnoreCase))
+                p!.Title.Contains(q, StringComparison.OrdinalIgnoreCase)
+                || p.Description.Contains(q, StringComparison.OrdinalIgnoreCase)
+                || p.HtmlContent.Contains(q, StringComparison.OrdinalIgnoreCase)
+                || p.CreatedBy.Contains(q, StringComparison.OrdinalIgnoreCase)
+            )
             .OrderByDescending(p => p!.Published)
             .ToList();
 
         var totalItems = posts.Count;
         var paged = posts.Skip((page - 1) * limit).Take(limit).ToList();
-        return Results.Ok(new
-        {
-            data = paged,
-            totalItems
-        });
+        return Results.Ok(new { data = paged, totalItems });
     }
 }

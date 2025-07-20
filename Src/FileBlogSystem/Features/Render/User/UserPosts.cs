@@ -6,7 +6,7 @@ public static class UserPosts
 {
     public static void MapUserPostsEndpoint(this WebApplication app)
     {
-        app.MapGet("/my-posts", GetUserPosts);
+        app.MapGet("/user-posts", GetUserPosts);
     }
 
     /*

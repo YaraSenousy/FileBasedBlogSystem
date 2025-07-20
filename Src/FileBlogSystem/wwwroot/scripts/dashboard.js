@@ -49,7 +49,7 @@ function getStateFromURL() {
     page: isNaN(page) || page < 1 ? 1 : page,
     tags: new Set(tags),
     category,
-    view: ["published", "drafts", "scheduled", "my-posts"].includes(view) ? view : "published"
+    view: ["published", "drafts", "scheduled"].includes(view) ? view : "published"
   };
 }
 
@@ -256,10 +256,6 @@ function updateActiveNav() {
     document.getElementById("nav-drafts").classList.add("active");
   else if (currentView === "scheduled")
     document.getElementById("nav-scheduled").classList.add("active");
-  else if (currentView === "create")
-    document.getElementById("nav-create").classList.add("active");
-  else if (currentView === "my-posts")
-    document.getElementById("nav-my-posts").classList.add("active");
   else
     document.getElementById("nav-home").classList.add("active");
 }
@@ -272,8 +268,6 @@ async function loadPosts() {
     await loadDrafts();
   } else if (currentView === "scheduled") {
     await loadScheduledPosts();
-  } else if (currentView === "my-posts") {
-    await loadMyPosts();
   } else if (searchTerm) {
     try {
       const response = await fetchData(
@@ -353,8 +347,8 @@ async function publishNow(slug) {
     credentials: "include",
   });
   if (res.ok) {
-  showToast("✅ Published", "success");
-  loadPosts();
+    showToast("✅ Published", "success");
+    loadPosts();
   } else {
     showToast("Failed to publish post", "danger");
   }
@@ -390,8 +384,8 @@ async function saveAsDraft(slug) {
     credentials: "include",
   });
   if (res.ok) {
-  showToast("💾 Saved as Draft", "success");
-  loadPosts();
+    showToast("💾 Saved as Draft", "success");
+    loadPosts();
   } else {
     showToast("Failed to save post as a draft", "danger");
   }
@@ -464,17 +458,6 @@ async function logout() {
   await fetch("/logout", { method: "POST" });
   showToast("Logged out", "success");
   location.href = "/login";
-}
-
-/**
- * Retrieves the user role from the cookie.
- * @returns {string|null} The user role or null if not found.
- */
-function getUserRoleFromCookie() {
-  const value = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("user-role="));
-  return value ? decodeURIComponent(value.split("=")[1]) : null;
 }
 
 function updateThemeToggleIcon(theme) {
@@ -627,12 +610,7 @@ window.onload = async () => {
   });
   document.getElementById("nav-my-posts").addEventListener("click", (e) => {
     e.preventDefault();
-    currentView = "my-posts";
-    setCurrentState(1, new Set(), "");
-    loadMyPosts().then(() => {
-      const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById("accountOffcanvas"));
-      if (offcanvas) offcanvas.hide();
-    });
+    window.open("/my-posts", "_self");
   });
   document.getElementById("create-post").addEventListener("click", (e) => {
     e.preventDefault();

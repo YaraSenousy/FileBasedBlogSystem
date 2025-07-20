@@ -34,10 +34,46 @@ function getTagFilterParam(activeTags) {
 }
 
 /**
+ * Toggles a post slug in localStorage for bookmarking (unlogged-in users only).
+ * @param {string} slug - The post slug to toggle.
+ */
+function toggleBookmark(slug) {
+  const bookmarks = getBookmarks();
+  if (bookmarks.includes(slug)) {
+    const updatedBookmarks = bookmarks.filter(s => s !== slug);
+    localStorage.setItem("bookmarkedPosts", JSON.stringify(updatedBookmarks));
+    showToast("Post removed from bookmarks", "info");
+  } else {
+    bookmarks.push(slug);
+    localStorage.setItem("bookmarkedPosts", JSON.stringify(bookmarks));
+    showToast("Post added to bookmarks", "success");
+  }
+}
+
+/**
+ * Retrieves bookmarked post slugs from localStorage.
+ * @returns {string[]} Array of bookmarked post slugs.
+ */
+function getBookmarks() {
+  const bookmarks = localStorage.getItem("bookmarkedPosts");
+  return bookmarks ? JSON.parse(bookmarks) : [];
+}
+
+/**
+ * Checks if a post is bookmarked.
+ * @param {string} slug - The post slug to check.
+ * @returns {boolean} True if the post is bookmarked, false otherwise.
+ */
+function isBookmarked(slug) {
+  return getBookmarks().includes(slug);
+}
+
+/**
  * Renders posts to the specified container.
  * @param {Array} posts - Array of post objects.
  * @param {string} containerId - ID of the container to render posts into.
  * @param {string|null} role - User role for conditional rendering.
+ * @param {string|null} name - Username for conditional rendering.
  */
 function renderPosts(posts, containerId, role = null, name = null) {
   const container = document.getElementById(containerId);
@@ -119,9 +155,20 @@ function renderPosts(posts, containerId, role = null, name = null) {
       post.modified !== "0001-01-01T00:00:00"
         ? new Date(post.modified).toLocaleString("en-GB", dateOptions)
         : "";
-  
+
+    const bookmarkHtml = role === null && name === null
+      ? `
+        <div class="bookmark-container">
+          <button class="btn btn-outline-secondary btn-sm bookmark-btn" data-slug="${post.slug}">
+            <i class="bi ${isBookmarked(post.slug) ? 'bi-bookmark-fill' : 'bi-bookmark'}"></i>
+          </button>
+        </div>
+      `
+      : "";
+
     postEl.innerHTML = `
-      <div class="row">
+      <div class="row position-relative">
+        ${bookmarkHtml}
         <div class="col-md-7">
           <h2>${post.title}</h2>
           <div class="post-meta">
@@ -131,21 +178,23 @@ function renderPosts(posts, containerId, role = null, name = null) {
           <div class="post-description"><span>Description: </span><p>${post.description}</p></div>
           <div class="post-preview"><p>${preview}</p></div>
           <div class="post-details">
-          <a href="/post/${post.slug}${role && status !== 'published' ? '?preview=true' : ''}" class="btn btn-outline-primary view-post-btn">
-            View Full Post <i class="bi bi-arrow-right"></i>
-          </a>
+            <a href="/post/${post.slug}${role && status !== 'published' ? '?preview=true' : ''}" class="btn btn-outline-primary view-post-btn">
+              View Full Post <i class="bi bi-arrow-right"></i>
+            </a>
           </div>
           <div class="post-meta">
-          ${status === "draft" ? "" : `${status}: ${publishedDate}<br>`}
+            ${status === "draft" ? "" : `${status}: ${publishedDate}<br>`}
           </div>
           <div class="post-categories"><strong>Categories:</strong> ${cats}</div>
           <br>
           <div class="post-tags"><strong>Tags:</strong> ${tags}</div>
         </div>
-        ${images.length > 0 ? `<div class="col-md-5">${thumbnail}</div>` : ""}
+        <div class="col-md-5">
+          ${thumbnail}
+        </div>
       </div>
     `;
-  
+
     if (role) {
       const actions = document.createElement("div");
       actions.className = "post-actions";
@@ -169,18 +218,18 @@ function renderPosts(posts, containerId, role = null, name = null) {
           publishBtn.textContent = "Publish Now";
           publishBtn.className = "btn btn-outline-secondary btn-sm ms-1";
           actions.appendChild(publishBtn);
-    
+
           const scheduleInput = document.createElement("input");
           scheduleInput.type = "datetime-local";
           scheduleInput.id = `schedule-${post.slug}`;
           scheduleInput.className = "ms-2";
-    
+
           const scheduleLabel = document.createElement("label");
           scheduleLabel.htmlFor = `schedule-${post.slug}`;
           scheduleLabel.textContent = "Schedule for: ";
           actions.appendChild(scheduleLabel);
           actions.appendChild(scheduleInput);
-    
+
           const scheduleBtn = document.createElement("button");
           scheduleBtn.className = "btn btn-outline-secondary btn-sm mx-2";
           scheduleBtn.textContent = "Schedule";
@@ -208,7 +257,20 @@ function renderPosts(posts, containerId, role = null, name = null) {
       }
       postEl.appendChild(actions);
     }
-  
+    if (role === null && name === null) {
+      const bookmarkBtn = postEl.querySelector(".bookmark-btn");
+      if (bookmarkBtn) {
+        bookmarkBtn.addEventListener("click", () => {
+          toggleBookmark(post.slug);
+          const icon = bookmarkBtn.querySelector("i");
+          icon.className = `bi ${isBookmarked(post.slug) ? 'bi-bookmark-fill' : 'bi-bookmark'}`;
+          if (window.location.pathname === "/saved") {
+            import("./saved.js").then(module => module.loadBookmarkedPosts());
+          }
+        });
+      }
+    }
+
     container.appendChild(postEl);
   });
 }
@@ -431,4 +493,4 @@ function toggleTheme() {
   toggle.checked = newTheme === "dark";
 }
 
-export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, toggleTheme };
+export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, toggleTheme, toggleBookmark, getBookmarks, isBookmarked };

@@ -147,6 +147,8 @@ app.MapFallback(context =>
         && remaining!.Value!.Trim('/').Length > 0
     )
         return context.Response.SendFileAsync("wwwroot/team-profile.html");
+    if (path == "/saved")
+        return context.Response.SendFileAsync("wwwroot/saved.html");
 
     return context.Response.SendFileAsync("wwwroot/index.html");
 });

@@ -29,7 +29,6 @@ public static class UserPosts
 
             var user = JsonSerializer.Deserialize<User>(profileJson, options);
             user!.PasswordHash = string.Empty;
-            user!.Email = string.Empty;
             return user;
         }
         catch (Exception ex)

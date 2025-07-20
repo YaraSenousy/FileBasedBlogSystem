@@ -8,7 +8,7 @@ using FileBlogSystem.Features.Render.Feed;
 using FileBlogSystem.config;
 using FileBlogSystem.Features.Security;
 using FileBlogSystem.Features.Admin;
-using FileBlogSystem.Features.Render.User;
+using FileBlogSystem.Features.Render.UserFunctions;
 
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Http;
@@ -121,7 +121,10 @@ app.MapFallback(context =>
         return context.Response.SendFileAsync("wwwroot/dashboard.html");
     if (path == "/create")
         return context.Response.SendFileAsync("wwwroot/create.html");
-    if (path.StartsWithSegments("/post", out var remaining) && remaining!.Value!.Trim('/').Length > 0)
+    if (
+        path.StartsWithSegments("/post", out var remaining)
+        && remaining!.Value!.Trim('/').Length > 0
+    )
         return context.Response.SendFileAsync("wwwroot/post.html");
     if (path == "/login")
         return context.Response.SendFileAsync("wwwroot/login.html");
@@ -139,6 +142,11 @@ app.MapFallback(context =>
         return context.Response.SendFileAsync("wwwroot/profile.html");
     if (path == "/team")
         return context.Response.SendFileAsync("wwwroot/team.html");
+    if (
+        path.StartsWithSegments("/profiles", out remaining)
+        && remaining!.Value!.Trim('/').Length > 0
+    )
+        return context.Response.SendFileAsync("wwwroot/team-profile.html");
 
     return context.Response.SendFileAsync("wwwroot/index.html");
 });

@@ -22,11 +22,12 @@ function renderTeam(users) {
     card.className = "col";
     card.innerHTML = `
       <div class="team-card">
+        <p id="profile-role" class="${user.role == "admin"? "green" : user.role == "editor"? "gold": "blue"}">${user.role}</p>
         <img class="team-pic" src="${user.profilePicture || placeholderProfilePic}" alt="${user.name}'s profile picture">
         <h3 class="team-name">${user.name}</h3>
         <p class="team-username">@${user.username}</p>
         <p class="team-description">${user.description || "No description provided"}</p>
-        <a class="team-link" href="/profile/${user.username}">View Profile</a>
+        <a class="team-link" href="/profiles/${user.username}">View Profile</a>
       </div>
     `;
     gallery.appendChild(card);

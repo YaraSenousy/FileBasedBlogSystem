@@ -177,6 +177,26 @@
     background-color: #3a3a3a;
 }
 
+#profile-role {
+    font-size: 1rem;
+    color: #e0e0e0;
+    background-color: blue;
+    padding: 0.25rem 0.75rem;
+    width: fit-content;
+    border-radius: 12px;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+#profile-role.green {
+    background-color: green;
+}
+
+#profile-role.gold {
+    background-color:goldenrod;
+}
+
+
 @media (max-width: 768px) {
     .team-title {
         font-size: 1.5rem;

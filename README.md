@@ -1,4 +1,4 @@
-# FileBlogSystem 
+# FileBlogSystem
 
 A lightweight file-based blogging system built using **ASP.NET Core**, Markdown for content, and a folder-based content model.
 
@@ -21,6 +21,10 @@ A lightweight file-based blogging system built using **ASP.NET Core**, Markdown 
 - Category Management: Admins can add, edit, and delete categories
 - Homepage: Dynamic homepage featuring latest posts and an about section
 - Newsletter Subscription: Option to subscribe to a newsletter for email notifications on new blog posts
+- **View My Posts**: Authors, editors, and admins can view their posts (drafts, scheduled, published)
+- **User Profiles**: View user profiles with their name, role, and authored posts
+- **Our Team Page**: Displays all users with names, roles, and links to their profiles
+- **Bookmark Functionality**: Unlogged-in users can bookmark posts, stored in `localStorage`, and view them on a dedicated `/saved` page
 
 ---
 
@@ -40,7 +44,7 @@ content/
 
 ## Setup
 
-- ```cd src/FileBlogSystem``` 
+- ```cd src/FileBlogSystem```
 
 - Create a .env file with your JWT secret key, must be at least 32 characters:
 ```
@@ -62,14 +66,19 @@ dotnet run
 ---
 
 ## Usage
-- / — homepage showing an about section and some recent posts
-- /blogs   — view and search published posts
-- /login  — authenticate with role-based credentials
-- /dashboard  — view and manage all posts for admins, authors, and editors
-- /create — write a new post (admin/author only)
-- /users — manage all users (admin only)
-- /tag — manage all tags (admin only)
-- /category — manage all categories (admin only)
+
+- `/` — Homepage showing an about section and recent posts
+- `/blogs` — View and search published posts
+- `/login` — Authenticate with role-based credentials
+- `/dashboard` — View and manage all posts for admins, authors, and editors
+- `/create` — Write a new post (admin/author only)
+- `/users` — Manage all users (admin only)
+- `/tag` — Manage all tags (admin only)
+- `/category` — Manage all categories (admin only)
+- `/my-posts` — View and manage your own posts (authors, editors, admins)
+- `/team` — View all team members with names, roles, and profile links
+- `/profiles/:username` — View a user’s profile and their authored posts
+- `/saved` — View bookmarked posts with search functionality
 
 ---
 
@@ -91,3 +100,4 @@ dotnet run
 - **Delete Post**: Admins can delete any post; authors can delete their own posts.
 - **Publish/Schedule**: Only post owners can publish or schedule their posts.
 - **Manage Users/Categories/Tags**: Only admins can manage users, categories, and tags.
+- **View Profiles**: All roles (including guests) can view user profiles via `/profiles/:username`.

@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Http;
-using FileBlogSystem.Features.Posting;
 using System.Security.Claims;
-
+using FileBlogSystem.Features.Posting;
+using Microsoft.AspNetCore.Http;
 
 namespace FileBlogSystem.Features.Render.Posts;
 
@@ -13,6 +12,7 @@ public static class GetPosts
         app.MapGet("/drafts", GetDrafts).RequireAuthorization("EditorLevel");
         app.MapGet("/scheduled", GetScheduled).RequireAuthorization("EditorLevel");
     }
+
     /*
     Handles getting the home page
     Reads all published posts and filter by tags
@@ -20,7 +20,7 @@ public static class GetPosts
     */
     public static IResult GetPublished(HttpContext context)
     {
-        return GetAllPosts(context, "published",false);
+        return GetAllPosts(context, "published", false);
     }
 
     /*
@@ -66,12 +66,19 @@ public static class GetPosts
             return GetAllPosts(context, "scheduled", false);
     }
 
-    public static IResult GetAllPosts(HttpContext context, string postType, bool restrictToOwners, string username = "")
+    public static IResult GetAllPosts(
+        HttpContext context,
+        string postType,
+        bool restrictToOwners,
+        string username = ""
+    )
     {
         var page = int.TryParse(context.Request.Query["page"], out var p) ? p : 1;
         var limit = int.TryParse(context.Request.Query["limit"], out var l) ? l : 5;
 
-        var selectedTags = context.Request.Query["tags"].ToString()
+        var selectedTags = context
+            .Request.Query["tags"]
+            .ToString()
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -95,22 +102,12 @@ public static class GetPosts
 
         if (restrictToOwners)
         {
-            allPosts = allPosts
-                .Where(p => p!.CreatedBy == username)
-                .ToList();
+            allPosts = allPosts.Where(p => p!.CreatedBy == username).ToList();
         }
 
         var totalItems = allPosts.Count;
-        var paged = allPosts
-            .Skip((page - 1) * limit)
-            .Take(limit)
-            .ToList();
+        var paged = allPosts.Skip((page - 1) * limit).Take(limit).ToList();
 
-        return Results.Ok(new
-        {
-            data = paged,
-            totalItems
-        });
+        return Results.Ok(new { data = paged, totalItems });
     }
-
 }

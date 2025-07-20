@@ -14,12 +14,12 @@ if (savedTheme) {
  * @type {Object[]} users - Store users as objects.
  * @type {number} currentPage - Current pagination page.
  * @type {string} sortField - Current sort field.
- * @type {string} sortDirection -  Sort direction: 'asc' or 'desc'.
+ * @type {string} sortDirection - Sort direction: 'asc' or 'desc'.
  */
 const USERS_PER_PAGE = 10;
 let users = [];
 let currentPage = 1;
-let sortField = 'username'; 
+let sortField = 'username';
 let sortDirection = 'asc';
 
 /**
@@ -29,8 +29,8 @@ let sortDirection = 'asc';
 function renderUsers(usersToRender) {
     // Sort users by the current sort field and direction
     const sortedUsers = [...usersToRender].sort((a, b) => {
-        const valA = a[sortField].toLowerCase();
-        const valB = b[sortField].toLowerCase();
+        const valA = (a[sortField] || '').toLowerCase();
+        const valB = (b[sortField] || '').toLowerCase();
         return sortDirection === 'asc' ? (valA < valB ? -1 : 1) : (valA > valB ? -1 : 1);
     });
 
@@ -41,15 +41,26 @@ function renderUsers(usersToRender) {
 
     // Render table rows
     const tbody = document.getElementById('users-table-body');
+    if (!tbody) {
+        console.error('Users table body not found');
+        return;
+    }
     tbody.innerHTML = '';
     paginatedUsers.forEach(user => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
+            <td>
+                ${user.profilePicture
+                    ? `<img src="${user.profilePicture}?width=40&height=40&mode=crop" class="user-profile-pic" alt="${user.username}'s profile picture">`
+                    : '<span class="no-pic">No Image</span>'
+                }
+            </td>
             <td>${user.username}</td>
             <td>${user.name}</td>
+            <td>${user.email || 'N/A'}</td>
             <td>${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</td>
             <td>
-                <button class="btn btn-outline-primary btn-sm edit-btn my-1 mx-2" data-username="${user.username}" data-bs-toggle="modal" data-bs-target="#editUserModal">
+                <button class="btn btn-outline-primary btn-sm edit-btn my-1 mx-2" data-username="${user.username}">
                     <i class="fas fa-edit"></i> Edit
                 </button>
                 <button class="btn btn-outline-danger btn-sm my-1 mx-2 delete-btn" data-username="${user.username}" data-bs-toggle="modal" data-bs-target="#deleteUserModal">
@@ -71,6 +82,10 @@ function renderUsers(usersToRender) {
 function renderPagination(totalUsers) {
     const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
     const pageNumbers = document.getElementById('page-numbers');
+    if (!pageNumbers) {
+        console.error('Page numbers container not found');
+        return;
+    }
     pageNumbers.innerHTML = '';
     for (let i = 1; i <= totalPages; i++) {
         const li = document.createElement('li');
@@ -88,7 +103,9 @@ function renderPagination(totalUsers) {
 function searchUsers(given = 1) {
     const query = document.getElementById('search-users').value.toLowerCase();
     const filteredUsers = users.filter(user =>
-        user.username.toLowerCase().includes(query) || user.name.toLowerCase().includes(query)
+        user.username.toLowerCase().includes(query) ||
+        user.name.toLowerCase().includes(query) ||
+        (user.email || '').toLowerCase().includes(query)
     );
     currentPage = given;
     renderUsers(filteredUsers);
@@ -98,13 +115,18 @@ function searchUsers(given = 1) {
  * Clears the search input and re-renders all users
  */
 document.getElementById('clear-search-btn').addEventListener('click', () => {
-    document.getElementById('search-users').value = '';
-    currentPage = 1;
-    renderUsers(users);
+    const searchInput = document.getElementById('search-users');
+    if (searchInput) {
+        searchInput.value = '';
+        currentPage = 1;
+        renderUsers(users);
+    }
 });
 
 // Handle search input
-document.getElementById('search-users').addEventListener('input', () => {searchUsers();});
+document.getElementById('search-users').addEventListener('input', () => {
+    searchUsers();
+});
 
 // Handle pagination clicks
 document.getElementById('pagination').addEventListener('click', (e) => {
@@ -140,6 +162,25 @@ document.querySelectorAll('.sortable').forEach(th => {
 });
 
 /**
+ * Toggles the add user form visibility
+ */
+document.getElementById('toggle-add-user-btn').addEventListener('click', () => {
+    const addFormContainer = document.getElementById('addUserFormContainer');
+    addFormContainer.style.display = addFormContainer.style.display === 'none' ? 'block' : 'none';
+    if (addFormContainer.style.display === 'block') {
+        document.getElementById('addUserForm').reset();
+    }
+});
+
+/**
+ * Handles cancel button in add form
+ */
+document.getElementById('cancel-add-btn').addEventListener('click', () => {
+    document.getElementById('addUserFormContainer').style.display = 'none';
+    document.getElementById('addUserForm').reset();
+});
+
+/**
  * Handles add user form submission
  * @param {Event} e - Form submission event
  */
@@ -159,7 +200,7 @@ document.getElementById('addUserForm').addEventListener('submit', async (e) => {
             toastMsg.textContent = 'User added successfully';
             toast.className = 'toast align-items-center text-bg-success border-0';
             e.target.reset();
-            bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+            document.getElementById('addUserFormContainer').style.display = 'none';
             searchUsers();
         } else {
             const error = await res.text();
@@ -174,17 +215,22 @@ document.getElementById('addUserForm').addEventListener('submit', async (e) => {
 });
 
 /**
- * Populates edit user form with user data
+ * Populates edit user form with user data and shows the form
  */
 document.getElementById('users-table-body').addEventListener('click', (e) => {
     if (e.target.closest('.edit-btn')) {
         const username = e.target.closest('.edit-btn').dataset.username;
         const user = users.find(u => u.username === username);
-        document.getElementById('edit-username-original').value = user.username;
-        document.getElementById('edit-username').value = user.username;
-        document.getElementById('edit-name').value = user.name;
-        document.getElementById('edit-role').value = user.role;
-        document.getElementById('edit-password').value = '';
+        if (user) {
+            document.getElementById('edit-username-original').value = user.username;
+            document.getElementById('edit-username').value = user.username;
+            document.getElementById('edit-name').value = user.name;
+            document.getElementById('edit-email').value = user.email || '';
+            document.getElementById('edit-role').value = user.role;
+            document.getElementById('edit-password').value = '';
+            document.getElementById('editUserFormContainer').style.display = 'block';
+            document.getElementById("editUserFormContainer").scrollIntoView({ behavior: "smooth" });
+        }
     }
 });
 
@@ -208,7 +254,7 @@ document.getElementById('editUserForm').addEventListener('submit', async (e) => 
             fetchUsers();
             toastMsg.textContent = 'User updated successfully';
             toast.className = 'toast align-items-center text-bg-success border-0';
-            bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+            document.getElementById('editUserFormContainer').style.display = 'none';
             searchUsers();
         } else {
             const error = await res.text();
@@ -220,6 +266,14 @@ document.getElementById('editUserForm').addEventListener('submit', async (e) => 
         toast.className = 'toast align-items-center text-bg-danger border-0';
     }
     new bootstrap.Toast(toast).show();
+});
+
+/**
+ * Handles cancel button in edit form
+ */
+document.getElementById('cancel-edit-btn').addEventListener('click', () => {
+    document.getElementById('editUserFormContainer').style.display = 'none';
+    document.getElementById('editUserForm').reset();
 });
 
 /**

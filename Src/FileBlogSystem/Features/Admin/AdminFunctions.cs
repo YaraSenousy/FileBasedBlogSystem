@@ -4,6 +4,9 @@ using FileBlogSystem.Features.Security;
 using FileBlogSystem.Features.Render.Tags;
 using FileBlogSystem.Features.Posting;
 using FileBlogSystem.Features.Render.Categories;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace FileBlogSystem.Features.Admin;
 
@@ -21,11 +24,13 @@ public static class AdminFunctions
         app.MapPost("/admin/categories", AddCategory).RequireAuthorization("AdminLevel");
         app.MapPatch("/admin/categories/{slug}", EditCategory).RequireAuthorization("AdminLevel");
         app.MapDelete("/admin/categories/{slug}", DeleteCategory).RequireAuthorization("AdminLevel");
+        app.MapGet("/profile", GetProfile).RequireAuthorization();
+        app.MapPost("/profile/edit", EditProfile).RequireAuthorization();
     }
 
     /*
     Handles getting users info
-    Returns for each user: username, name, role
+    Returns for each user: username, name, email, role, profile picture
     */
     public static IResult GetUsers(HttpRequest request)
     {
@@ -59,7 +64,7 @@ public static class AdminFunctions
             };
 
             var user = JsonSerializer.Deserialize<User>(profileJson, options);
-            user!.PasswordHash = string.Empty!;
+            user!.PasswordHash = string.Empty;
             return user;
         }
         catch (Exception ex)
@@ -67,6 +72,24 @@ public static class AdminFunctions
             Console.WriteLine($"[ReadUserFromFolder] Error reading {profilePath}: {ex.Message}");
             return null;
         }
+    }
+
+    /*
+    Handles getting the current user's profile
+    Returns: username, name, email, role, profile picture
+    */
+    public static IResult GetProfile(HttpContext context)
+    {
+        var username = context.User.Identity?.Name;
+        if (string.IsNullOrEmpty(username))
+            return Results.Unauthorized();
+
+        var userDir = Path.Combine(Directory.GetCurrentDirectory(), "content", "users", username);
+        var user = ReadUserFromFolder(userDir);
+        if (user == null)
+            return Results.NotFound("User not found");
+
+        return Results.Ok(user);
     }
 
     /*
@@ -80,8 +103,19 @@ public static class AdminFunctions
     }
 
     /*
-    Handles adding a new user by taking username, name, password, and role
-    Creates slug from the username and ensures it is unique 
+    Define the email policy:
+    Basic email format validation.
+    */
+    public static bool IsValidEmail(string email)
+    {
+        if (string.IsNullOrEmpty(email)) return false;
+        string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+        return Regex.IsMatch(email, pattern);
+    }
+
+    /*
+    Handles adding a new user by taking username, name, password, role, and optional email
+    Creates slug from the username and ensures it is unique
     Stores the password hashed
     */
     public static async Task<IResult> AddUser(HttpRequest request)
@@ -91,6 +125,7 @@ public static class AdminFunctions
         var password = form["password"];
         var name = form["name"];
         var role = form["role"];
+        var email = form["email"];
 
         if (string.IsNullOrEmpty(username))
             return Results.BadRequest("Missing username");
@@ -100,10 +135,14 @@ public static class AdminFunctions
             return Results.BadRequest("Missing name");
         if (string.IsNullOrEmpty(role))
             return Results.BadRequest("Missing role");
+        if (string.IsNullOrEmpty(email))
+            return Results.BadRequest("Missing email");
         if (Regex.IsMatch(username!, @"[^a-z0-9\s-]"))
             return Results.BadRequest("Invalid Username: Small letters, digits and - only");
         if (!IsValidPassword(password!))
             return Results.BadRequest("Invalid Password: Must be at least 8 characters, one uppercase, one lowercase, one digit");
+        if (!IsValidEmail(email!))
+            return Results.BadRequest("Invalid email format");
         if (role != "admin" && role != "author" && role != "editor")
             return Results.BadRequest("Invalid role");
 
@@ -120,7 +159,9 @@ public static class AdminFunctions
             Username = username!,
             Name = name!,
             PasswordHash = hash!,
-            Role = role!
+            Role = role!,
+            Email = email!,
+            ProfilePicture = null,
         };
 
         var userJson = JsonSerializer.Serialize(user, new JsonSerializerOptions
@@ -133,16 +174,16 @@ public static class AdminFunctions
     }
 
     /*
-    Handles editing a user by taking name, password, or role
+    Handles editing a user by taking name, password, role, or email
     Ensures the user exists, validates input, and rewrites their file
     */
     public static async Task<IResult> EditUser(HttpRequest request, string user)
     {
         var form = await request.ReadFormAsync();
-        if (form == null) return Results.BadRequest();
         var password = form["password"];
         var name = form["name"];
         var role = form["role"];
+        var email = form["email"];
 
         var userPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "users", user, "profile.json");
         if (!File.Exists(userPath)) return Results.NotFound("User not found");
@@ -151,6 +192,8 @@ public static class AdminFunctions
             return Results.BadRequest("Invalid Password: Must be at least 8 characters, one uppercase, one lowercase, one digit");
         if (!string.IsNullOrEmpty(role) && role != "admin" && role != "author" && role != "editor")
             return Results.BadRequest("Invalid role");
+        if (!string.IsNullOrEmpty(email) && !IsValidEmail(email!))
+            return Results.BadRequest("Invalid email format");
 
         var oldUserJson = File.ReadAllText(userPath);
         var oldUserInfo = JsonSerializer.Deserialize<User>(oldUserJson, new JsonSerializerOptions
@@ -163,7 +206,75 @@ public static class AdminFunctions
             Username = oldUserInfo!.Username!,
             Name = string.IsNullOrEmpty(name) ? oldUserInfo!.Name! : name!,
             PasswordHash = string.IsNullOrEmpty(password) ? oldUserInfo!.PasswordHash! : BCrypt.Net.BCrypt.HashPassword(password)!,
-            Role = string.IsNullOrEmpty(role) ? oldUserInfo!.Role! : role!
+            Role = string.IsNullOrEmpty(role) ? oldUserInfo!.Role! : role!,
+            Email = string.IsNullOrEmpty(email) ? oldUserInfo!.Email! : email!,
+            ProfilePicture = oldUserInfo!.ProfilePicture
+        };
+
+        var userJson = JsonSerializer.Serialize(newUserInfo, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
+        await File.WriteAllTextAsync(userPath, userJson);
+        return Results.Ok(newUserInfo);
+    }
+
+    /*
+    Handles editing the current user's profile by taking name, email, and optional profile picture
+    */
+    public static async Task<IResult> EditProfile(HttpContext context)
+    {
+        var username = context.User.Identity?.Name;
+        if (string.IsNullOrEmpty(username))
+            return Results.Unauthorized();
+
+        var form = await context.Request.ReadFormAsync();
+        var name = form["name"];
+        var email = form["email"];
+        var profilePicFile = form.Files["profilePic"];
+
+        var userPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "users", username, "profile.json");
+        if (!File.Exists(userPath)) return Results.NotFound("User not found");
+
+        if (string.IsNullOrEmpty(name))
+            return Results.BadRequest("Name is required");
+        if (string.IsNullOrEmpty(email))
+            return Results.BadRequest("Email is required");
+        if (!IsValidEmail(email!))
+            return Results.BadRequest("Invalid email format");
+
+        var oldUserJson = File.ReadAllText(userPath);
+        var oldUserInfo = JsonSerializer.Deserialize<User>(oldUserJson, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+
+        string? profilePicPath = oldUserInfo!.ProfilePicture;
+        if (profilePicFile != null && profilePicFile.Length > 0)
+        {
+            if (!profilePicFile.ContentType.StartsWith("image/"))
+                return Results.BadRequest("Profile picture must be an image");
+            var extension = Path.GetExtension(profilePicFile.FileName).ToLower();
+            if (extension != ".jpg" && extension != ".jpeg" && extension != ".png")
+                return Results.BadRequest("Profile picture must be JPG or PNG");
+
+            var picPath = Path.Combine(Directory.GetCurrentDirectory(), "content", "users", username, "profile-pic" + extension);
+            using (var stream = new FileStream(picPath, FileMode.Create))
+            {
+                await profilePicFile.CopyToAsync(stream);
+            }
+            profilePicPath = $"/content/users/{username}/profile-pic{extension}";
+        }
+
+        var newUserInfo = new User
+        {
+            Username = oldUserInfo!.Username!,
+            Name = name!,
+            PasswordHash = oldUserInfo!.PasswordHash!,
+            Role = oldUserInfo!.Role!,
+            Email = string.IsNullOrEmpty(email) ? oldUserInfo!.Email! : email!,
+            ProfilePicture = profilePicPath
         };
 
         var userJson = JsonSerializer.Serialize(newUserInfo, new JsonSerializerOptions
@@ -262,6 +373,7 @@ public static class AdminFunctions
             }
         }
     }
+
     /*
     Handles editing a tag by taking a new name
     Updates slug if name changes and ensures it is unique

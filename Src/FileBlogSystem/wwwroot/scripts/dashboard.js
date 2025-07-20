@@ -457,6 +457,7 @@ async function clearSearch() {
 async function logout() {
   await fetch("/logout", { method: "POST" });
   showToast("Logged out", "success");
+  localStorage.removeItem("userInfo");
   location.href = "/login";
 }
 

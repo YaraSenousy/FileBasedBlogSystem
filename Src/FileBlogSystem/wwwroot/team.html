@@ -35,7 +35,7 @@
             </li>
           </ul>
           <div class="d-flex align-items-center">
-            <button id="subscribe-btn" onclick="document.getElementById('newsletter-section').scrollIntoView({ behavior: 'smooth' });" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#subscribeModal">
+            <button id="subscribe-btn" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#subscribeModal">
               Subscribe
             </button>
             <button id="theme-toggle" class="btn btn-outline-secondary me-2" aria-label="Toggle theme">
@@ -47,10 +47,39 @@
     </nav>
   </header>
 
+    <div class="modal fade" id="subscribeModal" tabindex="-1" aria-labelledby="subscribeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="subscribeModalLabel">Subscribe to Newsletter</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Enter your email to receive updates whenever a new blog is posted!</p>
+          <form id="newsletter-form">
+            <div class="mb-3">
+              <input type="email" id="newsletter-email" class="form-control" placeholder="Enter your email" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Subscribe</button>
+            <div id="newsletter-spinner" class="spinner-border text-primary ms-2" role="status" style="display: none; width: 1.5rem; height: 1.5rem;">
+              <span class="visually-hidden">Loading...</span>
+            </div>   
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="container-fluid py-5">
     <section class="team-section text-center">
       <h2 class="team-title">Meet Our Team</h2>
       <p class="team-description">At Lets Blog, our dedicated team of writers, editors, and administrators work together to bring you engaging and insightful content. Get to know the people behind the stories and join us in celebrating their passion for sharing knowledge!</p>
+      <div class="search-bar mb-4">
+        <div class="input-group">
+          <input type="text" id="team-search" class="form-control" placeholder="Search by name or username" aria-label="Search team members">
+          <span class="input-group-text"><i class="fas fa-search"></i></span>
+        </div>
+      </div>
       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="team-gallery"></div>
     </section>
   </div>

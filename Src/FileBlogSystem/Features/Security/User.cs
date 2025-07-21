@@ -7,4 +7,5 @@ public class User
     public string Email { get; set; } = string.Empty;
     public string? ProfilePicture { get; set; } = null;
     public string? Description { get; set; } = string.Empty;
+    public string? AssignedAuthor { get; set; } = string.Empty;
 }

@@ -1,6 +1,6 @@
+using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.Extensions.Primitives;
-using System.Security.Claims;
 
 namespace FileBlogSystem.Features.Posting;
 
@@ -14,12 +14,16 @@ public static class EditPost
     /*
     Handles editing a post
     searching for a post using its slug
-    rewrting its content and meta data 
+    rewrting its content and meta data
     edits the modification date
     doen't allow editing of pubished posts
-    only owners of the blog and editors allowed
+    only owners of the blog and assigned editors allowed
     */
-    public static async Task<IResult> HandleEditPost(HttpRequest request, string slug, HttpContext context)
+    public static async Task<IResult> HandleEditPost(
+        HttpRequest request,
+        string slug,
+        HttpContext context
+    )
     {
         var username = context.User.Identity?.Name;
         var role = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -29,29 +33,56 @@ public static class EditPost
         }
 
         var form = await request.ReadFormAsync();
-        if (form == null) return Results.BadRequest();
+        if (form == null)
+            return Results.BadRequest();
 
         var folder = PostReader.FindPostFolder(slug);
-        if (folder == null) return Results.NotFound();
+        if (folder == null)
+            return Results.NotFound();
 
         var metaPath = Path.Combine(folder, "meta.json");
         var contentPath = Path.Combine(folder, "content.md");
 
         var meta = JsonSerializer.Deserialize<PostMeta>(File.ReadAllText(metaPath));
-        if (meta == null) return Results.BadRequest();
-        if (role != "editor" && meta.CreatedBy != username) return Results.Unauthorized();
-        if (meta.Status == "published") return Results.BadRequest();
+        if (meta == null)
+            return Results.BadRequest();
+        if (role == "editor")
+        {
+            var editorDir = Path.Combine("content", "users", username);
+            var editorPath = Path.Combine(editorDir, "profile.json");
+            if (!File.Exists(editorPath))
+                return Results.NotFound("Editor not found.");
+
+            var editorJson = await File.ReadAllTextAsync(editorPath);
+            var editor = JsonSerializer.Deserialize<User>(editorJson);
+            if (
+                editor == null
+                || editor.AssignedAuthor == null
+                || editor.AssignedAuthor != meta.CreatedBy
+            )
+                return Results.Unauthorized();
+        }
+        if (meta.CreatedBy != username)
+            return Results.Unauthorized();
+        if (meta.Status == "published")
+            return Results.BadRequest();
 
         var title = form["title"];
         var description = form["description"];
-        var categories = form["categories"].ToString().Split(',', StringSplitOptions.RemoveEmptyEntries);
+        var categories = form["categories"]
+            .ToString()
+            .Split(',', StringSplitOptions.RemoveEmptyEntries);
         var tags = form["tags"].ToString().Split(',', StringSplitOptions.RemoveEmptyEntries);
         var content = form["content"];
-        if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(description) || string.IsNullOrEmpty(content))
+        if (
+            string.IsNullOrEmpty(title)
+            || string.IsNullOrEmpty(description)
+            || string.IsNullOrEmpty(content)
+        )
         {
             return Results.BadRequest("Post data incomplete");
         }
-        
+
         foreach (var category in categories)
         {
             var categoryPath = Path.Combine("content", "categories", $"{category}.json");
@@ -74,7 +105,10 @@ public static class EditPost
         meta.ModifiedBy = username;
 
         var markdown = form["content"];
-        File.WriteAllText(metaPath, JsonSerializer.Serialize(meta, new JsonSerializerOptions { WriteIndented = true }));
+        File.WriteAllText(
+            metaPath,
+            JsonSerializer.Serialize(meta, new JsonSerializerOptions { WriteIndented = true })
+        );
         File.WriteAllText(contentPath, markdown);
 
         return Results.Created($"/posts/{slug}", new { slug });

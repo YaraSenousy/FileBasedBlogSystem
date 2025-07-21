@@ -12,18 +12,38 @@ if (savedTheme) {
  * Configuration and state
  * @type {number} USERS_PER_PAGE - Number of users per page.
  * @type {Object[]} users - Store users as objects.
+ * @type {Object[]} authors - Store authors for dropdown.
  * @type {number} currentPage - Current pagination page.
  * @type {string} sortField - Current sort field.
  * @type {string} sortDirection - Sort direction: 'asc' or 'desc'.
  */
 const USERS_PER_PAGE = 10;
 let users = [];
+let authors = [];
 let currentPage = 1;
 let sortField = 'username';
 let sortDirection = 'asc';
 
 /**
- * Renders users in the table with sorting and pagination
+ * Fetches authors from the API
+ */
+async function fetchAuthors() {
+    try {
+        const res = await fetch('/admin/users?role=author', { credentials: 'include' });
+        if (res.ok) {
+            authors = await res.json();
+        } else {
+            console.error('Failed to fetch authors');
+            authors = [];
+        }
+    } catch (err) {
+        console.error('Error fetching authors:', err.message);
+        authors = [];
+    }
+}
+
+/**
+ * Renders users in the table with sorting, pagination, and author assignment
  * @param {Object[]} usersToRender - Array of user objects to display
  */
 function renderUsers(usersToRender) {
@@ -48,6 +68,16 @@ function renderUsers(usersToRender) {
     tbody.innerHTML = '';
     paginatedUsers.forEach(user => {
         const tr = document.createElement('tr');
+        const authorSelect = user.role === 'editor' ? `
+            <select class="form-select form-select-sm assign-author" data-username="${user.username}">
+                <option value="" ${!user.assignedAuthor ? 'selected' : ''}>None</option>
+                ${authors.map(author => `
+                    <option value="${author.username}" ${user.assignedAuthor === author.username ? 'selected' : ''}>
+                        ${author.username}
+                    </option>
+                `).join('')}
+            </select>
+        ` : '';
         tr.innerHTML = `
             <td>
                 ${user.profilePicture
@@ -59,6 +89,7 @@ function renderUsers(usersToRender) {
             <td>${user.name}</td>
             <td>${user.email || 'N/A'}</td>
             <td>${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</td>
+            <td>${user.role === 'editor' ? (user.assignedAuthor || 'N/A') : 'N/A'}</td>
             <td>
                 <button class="btn btn-outline-primary btn-sm edit-btn my-1 mx-2" data-username="${user.username}">
                     <i class="fas fa-edit"></i> Edit
@@ -66,6 +97,7 @@ function renderUsers(usersToRender) {
                 <button class="btn btn-outline-danger btn-sm my-1 mx-2 delete-btn" data-username="${user.username}" data-bs-toggle="modal" data-bs-target="#deleteUserModal">
                     <i class="fas fa-trash"></i> Delete
                 </button>
+                ${authorSelect}
             </td>
         `;
         tbody.appendChild(tr);
@@ -196,7 +228,7 @@ document.getElementById('addUserForm').addEventListener('submit', async (e) => {
             credentials: 'include',
         });
         if (res.ok) {
-            fetchUsers();
+            await fetchUsers();
             toastMsg.textContent = 'User added successfully';
             toast.className = 'toast align-items-center text-bg-success border-0';
             e.target.reset();
@@ -251,7 +283,7 @@ document.getElementById('editUserForm').addEventListener('submit', async (e) => 
             credentials: 'include',
         });
         if (res.ok) {
-            fetchUsers();
+            await fetchUsers();
             toastMsg.textContent = 'User updated successfully';
             toast.className = 'toast align-items-center text-bg-success border-0';
             document.getElementById('editUserFormContainer').style.display = 'none';
@@ -287,6 +319,39 @@ document.getElementById('users-table-body').addEventListener('click', (e) => {
 });
 
 /**
+ * Handles author assignment dropdown
+ */
+document.getElementById('users-table-body').addEventListener('change', async (e) => {
+    if (e.target.classList.contains('assign-author')) {
+        const editorUsername = e.target.dataset.username;
+        const authorUsername = e.target.value;
+        const toast = document.getElementById('live-toast');
+        const toastMsg = document.getElementById('toast-message');
+        try {
+            const url = `/admin/users/${editorUsername}/assign-author${authorUsername ? `?authorUsername=${encodeURIComponent(authorUsername)}` : ''}`;
+            const res = await fetch(url, {
+                method: 'PATCH',
+                credentials: 'include',
+            });
+            if (res.ok) {
+                await fetchUsers();
+                toastMsg.textContent = `Author ${authorUsername || 'none'} assigned to editor`;
+                toast.className = 'toast align-items-center text-bg-success border-0';
+                searchUsers();
+            } else {
+                const error = await res.text();
+                toastMsg.textContent = `Failed: ${error}`;
+                toast.className = 'toast align-items-center text-bg-danger border-0';
+            }
+        } catch (err) {
+            toastMsg.textContent = 'Error assigning author';
+            toast.className = 'toast align-items-center text-bg-danger border-0';
+        }
+        new bootstrap.Toast(toast).show();
+    }
+});
+
+/**
  * Handles delete user confirmation
  */
 document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
@@ -299,7 +364,7 @@ document.getElementById('confirm-delete-btn').addEventListener('click', async ()
             credentials: 'include',
         });
         if (res.ok) {
-            fetchUsers();
+            await fetchUsers();
             toastMsg.textContent = 'User deleted successfully';
             toast.className = 'toast align-items-center text-bg-success border-0';
             bootstrap.Modal.getInstance(document.getElementById('deleteUserModal')).hide();
@@ -322,6 +387,65 @@ document.getElementById('confirm-delete-btn').addEventListener('click', async ()
  */
 async function fetchUsers() {
     try {
+        await fetchAuthors(); // Fetch authors first for dropdown
+        const res = await fetch('/admin/users', { credentials: 'include' });
+        if (res.ok) {
+            users = await res.json();
+            searchUsers();
+        } else {
+            const error = await res.json();
+            const toast = document.getElementById('live-toast');
+            const toastMsg = document.getElementById('toast-message');
+            toastMsg.textContent = `Failed to load users: ${error.error}`;
+            toast.className = 'toast align-items-center text-bg-danger border-0';
+            new bootstrap.Toast(toast).show();
+        }
+    } catch (err) {
+        const toast = document.getElementById('live-toast');
+        const toastMsg = document.getElementById('toast-message');
+        toastMsg.textContent = `Error loading users: ${err.message}`;
+        toast.className = 'toast align-items-center text-bg-danger border-0';
+        new bootstrap.Toast(toast).show();
+    }
+}
+
+/**
+ * Handles delete user confirmation
+ */
+document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+    if (!userToDelete) return;
+    const toast = document.getElementById('live-toast');
+    const toastMsg = document.getElementById('toast-message');
+    try {
+        const res = await fetch(`/admin/users/${userToDelete}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        if (res.ok) {
+            await fetchUsers();
+            toastMsg.textContent = 'User deleted successfully';
+            toast.className = 'toast align-items-center text-bg-success border-0';
+            bootstrap.Modal.getInstance(document.getElementById('deleteUserModal')).hide();
+            searchUsers();
+        } else {
+            const error = await res.text();
+            toastMsg.textContent = `Failed: ${error}`;
+            toast.className = 'toast align-items-center text-bg-danger border-0';
+        }
+    } catch (err) {
+        toastMsg.textContent = 'Error deleting user';
+        toast.className = 'toast align-items-center text-bg-danger border-0';
+    }
+    new bootstrap.Toast(toast).show();
+    userToDelete = null;
+});
+
+/**
+ * Fetches users from the API and updates the users array
+ */
+async function fetchUsers() {
+    try {
+        await fetchAuthors();
         const res = await fetch('/admin/users', { credentials: 'include' });
         if (res.ok) {
             users = await res.json();

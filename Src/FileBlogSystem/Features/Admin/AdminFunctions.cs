@@ -27,23 +27,40 @@ public static class AdminFunctions
             .RequireAuthorization("AdminLevel");
         app.MapGet("/user-profile", GetProfile).RequireAuthorization();
         app.MapPost("/profile/edit", (Delegate)EditProfile).RequireAuthorization();
+        app.MapPatch("/admin/users/{editorUsername}/assign-author", AssignAuthor)
+            .RequireAuthorization("AdminLevel");
     }
 
     /*
     Handles getting users info
     Returns for each user: username, name, email, role, profile picture
     */
-    public static IResult GetUsers(HttpRequest request)
+    private static async Task<IResult> GetUsers(string? role = null)
     {
-        var usersDir = Path.Combine(Directory.GetCurrentDirectory(), "content", "users");
+        var usersDir = Path.Combine("content", "users");
         if (!Directory.Exists(usersDir))
-            return Results.Problem("Users folder missing", statusCode: 500);
+            return Results.Ok(new List<User>());
 
-        var users = Directory
-            .GetDirectories(usersDir)
-            .Select(folder => ReadUserFromFolder(folder))
-            .Where(u => u != null)
-            .ToList();
+        var users = new List<User>();
+        foreach (var dir in Directory.GetDirectories(usersDir))
+        {
+            var userPath = Path.Combine(dir, "profile.json");
+            if (File.Exists(userPath))
+            {
+                var json = await File.ReadAllTextAsync(userPath);
+                var user = JsonSerializer.Deserialize<User>(json);
+                if (
+                    user != null
+                    && (
+                        string.IsNullOrEmpty(role)
+                        || user.Role.Equals(role, StringComparison.OrdinalIgnoreCase)
+                    )
+                )
+                {
+                    users.Add(user);
+                }
+            }
+        }
 
         return Results.Ok(users);
     }
@@ -585,5 +602,55 @@ public static class AdminFunctions
         File.Delete(categoryPath);
         UpdatePosts("categories", slug, "", true);
         return Results.NoContent();
+    }
+
+    /* Handles assigning an author to an editor
+        Validates the editor and author, updates the editor's AssignedAuthor field
+        Returns OK if successful, NotFound if editor or author not found, BadRequest if invalid
+    */
+    private static async Task<IResult> AssignAuthor(string editorUsername, HttpContext context)
+    {
+        // Validate editor
+        var editorDir = Path.Combine("content", "users", editorUsername);
+        var editorPath = Path.Combine(editorDir, "profile.json");
+        if (!File.Exists(editorPath))
+            return Results.NotFound("Editor not found.");
+
+        var editorJson = await File.ReadAllTextAsync(editorPath);
+        var editor = JsonSerializer.Deserialize<User>(editorJson);
+        if (editor == null)
+            return Results.BadRequest("Invalid editor data.");
+
+        if (editor.Role != "editor")
+            return Results.BadRequest("User must be an editor to assign an author.");
+
+        // Get authorUsername from query parameter
+        var authorUsername = context.Request.Query["authorUsername"].ToString();
+        if (string.IsNullOrWhiteSpace(authorUsername))
+        {
+            // Clear AssignedAuthor if no authorUsername provided
+            editor.AssignedAuthor = string.Empty;
+            var updateJson = JsonSerializer.Serialize(editor, new JsonSerializerOptions { WriteIndented = true });
+            await File.WriteAllTextAsync(editorPath, updateJson);
+            return Results.Ok();
+        }
+
+        // Validate author
+        var authorDir = Path.Combine("content", "users", authorUsername);
+        var authorPath = Path.Combine(authorDir, "profile.json");
+        if (!File.Exists(authorPath))
+            return Results.NotFound("Author not found.");
+
+        var authorJson = await File.ReadAllTextAsync(authorPath);
+        var author = JsonSerializer.Deserialize<User>(authorJson);
+        if (author == null || author.Role != "author")
+            return Results.BadRequest("Invalid author or user is not an author.");
+
+        // Update editor's AssignedAuthor
+        editor.AssignedAuthor = authorUsername;
+        var updatedJson = JsonSerializer.Serialize(editor, new JsonSerializerOptions { WriteIndented = true });
+        await File.WriteAllTextAsync(editorPath, updatedJson);
+
+        return Results.Ok();
     }
 }

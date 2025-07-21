@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using FileBlogSystem.Features.Posting;
 using Microsoft.AspNetCore.Http;
 
@@ -9,8 +10,8 @@ public static class GetPosts
     public static void MapGetPostsEndpoints(this WebApplication app)
     {
         app.MapGet("/published", GetPublished);
-        app.MapGet("/drafts", GetDrafts).RequireAuthorization("EditorLevel");
-        app.MapGet("/scheduled", GetScheduled).RequireAuthorization("EditorLevel");
+        app.MapGet("/drafts", (Delegate)GetDrafts).RequireAuthorization("EditorLevel");
+        app.MapGet("/scheduled", (Delegate)GetScheduled).RequireAuthorization("EditorLevel");
     }
 
     /*
@@ -27,10 +28,10 @@ public static class GetPosts
     Handles getting draft posts
     Reads all draft posts and filter by tags
     paginates them, and returns posts ordered by publish time as JSON.
-    only allow the blogs' owner or editors
+    only allow the owner's blogs or assigned author's blogs
     */
 
-    public static IResult GetDrafts(HttpContext context)
+    public static async Task<IResult> GetDrafts(HttpContext context)
     {
         var username = context.User.Identity?.Name;
         var role = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -42,16 +43,28 @@ public static class GetPosts
         if (role != "editor")
             return GetAllPosts(context, "draft", true, username);
         else
-            return GetAllPosts(context, "draft", false);
+        {
+            var editorDir = Path.Combine("content", "users", username);
+            var editorPath = Path.Combine(editorDir, "profile.json");
+            if (!File.Exists(editorPath))
+                return Results.NotFound("Editor not found.");
+
+            var editorJson = await File.ReadAllTextAsync(editorPath);
+            var editor = JsonSerializer.Deserialize<User>(editorJson);
+            if (editor != null && editor.AssignedAuthor != null)
+                return GetAllPosts(context, "draft", true, editor.AssignedAuthor);
+            else
+                return Results.Ok();
+        }
     }
 
     /*
     Handles getting the scheduled posts
     Reads all scheduled posts and filter by tags
     paginates them, and returns posts ordered by publish time as JSON.
-    only allow the blogs' owner or editors or admins
+    only allow the blogs' owner or assigned author's to editors or admins
     */
-    public static IResult GetScheduled(HttpContext context)
+    public static async Task<IResult> GetScheduled(HttpContext context)
     {
         var username = context.User.Identity?.Name;
         var role = context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -60,8 +73,22 @@ public static class GetPosts
             return Results.Unauthorized();
         }
 
-        if (role != "editor" && role != "admin")
+        if (role != "author")
             return GetAllPosts(context, "scheduled", true, username);
+        else if (role == "editor")
+        {
+            var editorDir = Path.Combine("content", "users", username);
+            var editorPath = Path.Combine(editorDir, "profile.json");
+            if (!File.Exists(editorPath))
+                return Results.NotFound("Editor not found.");
+
+            var editorJson = await File.ReadAllTextAsync(editorPath);
+            var editor = JsonSerializer.Deserialize<User>(editorJson);
+            if (editor != null && editor.AssignedAuthor != null)
+                return GetAllPosts(context, "scheduled", true, editor.AssignedAuthor);
+            else
+                return Results.Ok();
+        }
         else
             return GetAllPosts(context, "scheduled", false);
     }

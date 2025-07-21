@@ -1,24 +1,22 @@
-using FileBlogSystem.Features.Render.Posts;
-using FileBlogSystem.Features.Render.Categories;
-using FileBlogSystem.Features.Render.Tags;
-using FileBlogSystem.Features.Render.Search;
-using FileBlogSystem.Features.Render.PostDetails;
-using FileBlogSystem.Features.Posting;
-using FileBlogSystem.Features.Render.Feed;
-using FileBlogSystem.config;
-using FileBlogSystem.Features.Security;
-using FileBlogSystem.Features.Admin;
-using FileBlogSystem.Features.Render.UserFunctions;
-
-using Microsoft.AspNetCore.Http.Json;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.FileProviders;
-using SixLabors.ImageSharp.Web.DependencyInjection;
-
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
-
+using FileBlogSystem.config;
+using FileBlogSystem.Features.Admin;
+using FileBlogSystem.Features.Posting;
+using FileBlogSystem.Features.Render.Categories;
+using FileBlogSystem.Features.Render.Feed;
+using FileBlogSystem.Features.Render.PostDetails;
+using FileBlogSystem.Features.Render.Posts;
+using FileBlogSystem.Features.Render.Search;
+using FileBlogSystem.Features.Render.Tags;
+using FileBlogSystem.Features.Render.UserFunctions;
+using FileBlogSystem.Features.Security;
+using FileBlogSystem.Features.Joining;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Json;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.IdentityModel.Tokens;
+using SixLabors.ImageSharp.Web.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 SiteConfig.Load();
@@ -28,11 +26,12 @@ builder.Services.AddHostedService<ScheduledPostPublisher>();
 builder.Services.AddImageSharp();
 
 DotNetEnv.Env.Load();
-var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET") 
-             ?? throw new Exception("Missing JWT_SECRET in .env");
+var jwtKey =
+    Environment.GetEnvironmentVariable("JWT_SECRET")
+    ?? throw new Exception("Missing JWT_SECRET in .env");
 
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder
+    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -41,7 +40,7 @@ builder.Services
             ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
         };
 
         options.Events = new JwtBearerEvents
@@ -53,24 +52,19 @@ builder.Services
                     context.Token = cookie;
 
                 return Task.CompletedTask;
-            }
+            },
         };
     });
-    
+
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminAuthor", policy =>
-        policy.RequireRole("admin", "author"));
-    options.AddPolicy("EditorLevel", policy =>
-        policy.RequireRole("admin", "author", "editor"));
-    options.AddPolicy("AdminLevel", policy =>
-        policy.RequireRole("admin"));
+    options.AddPolicy("AdminAuthor", policy => policy.RequireRole("admin", "author"));
+    options.AddPolicy("EditorLevel", policy => policy.RequireRole("admin", "author", "editor"));
+    options.AddPolicy("AdminLevel", policy => policy.RequireRole("admin"));
 });
 
 builder.Services.AddHostedService<RssEmailNotifierService>();
-builder.Services.Configure<NotifierSettings>(
-    builder.Configuration.GetSection("Notifier")
-);
+builder.Services.Configure<NotifierSettings>(builder.Configuration.GetSection("Notifier"));
 
 builder.Services.AddSingleton<EmailSubscriberService>();
 
@@ -81,11 +75,15 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseStaticFiles();
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "content")),
-    RequestPath = "/content"
-});
+app.UseStaticFiles(
+    new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(
+            Path.Combine(Directory.GetCurrentDirectory(), "content")
+        ),
+        RequestPath = "/content",
+    }
+);
 
 app.MapGetPostsEndpoints();
 app.MapCategoryListEndpoint();
@@ -102,12 +100,19 @@ app.MapLoginEndpoint();
 app.MapAdminEndPoint();
 app.MapSubscribe();
 app.MapUserPostsEndpoint();
+app.MapJoinRequests();
 
 app.MapFallback(context =>
 {
     PathString path = context.Request.Path.Value;
 
-    if (path.StartsWithSegments("/dashboard") || path == "/create" || path == "/users" || path == "/tag" || path == "/category")
+    if (
+        path.StartsWithSegments("/dashboard")
+        || path == "/create"
+        || path == "/users"
+        || path == "/tag"
+        || path == "/category"
+    )
     {
         var user = context.User;
         if (!user.Identity?.IsAuthenticated ?? true)
@@ -149,6 +154,8 @@ app.MapFallback(context =>
         return context.Response.SendFileAsync("wwwroot/team-profile.html");
     if (path == "/saved")
         return context.Response.SendFileAsync("wwwroot/saved.html");
+    if (path == "/join")
+        return context.Response.SendFileAsync("wwwroot/join.html");
 
     return context.Response.SendFileAsync("wwwroot/index.html");
 });

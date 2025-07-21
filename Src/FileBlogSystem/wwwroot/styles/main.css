@@ -1245,30 +1245,30 @@ h1 a {
 
 /* bookmark */
 .bookmark-container {
-  top: 10px;
-  right: 10px;
+    top: 10px;
+    right: 10px;
 }
 
 .bookmark-btn {
-  padding: 0;
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-  float: right;
-  line-height: 1;
+    padding: 0;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    float: right;
+    line-height: 1;
 }
 
 [data-theme="dark"] .bookmark-btn i.bi-bookmark,
 [data-theme="dark"] .bookmark-btn i.bi-bookmark-fill {
-  color: #fff;
+    color: #fff;
 }
 
 [data-theme="light"] .bookmark-btn i.bi-bookmark,
 [data-theme="light"] .bookmark-btn i.bi-bookmark-fill {
-  color: #333;
+    color: #333;
 }
 
 .bookmark-btn:hover i {
-  color: #007bff;
+    color: #007bff;
 }
 
 .post-description,
@@ -1276,7 +1276,48 @@ h1 a {
 .post-meta,
 .post-categories,
 .post-tags {
-  margin-right: 2rem;
+    margin-right: 2rem;
+}
+
+/*Join form*/
+/* Join form styling */
+#join-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+#join-form .form-label {
+    font-weight: bold;
+}
+
+#join-form .text-danger {
+    font-size: 0.9em;
+}
+
+[data-theme="dark"] #join-form .form-control,
+[data-theme="dark"] #join-form .form-control:focus {
+    background-color: #333;
+    color: #fff;
+    border-color: #555;
+}
+
+[data-theme="light"] #join-form .form-control {
+    background-color: #fff;
+    color: #333;
+}
+
+#join-form .btn-primary {
+    width: 150px;
+}
+
+/* Ensure toast colors match theme */
+[data-theme="dark"] .toast.text-bg-success {
+    background-color: #28a745;
+}
+
+[data-theme="dark"] .toast.text-bg-danger {
+    background-color: #dc3545;
 }
 
 /* footer*/

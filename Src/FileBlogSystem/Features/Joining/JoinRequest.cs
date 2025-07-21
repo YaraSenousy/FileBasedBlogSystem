@@ -25,7 +25,8 @@ public static class JoinRequests
         app.MapGet("/all-requests/{requestId}", GetRequestById).RequireAuthorization("AdminLevel");
         app.MapPost("/all-requests/{requestId}/approve", ApproveRequest)
             .RequireAuthorization("AdminLevel");
-        app.MapPost("/all-requests/{requestId}/deny", DenyRequest).RequireAuthorization("AdminLevel");
+        app.MapPost("/all-requests/{requestId}/deny", DenyRequest)
+            .RequireAuthorization("AdminLevel");
     }
 
     private static async Task<IResult> HandleJoinRequest(
@@ -245,7 +246,11 @@ public static class JoinRequests
         return Results.Ok(request);
     }
 
-    private static async Task<IResult> ApproveRequest(string requestId, HttpContext context, IOptions<NotifierSettings> config)
+    private static async Task<IResult> ApproveRequest(
+        string requestId,
+        HttpContext context,
+        IOptions<NotifierSettings> config
+    )
     {
         var metaPath = Path.Combine("content", "requests", $"request_{requestId}", "meta.json");
         if (!File.Exists(metaPath))
@@ -278,16 +283,44 @@ public static class JoinRequests
             Description = request.Description,
             PasswordHash = request.PasswordHash,
             Role = "author",
-            ProfilePicture = request.PicturePath
+            ProfilePicture = null,
         };
 
-        var userJson = JsonSerializer.Serialize(user, new JsonSerializerOptions { WriteIndented = true });
+        // Move profile picture if it exists
+        if (!string.IsNullOrEmpty(request.PicturePath))
+        {
+            var sourcePicturePath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "content",
+                request.PicturePath
+            );
+            if (File.Exists(sourcePicturePath))
+            {
+                var ext = Path.GetExtension(sourcePicturePath).ToLowerInvariant();
+                var destPicturePath = Path.Combine(userDir, $"profile-pic{ext}");
+                File.Move(sourcePicturePath, destPicturePath);
+                user.ProfilePicture = Path.Combine("content","users", username, $"profile-pic{ext}");
+            }
+            else
+            {
+                Console.WriteLine($"Warning: Profile picture not found at {sourcePicturePath}");
+            }
+        }
+
+        // Save user
+        var userJson = JsonSerializer.Serialize(
+            user,
+            new JsonSerializerOptions { WriteIndented = true }
+        );
         await File.WriteAllTextAsync(userPath, userJson);
 
         // Update request status
         request.Status = "Approved";
         request.ReviewedBy = adminName;
-        var updatedJson = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
+        var updatedJson = JsonSerializer.Serialize(
+            request,
+            new JsonSerializerOptions { WriteIndented = true }
+        );
         await File.WriteAllTextAsync(metaPath, updatedJson);
 
         // Send approval email
@@ -304,7 +337,7 @@ public static class JoinRequests
                 <p>You can now log in using your username: {username} and password at <a href="{settings.BaseUrl}/login">{settings.BaseUrl}/login</a>.</p>
                 <hr/>
                 <p style='font-size: 0.8em;'>Questions? Contact us at <a href='mailto:letsblog047@gmail.com'>letsblog047@gmail.com</a></p>
-                """
+                """,
         };
 
         using var client = new SmtpClient();
@@ -316,7 +349,11 @@ public static class JoinRequests
         return Results.Ok("Request approved and user created.");
     }
 
-    private static async Task<IResult> DenyRequest(string requestId, HttpContext context, IOptions<NotifierSettings> config)
+    private static async Task<IResult> DenyRequest(
+        string requestId,
+        HttpContext context,
+        IOptions<NotifierSettings> config
+    )
     {
         var metaPath = Path.Combine("content", "requests", $"request_{requestId}", "meta.json");
         if (!File.Exists(metaPath))
@@ -336,7 +373,10 @@ public static class JoinRequests
         // Update request status
         request.Status = "Denied";
         request.ReviewedBy = adminName;
-        var updatedJson = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
+        var updatedJson = JsonSerializer.Serialize(
+            request,
+            new JsonSerializerOptions { WriteIndented = true }
+        );
         await File.WriteAllTextAsync(metaPath, updatedJson);
 
         // Send denial email
@@ -354,7 +394,7 @@ public static class JoinRequests
                 <p>We appreciate your interest and encourage you to apply again in the future.</p>
                 <hr/>
                 <p style='font-size: 0.8em;'>Questions? Contact us at <a href='mailto:letsblog047@gmail.com'>letsblog047@gmail.com</a></p>
-                """
+                """,
         };
 
         using var client = new SmtpClient();

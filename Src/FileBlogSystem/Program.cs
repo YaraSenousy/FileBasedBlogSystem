@@ -156,6 +156,13 @@ app.MapFallback(context =>
         return context.Response.SendFileAsync("wwwroot/saved.html");
     if (path == "/join")
         return context.Response.SendFileAsync("wwwroot/join.html");
+    if (path == "/requests")
+        return context.Response.SendFileAsync("wwwroot/requests.html");
+    if (
+        path.StartsWithSegments("/requests", out remaining)
+        && remaining!.Value!.Trim('/').Length > 0
+    )
+        return context.Response.SendFileAsync("wwwroot/request.html");
 
     return context.Response.SendFileAsync("wwwroot/index.html");
 });

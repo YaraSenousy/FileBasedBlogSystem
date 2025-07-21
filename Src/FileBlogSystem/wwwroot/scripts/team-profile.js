@@ -135,7 +135,7 @@ function updateThemeToggleIcon(theme) {
  * Initializes the page
  */
 document.addEventListener("DOMContentLoaded", async () => {
-  console.log("DOM fully loaded, initializing team profile page");
+  document.getElementsByTagName("title")[0].innerText = getUsernameFromURL() + " profile"|| "User Profile";
 
   // Load profile and posts
   await loadProfile();

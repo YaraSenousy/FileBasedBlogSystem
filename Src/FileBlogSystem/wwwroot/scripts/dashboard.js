@@ -503,6 +503,22 @@ async function loadMyPosts() {
 }
 
 /**
+ * Fetches and displays the number of pending requests for admins.
+ */
+async function updatePendingRequestsCount() {
+  const countElement = document.getElementById("pending-requests-count");
+  if (countElement && role === "admin") {
+    try {
+      const count = await fetchData("/all-requests/pending/count");
+      countElement.textContent = count.count || 0;
+    } catch (err) {
+      console.error("Failed to fetch pending requests count:", err.message);
+      countElement.textContent = "0";
+    }
+  }
+}
+
+/**
  * Initializes the dashboard by loading categories, tags, and published posts,
  * and sets up event listeners for buttons.
  */
@@ -536,6 +552,7 @@ window.onload = async () => {
 
   await loadCategories(setCurrentState, loadPostsByCategory, activeTags, loadPublishedPosts);
   await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory);
+  await updatePendingRequestsCount();
 
   const dropdown = document.getElementById("category-dropdown");
   if (selectedCategory && currentView === "published") {

@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using BCrypt.Net;
-using FileBlogSystem.Features.Security;
 using FileBlogSystem.Features.Admin;
+using FileBlogSystem.Features.Security;
 using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -17,6 +19,13 @@ public static class JoinRequests
     public static void MapJoinRequests(this WebApplication app)
     {
         app.MapPost("/join", HandleJoinRequest);
+        app.MapGet("/all-requests", GetRequests).RequireAuthorization("AdminLevel");
+        app.MapGet("/all-requests/pending/count", GetPendingRequestsCount)
+            .RequireAuthorization("AdminLevel");
+        app.MapGet("/all-requests/{requestId}", GetRequestById).RequireAuthorization("AdminLevel");
+        app.MapPost("/all-requests/{requestId}/approve", ApproveRequest)
+            .RequireAuthorization("AdminLevel");
+        app.MapPost("/all-requests/{requestId}/deny", DenyRequest).RequireAuthorization("AdminLevel");
     }
 
     private static async Task<IResult> HandleJoinRequest(
@@ -140,7 +149,7 @@ public static class JoinRequests
                 <p>We’ve received your application to join Lets Blog.</p>
                 <p>Our team will review your request, and we’ll contact you soon with the result.</p>
                 <hr/>
-                <p style='font-size: 0.8em;'>Questions? Contact us at <a href='mailto:letsg047@gmail.com'>letsblog047@gmail.com</a></p>
+                <p style='font-size: 0.8em;'>Questions? Contact us at <a href='mailto:letsblog047@gmail.com'>letsblog047@gmail.com</a></p>
                 """,
         };
 
@@ -151,6 +160,210 @@ public static class JoinRequests
         await client.DisconnectAsync(true);
 
         return Results.Ok("Application submitted successfully.");
+    }
+
+    private static async Task<IResult> GetRequests(
+        HttpContext context,
+        string? status = null,
+        string? q = null,
+        int page = 1,
+        int limit = 3
+    )
+    {
+        var requestsDir = Path.Combine("content", "requests");
+        if (!Directory.Exists(requestsDir))
+            return Results.Ok(new { data = new List<Request>(), totalItems = 0 });
+
+        var requests = new List<Request>();
+        foreach (var dir in Directory.GetDirectories(requestsDir))
+        {
+            var metaPath = Path.Combine(dir, "meta.json");
+            if (File.Exists(metaPath))
+            {
+                var json = await File.ReadAllTextAsync(metaPath);
+                var request = JsonSerializer.Deserialize<Request>(json);
+                if (
+                    request != null
+                    && (
+                        string.IsNullOrEmpty(status)
+                        || request.Status.Equals(status, StringComparison.OrdinalIgnoreCase)
+                    )
+                )
+                {
+                    if (
+                        string.IsNullOrEmpty(q)
+                        || request.Name.ToLowerInvariant().Contains(q.ToLowerInvariant())
+                        || request.Email.ToLowerInvariant().Contains(q.ToLowerInvariant())
+                    )
+                    {
+                        requests.Add(request);
+                    }
+                }
+            }
+        }
+
+        var totalItems = requests.Count;
+        var pagedRequests = requests
+            .OrderBy(r => r.CreationDate)
+            .Skip((page - 1) * limit)
+            .Take(limit)
+            .ToList();
+
+        return Results.Ok(requests);
+    }
+
+    private static async Task<IResult> GetPendingRequestsCount()
+    {
+        var requestsDir = Path.Combine("content", "requests");
+        if (!Directory.Exists(requestsDir))
+            return Results.Ok(new { count = 0 });
+
+        int count = 0;
+        foreach (var dir in Directory.GetDirectories(requestsDir))
+        {
+            var metaPath = Path.Combine(dir, "meta.json");
+            if (File.Exists(metaPath))
+            {
+                var json = await File.ReadAllTextAsync(metaPath);
+                var request = JsonSerializer.Deserialize<Request>(json);
+                if (request?.Status == "Pending")
+                    count++;
+            }
+        }
+
+        return Results.Ok(new { count });
+    }
+
+    private static async Task<IResult> GetRequestById(string requestId)
+    {
+        var metaPath = Path.Combine("content", "requests", $"request_{requestId}", "meta.json");
+        if (!File.Exists(metaPath))
+            return Results.NotFound("Request not found.");
+
+        var json = await File.ReadAllTextAsync(metaPath);
+        var request = JsonSerializer.Deserialize<Request>(json);
+        return Results.Ok(request);
+    }
+
+    private static async Task<IResult> ApproveRequest(string requestId, HttpContext context, IOptions<NotifierSettings> config)
+    {
+        var metaPath = Path.Combine("content", "requests", $"request_{requestId}", "meta.json");
+        if (!File.Exists(metaPath))
+            return Results.NotFound("Request not found.");
+
+        var json = await File.ReadAllTextAsync(metaPath);
+        var request = JsonSerializer.Deserialize<Request>(json);
+        if (request == null)
+            return Results.BadRequest("Invalid request data.");
+
+        if (request.Status != "Pending")
+            return Results.BadRequest("Request is not pending.");
+
+        // Get current admin username from JWT
+        var adminName = context.User?.Identity?.Name ?? "Unknown";
+
+        // Create user
+        var username = request.Email.Split('@')[0].Replace(".", "_").ToLowerInvariant();
+        var userDir = Path.Combine("content", "users", username);
+        Directory.CreateDirectory(userDir);
+        var userPath = Path.Combine(userDir, "profile.json");
+        if (File.Exists(userPath))
+            return Results.Conflict("User already exists.");
+
+        var user = new User
+        {
+            Username = username,
+            Name = request.Name,
+            Email = request.Email,
+            Description = request.Description,
+            PasswordHash = request.PasswordHash,
+            Role = "author",
+            ProfilePicture = request.PicturePath
+        };
+
+        var userJson = JsonSerializer.Serialize(user, new JsonSerializerOptions { WriteIndented = true });
+        await File.WriteAllTextAsync(userPath, userJson);
+
+        // Update request status
+        request.Status = "Approved";
+        request.ReviewedBy = adminName;
+        var updatedJson = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
+        await File.WriteAllTextAsync(metaPath, updatedJson);
+
+        // Send approval email
+        var settings = config.Value;
+        var msg = new MimeMessage();
+        msg.From.Add(MailboxAddress.Parse(settings.FromEmail));
+        msg.To.Add(MailboxAddress.Parse(request.Email));
+        msg.Subject = "Your Application Has Been Approved!";
+        msg.Body = new TextPart("html")
+        {
+            Text = $"""
+                <h2>Congratulations, {request.Name}!</h2>
+                <p>Your application to join Lets Blog has been approved.</p>
+                <p>You can now log in using your username: {username} and password at <a href="{settings.BaseUrl}/login">{settings.BaseUrl}/login</a>.</p>
+                <hr/>
+                <p style='font-size: 0.8em;'>Questions? Contact us at <a href='mailto:letsblog047@gmail.com'>letsblog047@gmail.com</a></p>
+                """
+        };
+
+        using var client = new SmtpClient();
+        await client.ConnectAsync(settings.SmtpHost, settings.SmtpPort, settings.UseSsl);
+        await client.AuthenticateAsync(settings.SmtpUser, settings.SmtpPass);
+        await client.SendAsync(msg);
+        await client.DisconnectAsync(true);
+
+        return Results.Ok("Request approved and user created.");
+    }
+
+    private static async Task<IResult> DenyRequest(string requestId, HttpContext context, IOptions<NotifierSettings> config)
+    {
+        var metaPath = Path.Combine("content", "requests", $"request_{requestId}", "meta.json");
+        if (!File.Exists(metaPath))
+            return Results.NotFound("Request not found.");
+
+        var json = await File.ReadAllTextAsync(metaPath);
+        var request = JsonSerializer.Deserialize<Request>(json);
+        if (request == null)
+            return Results.BadRequest("Invalid request data.");
+
+        if (request.Status != "Pending")
+            return Results.BadRequest("Request is not pending.");
+
+        // Get current admin username from JWT
+        var adminName = context.User?.Identity?.Name ?? "Unknown";
+
+        // Update request status
+        request.Status = "Denied";
+        request.ReviewedBy = adminName;
+        var updatedJson = JsonSerializer.Serialize(request, new JsonSerializerOptions { WriteIndented = true });
+        await File.WriteAllTextAsync(metaPath, updatedJson);
+
+        // Send denial email
+        var settings = config.Value;
+        var msg = new MimeMessage();
+        msg.From.Add(MailboxAddress.Parse(settings.FromEmail));
+        msg.To.Add(MailboxAddress.Parse(request.Email));
+        msg.Subject = "Update on Your Application";
+        msg.Body = new TextPart("html")
+        {
+            Text = $"""
+                <h2>Dear {request.Name},</h2>
+                <p>Thank you for applying to join Lets Blog.</p>
+                <p>After careful consideration, we regret to inform you that your application has not been approved at this time.</p>
+                <p>We appreciate your interest and encourage you to apply again in the future.</p>
+                <hr/>
+                <p style='font-size: 0.8em;'>Questions? Contact us at <a href='mailto:letsblog047@gmail.com'>letsblog047@gmail.com</a></p>
+                """
+        };
+
+        using var client = new SmtpClient();
+        await client.ConnectAsync(settings.SmtpHost, settings.SmtpPort, settings.UseSsl);
+        await client.AuthenticateAsync(settings.SmtpUser, settings.SmtpPass);
+        await client.SendAsync(msg);
+        await client.DisconnectAsync(true);
+
+        return Results.Ok("Request denied.");
     }
 
     private static bool IsValidEmail(string email)

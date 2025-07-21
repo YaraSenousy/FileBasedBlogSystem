@@ -89,7 +89,7 @@ function renderUsers(usersToRender) {
             <td>${user.name}</td>
             <td>${user.email || 'N/A'}</td>
             <td>${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</td>
-            <td>${user.role === 'editor' ? (user.assignedAuthor || 'N/A') : 'N/A'}</td>
+            <td>${authorSelect}</td>
             <td>
                 <button class="btn btn-outline-primary btn-sm edit-btn my-1 mx-2" data-username="${user.username}">
                     <i class="fas fa-edit"></i> Edit
@@ -97,7 +97,6 @@ function renderUsers(usersToRender) {
                 <button class="btn btn-outline-danger btn-sm my-1 mx-2 delete-btn" data-username="${user.username}" data-bs-toggle="modal" data-bs-target="#deleteUserModal">
                     <i class="fas fa-trash"></i> Delete
                 </button>
-                ${authorSelect}
             </td>
         `;
         tbody.appendChild(tr);
@@ -387,7 +386,7 @@ document.getElementById('confirm-delete-btn').addEventListener('click', async ()
  */
 async function fetchUsers() {
     try {
-        await fetchAuthors(); // Fetch authors first for dropdown
+        await fetchAuthors();
         const res = await fetch('/admin/users', { credentials: 'include' });
         if (res.ok) {
             users = await res.json();

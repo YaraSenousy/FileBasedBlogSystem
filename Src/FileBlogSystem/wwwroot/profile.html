@@ -28,9 +28,6 @@
                         <li class="nav-item">
                             <a class="nav-link" id="nav-scheduled" href="/dashboard/scheduled">Scheduled Posts</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="nav-my-posts" href="/my-posts">View My Posts</a>
-                        </li>
                     </ul>
                     <button class="nav-item btn ms-2" id="nav-account" data-bs-toggle="offcanvas"
                         data-bs-target="#accountOffcanvas" aria-controls="accountOffcanvas">
@@ -70,6 +67,11 @@
                     <li class="nav-item admin-functions">
                         <a class="nav-link" href="/category">
                             <i class="fas fa-list"></i> Manage Categories
+                        </a>
+                    </li>
+                    <li class="admin-functions nav-item">
+                        <a class="nav-link" href="/requests">
+                            <i class="fas fa-user-plus"></i> Requests <span id="pending-requests-count" class="badge bg-danger">0</span>
                         </a>
                     </li>
                     <li class="nav-item">

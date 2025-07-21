@@ -1,6 +1,9 @@
 {
   "Username": "habiba",
-  "Name": "habiba",
-  "PasswordHash": "$2a$11$P3J2ErpiUIA8yro24w5K9uRDpMpu4AAh2DEdqyB7BMk.mP2bbbz8.",
-  "Role": "author"
+  "Name": "Habiba Ismail",
+  "PasswordHash": "$2a$11$PzLXtFU40j4Cy2FM.mLlfOhpyqY8u.qOa5/xP1O8BKHZxQCccSqs.",
+  "Role": "author",
+  "Email": "h12ismail@gmail.com",
+  "ProfilePicture": "/content/users/habiba/profile-pic.webp",
+  "Description": "Writes about design, creativity, and the messy middle of making things. She believes good ideas deserve sharp execution\u2014and that whitespace is not wasted space."
 }

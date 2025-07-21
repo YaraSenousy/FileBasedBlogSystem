@@ -69,7 +69,7 @@ public static class UserPosts
         var allPosts = Directory
             .GetDirectories(postsDir)
             .Select(folder => PostReader.ReadPostFromFolder(folder))
-            .Where(p => p != null && p!.CreatedBy == username && p!.Status == "published")
+            .Where(p => p != null && (p!.CreatedBy == username|| p!.ModifiedBy == username) && p!.Status == "published")
             .OrderByDescending(p => p!.Published)
             .ToList();
         var posts = allPosts

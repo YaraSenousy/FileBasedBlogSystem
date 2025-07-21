@@ -5,6 +5,18 @@
 <link>http://localhost:5188</link>
 <description>Latest blog posts from FileBlogSystem</description>
 <item>
+  <title>What Is Logic Design? A Beginner&apos;s Guide to the Brains Behind Hardware</title>
+  <link>http://localhost:5188/post/logic</link>
+  <pubDate>Mon, 21 Jul 2025 04:57:20 GMT</pubDate>
+  <description>Logic design is the blueprint of all digital systems. Learn what it is, how it works, and why it’s the foundation of everything from calculators to CPUs.</description>
+</item>
+<item>
+  <title>🌍 10 Everyday Habits That Make Your Life More Sustainable</title>
+  <link>http://localhost:5188/post/10-everyday-habits-that-make-your-life-more-sustainable</link>
+  <pubDate>Mon, 21 Jul 2025 04:52:51 GMT</pubDate>
+  <description>Want to live a more eco-conscious life without making radical changes? Start with these 10 simple habits that make a real impact.</description>
+</item>
+<item>
   <title>🌱 Sustainable Living at Home: Practical Tips for a Greener Lifestyle</title>
   <link>http://localhost:5188/post/sustainable-living-at-home-practical-tips-for-a-greener-lifestyle</link>
   <pubDate>Sat, 19 Jul 2025 10:19:00 GMT</pubDate>
@@ -22,37 +34,6 @@
   <pubDate>Tue, 15 Jul 2025 20:11:36 GMT</pubDate>
   <description>As AI reshapes industries, certain careers stand firm. Discover the key traits of AI-resilient jobs and how to future-proof your career.
 </description>
-</item>
-<item>
-  <title>First Blog</title>
-  <link>http://localhost:5188/post/first-blog</link>
-  <pubDate>Mon, 14 Jul 2025 08:51:05 GMT</pubDate>
-  <description>My first blog post</description>
-</item>
-<item>
-  <title>logic</title>
-  <link>http://localhost:5188/post/logic</link>
-  <pubDate>Mon, 14 Jul 2025 08:13:56 GMT</pubDate>
-  <description>some logic</description>
-</item>
-<item>
-  <title> Cras laoreet pharetra</title>
-  <link>http://localhost:5188/post/cras-laoreet-pharetra-1</link>
-  <pubDate>Mon, 14 Jul 2025 08:13:52 GMT</pubDate>
-  <description>&quot;Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...&quot;
-&quot;There is no one who loves pain itself, who seeks after it and wants to have it, simply because it is pain...&quot;</description>
-</item>
-<item>
-  <title>Hello World</title>
-  <link>http://localhost:5188/post/hello-world</link>
-  <pubDate>Mon, 16 Jun 2025 15:22:00 GMT</pubDate>
-  <description>hello to everyone</description>
-</item>
-<item>
-  <title>blog 4</title>
-  <link>http://localhost:5188/post/blog-4</link>
-  <pubDate>Sun, 15 Jun 2025 08:24:26 GMT</pubDate>
-  <description>testing </description>
 </item>
 </channel>
 </rss>

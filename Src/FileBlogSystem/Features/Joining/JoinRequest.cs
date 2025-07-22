@@ -11,6 +11,7 @@ using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using System.Text.RegularExpressions;
 
 namespace FileBlogSystem.Features.Joining;
 
@@ -272,8 +273,39 @@ public static class JoinRequests
         // Get current admin username from JWT
         var adminName = context.User?.Identity?.Name ?? "Unknown";
 
+        // Check if email is already a user
+        var usersDir = Path.Combine("content", "users");
+        if (Directory.Exists(usersDir))
+        {
+            foreach (var oldUser in Directory.GetDirectories(usersDir))
+            {
+                var file = Path.Combine(oldUser, "profile.json");
+                if (!File.Exists(file))
+                    continue;
+
+                // Deserialize user profile to check email
+                var oldUserJson = await File.ReadAllTextAsync(file);
+                var userProfile = JsonSerializer.Deserialize<User>(oldUserJson);
+                if (userProfile?.Email?.Equals(request.Email, StringComparison.OrdinalIgnoreCase) == true)
+                    return Results.Conflict("Email already used.");
+            }
+        }
+
         // Create user
-        var username = request.Email.Split('@')[0].Replace(".", "_").ToLowerInvariant();
+        var usernameBase = Regex.Replace(request.Name.ToLowerInvariant(), @"[^a-z0-9\s-]", "");
+        usernameBase = Regex.Replace(usernameBase, @"[\s-]+", "-").Trim('-');
+        var root = Path.Combine("content", "users");
+        var counter = 1;
+        var username = usernameBase;
+
+        var existing = Directory.GetDirectories(root)
+            .Select(d => Path.GetFileName(d)?.Split('-', 4).Last()?.ToLowerInvariant())
+            .ToHashSet();
+
+        while (existing.Contains(username))
+        {
+            username = $"{usernameBase}-{counter++}";
+        }
         var userDir = Path.Combine("content", "users", username);
         Directory.CreateDirectory(userDir);
         var userPath = Path.Combine(userDir, "profile.json");

@@ -516,18 +516,8 @@ window.onload = async () => {
   document.getElementById("accountOffcanvasLabel").textContent = `Hello, ${name.split(" ")[0]}`;
   if (role === "editor") {
     document.getElementById("create-post").style.display = "none";
-    document.getElementById("nav-drafts").innerText = "Drafts";
-    document.getElementById("nav-my-posts").style.display = "none";
   }
-  if (role !== "admin") {
-    const adminFunctions = document.getElementsByClassName("admin-functions");
-    for (const element of adminFunctions) {
-      element.style.display = "none";
-    }
-  }
-  if (role === "author") {
-    document.getElementById("nav-scheduled").innerText = "My Scheduled Posts";
-  }
+
 
   const { page, tags, category, view } = getStateFromURL();
   currentPage = page;

@@ -498,9 +498,17 @@ function toggleTheme() {
  */
 async function updatePendingRequestsCount() {
   var { name, role } = JSON.parse(localStorage.getItem("userInfo") || "{}");
-  // Show admin nav only for admins
   if (role !== "admin") {
-    document.getElementById("admin-nav").style.display = "none";
+    const adminFunctions = document.getElementsByClassName("admin-functions");
+    for (const element of adminFunctions) {
+      element.style.display = "none";
+    }
+  }
+  if (role === "editor") {
+    document.getElementById("nav-drafts").innerText = "Drafts";
+  }
+  if (role === "author") {
+    document.getElementById("nav-scheduled").innerText = "My Scheduled Posts";
   }
   document.getElementById("accountOffcanvasLabel").textContent = `Hello, ${name.split(" ")[0]}`;
   const countElement = document.getElementById("pending-requests-count");

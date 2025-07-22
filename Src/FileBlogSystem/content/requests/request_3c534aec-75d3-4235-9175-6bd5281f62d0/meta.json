@@ -1,0 +1,13 @@
+{
+  "Id": "3c534aec-75d3-4235-9175-6bd5281f62d0",
+  "Name": "alex",
+  "Email": "s@gmail.com",
+  "Description": "d",
+  "PasswordHash": "$2a$11$SsQY5gO4nArCyim60MDMmeGlOYI2NnA9TI8C7SUElf50/lK5Kwr4.",
+  "PicturePath": "",
+  "WhyJoin": "f",
+  "CvPath": "",
+  "CreationDate": "2025-07-22T17:30:23.6277828Z",
+  "Status": "Approved",
+  "ReviewedBy": "admin"
+}

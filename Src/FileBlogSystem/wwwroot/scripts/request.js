@@ -105,8 +105,8 @@ async function loadRequest() {
  */
 async function approveRequest() {
   const requestId = window.location.pathname.split("/").pop();
+  const spinner = document.getElementById("request-spinner");
   try {
-    const spinner = document.getElementById("request-spinner");
     spinner.style.display = "inline-block";
     const response = await fetch(
       `http://localhost:5188/all-requests/${requestId}/approve`,
@@ -119,9 +119,13 @@ async function approveRequest() {
       showToast("Request approved and user created.", "success");
       window.location.href = "/requests";
     } else {
-      showToast("Failed to approve request.", "danger");
+       response.text().then(message => {
+        showToast(message, "danger");
+        spinner.style.display = "none";
+      });
     }
   } catch (err) {
+    spinner.style.display = "none";
     console.error("Failed to approve request:", err.message);
     showToast("Failed to approve request.", "danger");
   } finally {

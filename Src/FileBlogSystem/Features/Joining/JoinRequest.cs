@@ -70,11 +70,16 @@ public static class JoinRequests
         var usersDir = Path.Combine("content", "users");
         if (Directory.Exists(usersDir))
         {
-            foreach (var file in Directory.GetFiles(usersDir, "*.json"))
+            foreach (var user in Directory.GetDirectories(usersDir))
             {
+                var file = Path.Combine(user, "profile.json");
+                if (!File.Exists(file))
+                    continue;
+
+                // Deserialize user profile to check email
                 var userJson = await File.ReadAllTextAsync(file);
-                var user = JsonSerializer.Deserialize<User>(userJson);
-                if (user?.Email?.Equals(email, StringComparison.OrdinalIgnoreCase) == true)
+                var userProfile = JsonSerializer.Deserialize<User>(userJson);
+                if (userProfile?.Email?.Equals(email, StringComparison.OrdinalIgnoreCase) == true)
                     return Results.Conflict("Email already used.");
             }
         }
@@ -299,7 +304,12 @@ public static class JoinRequests
                 var ext = Path.GetExtension(sourcePicturePath).ToLowerInvariant();
                 var destPicturePath = Path.Combine(userDir, $"profile-pic{ext}");
                 File.Move(sourcePicturePath, destPicturePath);
-                user.ProfilePicture = Path.Combine("content","users", username, $"profile-pic{ext}");
+                user.ProfilePicture = Path.Combine(
+                    "content",
+                    "users",
+                    username,
+                    $"profile-pic{ext}"
+                );
             }
             else
             {

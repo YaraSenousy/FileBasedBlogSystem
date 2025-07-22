@@ -1,4 +1,4 @@
-import { showToast } from "./utils.js";
+import { showToast, theme } from "./utils.js";
 
 /**
  * Updates the active navigation state for the join page.
@@ -9,17 +9,6 @@ function updateActiveNav() {
   navItems.forEach(item => item.classList.remove("active"));
   const joinNav = document.querySelector("a[href='/join']");
   if (joinNav) joinNav.classList.add("active");
-}
-
-/**
- * Updates the theme toggle icon based on the current theme.
- * @param {string} theme - The current theme ("dark" or "light").
- */
-function updateThemeToggleIcon(theme) {
-  const icon = document.getElementById("theme-toggle")?.querySelector("i");
-  if (icon) {
-    icon.className = theme === "dark" ? "fas fa-sun" : "fas fa-moon";
-  }
 }
 
 /**
@@ -114,17 +103,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  const themeToggle = document.getElementById("theme-toggle");
-  if (themeToggle) {
-    themeToggle.addEventListener("click", () => {
-      const currentTheme = document.documentElement.getAttribute("data-theme");
-      const newTheme = currentTheme === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", newTheme);
-      localStorage.setItem("theme", newTheme);
-      updateThemeToggleIcon(newTheme);
-    });
-  }
-
   const navBlogs = document.getElementById("nav-blogs");
   if (navBlogs) {
     navBlogs.addEventListener("click", (e) => {
@@ -132,13 +110,5 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "/blogs";
     });
   }
-
-  const savedTheme = localStorage.getItem("theme");
-  const theme = savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  document.documentElement.setAttribute("data-theme", theme);
-  if (savedTheme) {
-    updateThemeToggleIcon(savedTheme);
-  } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    updateThemeToggleIcon("dark");
-  }
+  theme();
 });

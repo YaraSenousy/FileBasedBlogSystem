@@ -1,4 +1,4 @@
-import { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags } from "./utils.js";
+import { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, theme } from "./utils.js";
 
 /**
  * Manages the current page number, limit per page, total pages, active tags, and selected category for the homepage.
@@ -254,11 +254,6 @@ function clearSearch() {
   loadPublishedPosts();
 }
 
-function updateThemeToggleIcon(theme) {
-  const icon = document.getElementById("theme-toggle").querySelector("i");
-  icon.className = theme === "dark" ? "fas fa-sun" : "fas fa-moon";
-}
-
 /**
  * Opens and handles the subscribing form.
  */
@@ -370,13 +365,6 @@ window.onload = async () => {
     setCurrentState(1, activeTags, ""); // Preserve activeTags when navigating to home
     clearSearch();
   });
-  document.getElementById("theme-toggle").addEventListener("click", () => {
-    const currentTheme = document.documentElement.getAttribute("data-theme");
-    const newTheme = currentTheme === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", newTheme);
-    localStorage.setItem("theme", newTheme);
-    updateThemeToggleIcon(newTheme);
-  });
 
   // Handle browser back/forward navigation
   window.addEventListener("popstate", async (event) => {
@@ -408,12 +396,5 @@ window.onload = async () => {
     }
   });
 
-  const savedTheme = localStorage.getItem("theme");
-  const theme = savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  document.documentElement.setAttribute("data-theme", theme);
-  if (savedTheme) {
-    updateThemeToggleIcon(savedTheme);
-  } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    updateThemeToggleIcon("dark");
-  }
+  theme();
 };

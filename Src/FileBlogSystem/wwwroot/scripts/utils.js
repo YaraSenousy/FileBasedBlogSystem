@@ -489,14 +489,27 @@ function renderPagination(currentPage, totalPages, loadPosts, activeTags, select
 /**
  * Toggles the color theme and saves it in local storage.
  */
-function toggleTheme() {
-  const html = document.documentElement;
-  const toggle = document.querySelector(".theme-toggle");
-  const currentTheme = html.getAttribute("data-theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  const newTheme = currentTheme === "dark" ? "light" : "dark";
-  html.setAttribute("data-theme", newTheme);
-  localStorage.setItem("theme", newTheme);
-  toggle.checked = newTheme === "dark";
+function updateThemeToggleIcon(theme) {
+  const icon = document.getElementById("theme-toggle").querySelector("i");
+  icon.className = theme === "dark" ? "fas fa-sun" : "fas fa-moon";
+}
+
+function theme() {
+  const savedTheme = localStorage.getItem("theme");
+  const theme = savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  document.documentElement.setAttribute("data-theme", theme);
+  if (savedTheme) {
+    updateThemeToggleIcon(savedTheme);
+  } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    updateThemeToggleIcon("dark");
+  }
+  document.getElementById("theme-toggle").addEventListener("click", () => {
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+    updateThemeToggleIcon(newTheme);
+  });
 }
 
 /**
@@ -530,4 +543,4 @@ async function updatePendingRequestsCount() {
   }
 }
 
-export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, toggleTheme, toggleBookmark, getBookmarks, isBookmarked, updatePendingRequestsCount };
+export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, theme, toggleBookmark, getBookmarks, isBookmarked, updatePendingRequestsCount };

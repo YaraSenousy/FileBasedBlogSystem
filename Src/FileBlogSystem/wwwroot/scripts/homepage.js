@@ -1,9 +1,4 @@
-import { fetchData, showToast } from "./utils.js";
-
-function updateThemeToggleIcon(theme) {
-  const icon = document.getElementById("theme-toggle").querySelector("i");
-  icon.className = theme === "dark" ? "fas fa-sun" : "fas fa-moon";
-}
+import { fetchData, showToast, theme } from "./utils.js";
 
 async function loadFeaturedPosts() {
   const response = await fetchData(`/published?page=1&limit=5`, true);
@@ -127,24 +122,5 @@ window.onload = () => {
   loadFeaturedPosts();
   newsletter();
   document.getElementById("nav-home").classList.add("active");
-  document.getElementById("theme-toggle").addEventListener("click", () => {
-    const currentTheme = document.documentElement.getAttribute("data-theme");
-    const newTheme = currentTheme === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", newTheme);
-    localStorage.setItem("theme", newTheme);
-    updateThemeToggleIcon(newTheme);
-  });
-
-  const savedTheme = localStorage.getItem("theme");
-  const theme =
-    savedTheme ||
-    (window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light");
-  document.documentElement.setAttribute("data-theme", theme);
-  if (savedTheme) {
-    updateThemeToggleIcon(savedTheme);
-  } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    updateThemeToggleIcon("dark");
-  }
+  theme();
 };

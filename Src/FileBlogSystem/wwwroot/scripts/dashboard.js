@@ -7,7 +7,8 @@ import {
   loadCategories,
   renderPagination,
   clearTags,
-  updatePendingRequestsCount
+  updatePendingRequestsCount,
+  theme
 } from "./utils.js";
 
 /**
@@ -462,11 +463,6 @@ async function logout() {
   location.href = "/login";
 }
 
-function updateThemeToggleIcon(theme) {
-  const icon = document.getElementById("theme-toggle").querySelector("i");
-  icon.className = theme === "dark" ? "fas fa-sun" : "fas fa-moon";
-}
-
 /**
  * Loads and renders the user's posts for the current page.
  */
@@ -528,6 +524,7 @@ window.onload = async () => {
   await loadCategories(setCurrentState, loadPostsByCategory, activeTags, loadPublishedPosts);
   await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory);
   await updatePendingRequestsCount();
+  theme();
 
   const dropdown = document.getElementById("category-dropdown");
   if (selectedCategory && currentView === "published") {
@@ -613,13 +610,6 @@ window.onload = async () => {
     e.preventDefault();
     logout();
   });
-  document.getElementById("theme-toggle").addEventListener("click", () => {
-    const currentTheme = document.documentElement.getAttribute("data-theme");
-    const newTheme = currentTheme === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", newTheme);
-    localStorage.setItem("theme", newTheme);
-    updateThemeToggleIcon(newTheme);
-  });
 
   window.addEventListener("popstate", async (event) => {
     if (event.state) {
@@ -651,14 +641,6 @@ window.onload = async () => {
     }
   });
 
-  const savedTheme = localStorage.getItem("theme");
-  const theme = savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  document.documentElement.setAttribute("data-theme", theme);
-  if (savedTheme) {
-    updateThemeToggleIcon(savedTheme);
-  } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    updateThemeToggleIcon("dark");
-  }
   deleteButtonInitialise();
 
   const postsContainer = document.getElementById("posts-container");

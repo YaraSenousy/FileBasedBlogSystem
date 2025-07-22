@@ -1,5 +1,5 @@
 // Import utility functions for fetching data and displaying toasts
-import { fetchData, showToast, updatePendingRequestsCount } from "./utils.js";
+import { fetchData, showToast, updatePendingRequestsCount, theme } from "./utils.js";
 
 // Global state for managing posts, user role, search term, and current tab
 let allUserPosts = []; // Stores all user posts fetched from /user-posts
@@ -343,15 +343,6 @@ async function logout() {
 }
 
 /**
- * Updates the theme toggle icon based on the current theme.
- * @param {string} theme - The current theme ("dark" or "light").
- */
-function updateThemeToggleIcon(theme) {
-  const icon = document.getElementById("theme-toggle").querySelector("i");
-  icon.className = theme === "dark" ? "fas fa-sun" : "fas fa-moon";
-}
-
-/**
  * Initializes the page, sets up event listeners, and loads posts.
  */
 window.onload = async () => {
@@ -406,15 +397,6 @@ window.onload = async () => {
     logout();
   });
 
-  // Theme toggle
-  document.getElementById("theme-toggle").addEventListener("click", () => {
-    const currentTheme = document.documentElement.getAttribute("data-theme");
-    const newTheme = currentTheme === "dark" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", newTheme);
-    localStorage.setItem("theme", newTheme);
-    updateThemeToggleIcon(newTheme);
-  });
-
   // Tab switching
   document.getElementById("post-tabs").addEventListener("click", (e) => {
     const tab = e.target.closest(".nav-link");
@@ -459,15 +441,7 @@ window.onload = async () => {
   });
 
   // Initialize theme
-  const savedTheme = localStorage.getItem("theme");
-  const theme = savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  document.documentElement.setAttribute("data-theme", theme);
-  if (savedTheme) {
-    updateThemeToggleIcon(savedTheme);
-  } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    updateThemeToggleIcon("dark");
-  }
-
+  theme();
   // Initialize delete button
   deleteButtonInitialise();
 };

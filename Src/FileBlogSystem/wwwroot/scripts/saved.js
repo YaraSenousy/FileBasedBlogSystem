@@ -1,4 +1,4 @@
-import { fetchData, renderPosts, showToast, getBookmarks } from "./utils.js";
+import { fetchData, renderPosts, showToast, getBookmarks, theme } from "./utils.js";
 
 /**
  * Manages the current search term for the saved blogs page.
@@ -80,17 +80,6 @@ function clearSearch() {
   document.getElementById("search-box").value = "";
   searchTerm = "";
   loadBookmarkedPosts();
-}
-
-/**
- * Updates the theme toggle icon based on the current theme.
- * @param {string} theme - The current theme ("dark" or "light").
- */
-function updateThemeToggleIcon(theme) {
-  const icon = document.getElementById("theme-toggle")?.querySelector("i");
-  if (icon) {
-    icon.className = theme === "dark" ? "fas fa-sun" : "fas fa-moon";
-  }
 }
 
 /**
@@ -180,25 +169,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  const themeToggle = document.getElementById("theme-toggle");
-  if (themeToggle) {
-    themeToggle.addEventListener("click", () => {
-      const currentTheme = document.documentElement.getAttribute("data-theme");
-      const newTheme = currentTheme === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", newTheme);
-      localStorage.setItem("theme", newTheme);
-      updateThemeToggleIcon(newTheme);
-    });
-  }
-
-  const savedTheme = localStorage.getItem("theme");
-  const theme = savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  document.documentElement.setAttribute("data-theme", theme);
-  if (savedTheme) {
-    updateThemeToggleIcon(savedTheme);
-  } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    updateThemeToggleIcon("dark");
-  }
+  //initialize theme
+  theme();
 });
 
 export { loadBookmarkedPosts};

@@ -1,15 +1,5 @@
 
-import {updatePendingRequestsCount} from "./utils.js";
-
-/**
- * Initialize theme based on localStorage or system preference
- */
-const savedTheme = localStorage.getItem("theme");
-if (savedTheme) {
-    document.documentElement.setAttribute("data-theme", savedTheme);
-} else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    document.documentElement.setAttribute("data-theme", "dark");
-}
+import {updatePendingRequestsCount, theme} from "./utils.js";
 
 /**
  * Configuration and state
@@ -295,5 +285,6 @@ async function fetchCategories() {
 }
 
 // Initialize by fetching categories
+theme();
 fetchCategories();
 await updatePendingRequestsCount();

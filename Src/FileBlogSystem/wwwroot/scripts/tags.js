@@ -1,14 +1,9 @@
-import {updatePendingRequestsCount} from "./utils.js";
+import {updatePendingRequestsCount, theme} from "./utils.js";
 
 /**
- * Initialize theme based on localStorage or system preference
+ * Initialize theme
  */
-const savedTheme = localStorage.getItem("theme");
-if (savedTheme) {
-    document.documentElement.setAttribute("data-theme", savedTheme);
-} else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    document.documentElement.setAttribute("data-theme", "dark");
-}
+theme(); 
 
 /**
  * Configuration and state

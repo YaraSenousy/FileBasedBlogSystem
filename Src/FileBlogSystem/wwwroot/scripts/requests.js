@@ -1,4 +1,4 @@
-import { fetchData, showToast, renderPagination, updatePendingRequestsCount  } from "./utils.js";
+import { fetchData, showToast, renderPagination, updatePendingRequestsCount, theme  } from "./utils.js";
 
 let currentPage = 1;
 const limit = 3;
@@ -29,17 +29,6 @@ function updateActiveNav() {
     .querySelectorAll(".nav-link")
     .forEach((item) => item.classList.remove("active"));
   document.querySelector("a[href='/requests']").classList.add("active");
-}
-
-/**
- * Updates the theme toggle icon based on the current theme.
- * @param {string} theme - The current theme ("dark" or "light").
- */
-function updateThemeToggleIcon(theme) {
-  const icon = document.getElementById("theme-toggle")?.querySelector("i");
-  if (icon) {
-    icon.className = theme === "dark" ? "fas fa-sun" : "fas fa-moon";
-  }
 }
 
 /**
@@ -211,27 +200,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     loadRequests();
   });
 
-  const themeToggle = document.getElementById("theme-toggle");
-  if (themeToggle) {
-    themeToggle.addEventListener("click", () => {
-      const currentTheme = document.documentElement.getAttribute("data-theme");
-      const newTheme = currentTheme === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", newTheme);
-      localStorage.setItem("theme", newTheme);
-      updateThemeToggleIcon(newTheme);
-    });
-  }
-
-  const savedTheme = localStorage.getItem("theme");
-  const theme =
-    savedTheme ||
-    (window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light");
-  document.documentElement.setAttribute("data-theme", theme);
-  if (savedTheme) {
-    updateThemeToggleIcon(savedTheme);
-  } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    updateThemeToggleIcon("dark");
-  }
+  //initialize theme
+  theme();
 });

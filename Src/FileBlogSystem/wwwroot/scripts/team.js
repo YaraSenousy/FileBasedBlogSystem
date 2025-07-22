@@ -1,5 +1,5 @@
 // Import utility functions for fetching data and displaying toasts
-import { fetchData, showToast } from "./utils.js";
+import { fetchData, showToast, theme } from "./utils.js";
 
 // Placeholder profile picture (base64-encoded SVG)
 const placeholderProfilePic = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTE1MCA3NUM3NSAxNTAgMCA3NSA3NSAwIDE1MCA3NSBaIiBmaWxsPSIjN0M4N0E4Ii8+PHBhdGggZD0iTTExMi41IDc1QzExMi41IDEwMC4zMjMgOTguODIzIDExOS41IDc1IDExOUM1MS4xNzcgMTE5LjUgMzcuNSA5OS45NjggMzcuNSA3NUMzNy41IDUwLjAzMiA1MS4xNzcgMzAuNSA3NSA0NS41QzEwMC4zMjMgMzAuNSA4OC41IDUwLjAzMiAxMTIuNSA3NVoiIGZpbGw9IiM1OTY0ODAiLz48L3N2Zz4=";
@@ -91,17 +91,6 @@ function setupSearch() {
 }
 
 /**
- * Updates the theme toggle icon based on the current theme.
- * @param {string} theme - The current theme ("dark" or "light").
- */
-function updateThemeToggleIcon(theme) {
-  const icon = document.getElementById("theme-toggle")?.querySelector("i");
-  if (icon) {
-    icon.className = theme === "dark" ? "fas fa-sun" : "fas fa-moon";
-  }
-}
-
-/**
  * Opens and handles the subscribing form.
  */
 async function newsletter() {
@@ -156,23 +145,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadTeam();
   setupSearch();
 
-  // Theme toggle
-  const themeToggle = document.getElementById("theme-toggle");
-    themeToggle.addEventListener("click", () => {
-      const currentTheme = document.documentElement.getAttribute("data-theme");
-      const newTheme = currentTheme === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", newTheme);
-      localStorage.setItem("theme", newTheme);
-      updateThemeToggleIcon(newTheme);
-    });
-
   // Initialize theme
-  const savedTheme = localStorage.getItem("theme");
-  const theme = savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  document.documentElement.setAttribute("data-theme", theme);
-  if (savedTheme) {
-    updateThemeToggleIcon(savedTheme);
-  } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    updateThemeToggleIcon("dark");
-  }
+  theme();
 });

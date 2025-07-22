@@ -66,6 +66,11 @@ function renderTags(tagsToRender) {
  */
 function renderPagination(totalTags) {
     const totalPages = Math.ceil(totalTags / ITEMS_PER_PAGE);
+    if (totalPages === 1) {
+        document.getElementById('pagination').style.display = 'none';
+        return; 
+    }else 
+        document.getElementById('pagination').style.display = 'block';
     const pageNumbers = document.getElementById('page-numbers');
     pageNumbers.innerHTML = '';
     for (let i = 1; i <= totalPages; i++) {
@@ -81,12 +86,13 @@ function renderPagination(totalTags) {
 /**
  * Filters tags based on search query and re-renders the table
  */
-function searchTags() {
+function searchTags(reset = true) {
     const query = document.getElementById('search-tags').value.toLowerCase();
     const filteredTags = tags.filter(tag =>
         tag.name.toLowerCase().includes(query) || tag.slug.toLowerCase().includes(query)
     );
-    currentPage = 1; // Reset to first page on search
+    if (reset) 
+        currentPage = 1;
     renderTags(filteredTags);
 }
 
@@ -114,7 +120,7 @@ document.getElementById('pagination').addEventListener('click', (e) => {
     } else if (pageLink.parentElement.id === 'next-page') {
         currentPage++;
     }
-    searchTags();
+    searchTags(false);
 });
 
 // Handle sorting clicks

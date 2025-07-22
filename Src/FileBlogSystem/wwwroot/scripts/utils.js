@@ -401,6 +401,12 @@ function renderPagination(currentPage, totalPages, loadPosts, activeTags, select
   const pageNumbersContainer = document.getElementById("page-numbers");
   pageNumbersContainer.innerHTML = "";
 
+    if (totalPages === 1) {
+        document.getElementById('pagination').style.display = 'none';
+        return; 
+    }else 
+        document.getElementById('pagination').style.display = 'block';
+
   const maxPagesToShow = 5;
   let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
   let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);

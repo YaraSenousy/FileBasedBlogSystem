@@ -68,6 +68,11 @@ function renderCategories(categoriesToRender) {
  */
 function renderPagination(totalCategories) {
     const totalPages = Math.ceil(totalCategories / ITEMS_PER_PAGE);
+    if (totalPages === 1) {
+        document.getElementById('pagination').style.display = 'none';
+        return; 
+    }else 
+        document.getElementById('pagination').style.display = 'block';
     const pageNumbers = document.getElementById('page-numbers');
     pageNumbers.innerHTML = '';
     for (let i = 1; i <= totalPages; i++) {
@@ -83,12 +88,13 @@ function renderPagination(totalCategories) {
 /**
  * Filters categories based on search query and re-renders the table
  */
-function searchCategories() {
+function searchCategories(reset = true) {
     const query = document.getElementById('search-categories').value.toLowerCase();
     const filteredCategories = categories.filter(category =>
         category.name.toLowerCase().includes(query) || category.slug.toLowerCase().includes(query)
     );
-    currentPage = 1; // Reset to first page on search
+    if (reset)
+        currentPage = 1;
     renderCategories(filteredCategories);
 }
 
@@ -116,7 +122,7 @@ document.getElementById('pagination').addEventListener('click', (e) => {
     } else if (pageLink.parentElement.id === 'next-page') {
         currentPage++;
     }
-    searchCategories();
+    searchCategories(false);
 });
 
 // Handle sorting clicks

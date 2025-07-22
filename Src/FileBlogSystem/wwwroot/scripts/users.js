@@ -26,6 +26,10 @@ let currentPage = 1;
 let sortField = 'username';
 let sortDirection = 'asc';
 
+// Placeholder profile picture (base64-encoded SVG)
+const placeholderProfilePic = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTE1MCA3NUM3NSAxNTAgMCA3NSA3NSAwIDE1MCA3NSBaIiBmaWxsPSIjN0M4N0E4Ii8+PHBhdGggZD0iTTExMi41IDc1QzExMi41IDEwMC4zMjMgOTguODIzIDExOS41IDc1IDExOUM1MS4xNzcgMTE5LjUgMzcuNSA5OS45NjggMzcuNSA3NUMzNy41IDUwLjAzMiA1MS4xNzcgMzAuNSA3NSA0NS41QzEwMC4zMjMgMzAuNSA4OC41IDUwLjAzMiAxMTIuNSA3NVoiIGZpbGw9IiM1OTY0ODAiLz48L3N2Zz4=";
+
+
 /**
  * Fetches authors from the API
  */
@@ -84,7 +88,7 @@ function renderUsers(usersToRender) {
             <td>
                 ${user.profilePicture
                     ? `<img src="${user.profilePicture}?width=40&height=40&mode=crop" class="user-profile-pic" alt="${user.username}'s profile picture">`
-                    : '<span class="no-pic">No Image</span>'
+                    : `<img src="${placeholderProfilePic}" class="user-profile-pic" alt="default profile picture">`
                 }
             </td>
             <td>${user.username}</td>
@@ -114,6 +118,11 @@ function renderUsers(usersToRender) {
  */
 function renderPagination(totalUsers) {
     const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
+    if (totalPages === 1) {
+        document.getElementById('pagination').style.display = 'none';
+        return; 
+    }else 
+        document.getElementById('pagination').style.display = 'block';
     const pageNumbers = document.getElementById('page-numbers');
     if (!pageNumbers) {
         console.error('Page numbers container not found');

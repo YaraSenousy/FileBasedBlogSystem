@@ -1,4 +1,4 @@
-import { fetchData, showToast, renderPagination } from "./utils.js";
+import { fetchData, showToast, renderPagination, updatePendingRequestsCount  } from "./utils.js";
 
 let currentPage = 1;
 const limit = 3;
@@ -39,22 +39,6 @@ function updateThemeToggleIcon(theme) {
   const icon = document.getElementById("theme-toggle")?.querySelector("i");
   if (icon) {
     icon.className = theme === "dark" ? "fas fa-sun" : "fas fa-moon";
-  }
-}
-
-/**
- * Fetches and displays the number of pending requests for admins.
- */
-async function updatePendingRequestsCount() {
-  const countElement = document.getElementById("pending-requests-count");
-  if (countElement && role === "admin") {
-    try {
-      const count = await fetchData("/all-requests/pending/count");
-      countElement.textContent = count.count || 0;
-    } catch (err) {
-      console.error("Failed to fetch pending requests count:", err.message);
-      countElement.textContent = "0";
-    }
   }
 }
 

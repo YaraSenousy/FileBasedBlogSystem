@@ -493,4 +493,26 @@ function toggleTheme() {
   toggle.checked = newTheme === "dark";
 }
 
-export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, toggleTheme, toggleBookmark, getBookmarks, isBookmarked };
+/**
+ * Fetches and displays the number of pending requests for admins.
+ */
+async function updatePendingRequestsCount() {
+  var { name, role } = JSON.parse(localStorage.getItem("userInfo") || "{}");
+  // Show admin nav only for admins
+  if (role !== "admin") {
+    document.getElementById("admin-nav").style.display = "none";
+  }
+  document.getElementById("accountOffcanvasLabel").textContent = `Hello, ${name.split(" ")[0]}`;
+  const countElement = document.getElementById("pending-requests-count");
+  if (countElement && role === "admin") {
+    try {
+      const count = await fetchData("/all-requests/pending/count");
+      countElement.textContent = count.count || 0;
+    } catch (err) {
+      console.error("Failed to fetch pending requests count:", err.message);
+      countElement.textContent = "0";
+    }
+  }
+}
+
+export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, toggleTheme, toggleBookmark, getBookmarks, isBookmarked, updatePendingRequestsCount };

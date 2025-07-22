@@ -7,6 +7,7 @@ import {
   loadCategories,
   renderPagination,
   clearTags,
+  updatePendingRequestsCount
 } from "./utils.js";
 
 /**
@@ -499,22 +500,6 @@ async function loadMyPosts() {
     showToast("Failed to load my posts", "danger");
     document.getElementById("posts-container").innerHTML =
       "<h4>Failed to load my posts. Please try again.</h4>";
-  }
-}
-
-/**
- * Fetches and displays the number of pending requests for admins.
- */
-async function updatePendingRequestsCount() {
-  const countElement = document.getElementById("pending-requests-count");
-  if (countElement && role === "admin") {
-    try {
-      const count = await fetchData("/all-requests/pending/count");
-      countElement.textContent = count.count || 0;
-    } catch (err) {
-      console.error("Failed to fetch pending requests count:", err.message);
-      countElement.textContent = "0";
-    }
   }
 }
 

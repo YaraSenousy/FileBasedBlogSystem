@@ -1,3 +1,5 @@
+import {updatePendingRequestsCount} from "./utils.js";
+
 /**
  * Initialize theme based on localStorage or system preference
  */
@@ -285,3 +287,4 @@ async function fetchTags() {
 
 // Initialize by fetching tags
 fetchTags();
+updatePendingRequestsCount();

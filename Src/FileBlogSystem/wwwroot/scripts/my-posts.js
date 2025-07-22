@@ -1,5 +1,5 @@
 // Import utility functions for fetching data and displaying toasts
-import { fetchData, showToast } from "./utils.js";
+import { fetchData, showToast, updatePendingRequestsCount } from "./utils.js";
 
 // Global state for managing posts, user role, search term, and current tab
 let allUserPosts = []; // Stores all user posts fetched from /user-posts
@@ -362,8 +362,7 @@ window.onload = async () => {
     return;
   }
 
-  // Set user greeting in offcanvas
-  document.getElementById("accountOffcanvasLabel").textContent = `Hello, ${name.split(" ")[0]}`;
+  await updatePendingRequestsCount();
 
   // Hide create post button for editors
   if (role === "editor") {

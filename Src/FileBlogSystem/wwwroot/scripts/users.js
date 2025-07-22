@@ -1,3 +1,5 @@
+import {updatePendingRequestsCount} from "./utils.js";
+
 /**
  * Initialize theme based on localStorage or system preference
  */
@@ -439,32 +441,6 @@ document.getElementById('confirm-delete-btn').addEventListener('click', async ()
     userToDelete = null;
 });
 
-/**
- * Fetches users from the API and updates the users array
- */
-async function fetchUsers() {
-    try {
-        await fetchAuthors();
-        const res = await fetch('/admin/users', { credentials: 'include' });
-        if (res.ok) {
-            users = await res.json();
-            searchUsers();
-        } else {
-            const error = await res.json();
-            const toast = document.getElementById('live-toast');
-            const toastMsg = document.getElementById('toast-message');
-            toastMsg.textContent = `Failed to load users: ${error.error}`;
-            toast.className = 'toast align-items-center text-bg-danger border-0';
-            new bootstrap.Toast(toast).show();
-        }
-    } catch (err) {
-        const toast = document.getElementById('live-toast');
-        const toastMsg = document.getElementById('toast-message');
-        toastMsg.textContent = `Error loading users: ${err.message}`;
-        toast.className = 'toast align-items-center text-bg-danger border-0';
-        new bootstrap.Toast(toast).show();
-    }
-}
-
 // Initialize by fetching users
-fetchUsers();
+await fetchUsers();
+await updatePendingRequestsCount();

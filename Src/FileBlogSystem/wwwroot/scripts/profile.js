@@ -1,5 +1,5 @@
 // Import utility functions for fetching data and displaying toasts
-import { fetchData, showToast } from "./utils.js";
+import { fetchData, showToast, updatePendingRequestsCount } from "./utils.js";
 
 // Placeholder profile picture (base64-encoded SVG)
 const placeholderProfilePic = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTE1MCA3NUM3NSAxNTAgMCA3NSA3NSAwIDE1MCA3NSBaIiBmaWxsPSIjN0M4N0E4Ii8+PHBhdGggZD0iTTExMi41IDc1QzExMi41IDEwMC4zMjMgOTguODIzIDExOS41IDc1IDExOUM1MS4xNzcgMTE5LjUgMzcuNSA5OS45NjggMzcuNSA3NUMzNy41IDUwLjAzMiA1MS4xNzcgMzAuNSA3NSA0NS41QzEwMC4zMjMgMzAuNSA4OC41IDUwLjAzMiAxMTIuNSA3NVoiIGZpbGw9IiM1OTY0ODAiLz48L3N2Zz4=";
@@ -134,8 +134,7 @@ window.onload = async () => {
     return;
   }
 
-  // Set user greeting in offcanvas
-  document.getElementById("accountOffcanvasLabel").textContent = `Hello, ${name.split(" ")[0]}`;
+  await updatePendingRequestsCount();
 
   // Hide admin functions for non-admins
   if (role !== "admin") {

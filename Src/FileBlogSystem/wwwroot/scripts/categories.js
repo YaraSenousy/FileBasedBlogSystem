@@ -1,3 +1,6 @@
+
+import {updatePendingRequestsCount} from "./utils.js";
+
 /**
  * Initialize theme based on localStorage or system preference
  */
@@ -287,3 +290,4 @@ async function fetchCategories() {
 
 // Initialize by fetching categories
 fetchCategories();
+await updatePendingRequestsCount();

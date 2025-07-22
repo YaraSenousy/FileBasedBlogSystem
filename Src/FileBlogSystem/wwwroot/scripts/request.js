@@ -1,4 +1,4 @@
-import { fetchData, showToast } from "./utils.js";
+import { fetchData, showToast, updatePendingRequestsCount } from "./utils.js";
 
 let role = null;
 
@@ -34,22 +34,6 @@ function updateThemeToggleIcon(theme) {
   const icon = document.getElementById("theme-toggle")?.querySelector("i");
   if (icon) {
     icon.className = theme === "dark" ? "fas fa-sun" : "fas fa-moon";
-  }
-}
-
-/**
- * Fetches and displays the number of pending requests for admins.
- */
-async function updatePendingRequestsCount() {
-  const countElement = document.getElementById("pending-requests-count");
-  if (countElement && role === "admin") {
-    try {
-      const count = await fetchData("/all-requests/pending/count");
-      countElement.textContent = count.count || 0;
-    } catch (err) {
-      console.error("Failed to fetch pending requests count:", err.message);
-      countElement.textContent = "0";
-    }
   }
 }
 
@@ -189,11 +173,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (role !== "admin") {
     window.location.href = "/";
     return;
-  }
-
-  // Show admin nav only for admins
-  if (role !== "admin") {
-    document.getElementById("admin-nav").style.display = "none";
   }
 
   updateActiveNav();

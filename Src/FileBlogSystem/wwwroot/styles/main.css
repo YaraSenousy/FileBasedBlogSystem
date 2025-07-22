@@ -5,6 +5,9 @@ body {
     color: #333;
     margin: 0;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 a {
@@ -242,6 +245,10 @@ nav a {
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.container-fluid {
+    flex: 1 0 auto;
 }
 
 .post-card.no-image {
@@ -1429,13 +1436,14 @@ h1 a {
 }
 
 /* footer*/
-.footer-section {
+  .footer-section {
     padding: 20px 15px;
     background: linear-gradient(90deg, #e9ecef, #f4f5f5);
     border-top: 2px solid #ccc;
     margin-top: 20px;
     color: #333;
     font-size: 0.9rem;
+    flex-shrink: 0;
 }
 
 .footer-section a {

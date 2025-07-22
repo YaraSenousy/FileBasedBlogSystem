@@ -62,8 +62,9 @@ public static class EditPost
             )
                 return Results.Unauthorized();
         }
-        if (meta.CreatedBy != username)
+        else if (meta.CreatedBy != username)
             return Results.Unauthorized();
+            
         if (meta.Status == "published")
             return Results.BadRequest();
 

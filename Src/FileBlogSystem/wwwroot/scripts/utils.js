@@ -512,6 +512,7 @@ async function updatePendingRequestsCount() {
   }
   if (role === "editor") {
     document.getElementById("nav-drafts").innerText = "Drafts";
+    document.getElementById("nav-my-posts").style.display = "none";
   }
   if (role === "author") {
     document.getElementById("nav-scheduled").innerText = "My Scheduled Posts";

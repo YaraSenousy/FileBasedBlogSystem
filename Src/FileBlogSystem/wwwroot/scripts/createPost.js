@@ -114,6 +114,9 @@ async function goToPreview() {
 function switchToPreview() {
   document.getElementById("step-form").style.display = "none";
   document.getElementById("step-preview").style.display = "block";
+  var { name, role } = JSON.parse(localStorage.getItem("userInfo") || "{}");
+  if (role === "editor")
+    document.getElementById("publishing-center").style.display = "none";
 }
 
 /**

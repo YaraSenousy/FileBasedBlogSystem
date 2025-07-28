@@ -73,6 +73,7 @@ var app = builder.Build();
 app.UseImageSharp();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseHsts();
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();

@@ -82,7 +82,7 @@ async function newsletter() {
         spinner.style.display = "inline-block"; 
         try {
           const response = await fetch(
-            `http://localhost:5188/subscribe?email=${encodeURIComponent(
+            `https://51.103.244.171/subscribe?email=${encodeURIComponent(
               email
             )}`,
             {

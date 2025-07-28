@@ -1,6 +1,6 @@
 {
   "title": "File Blog",
-  "baseUrl": "http://localhost:5188",
+  "baseUrl": "https://51.103.244.171",
   "description": "Latest blog posts from FileBlogSystem",
   "schedulerIntervalSeconds": "60"
 }

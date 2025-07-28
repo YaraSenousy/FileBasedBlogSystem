@@ -98,7 +98,7 @@ async function approveRequest() {
   try {
     spinner.style.display = "inline-block";
     const response = await fetch(
-      `http://localhost:5188/all-requests/${requestId}/approve`,
+      `https://51.103.244.171/all-requests/${requestId}/approve`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -131,7 +131,7 @@ async function denyRequest() {
     const spinner = document.getElementById("request-spinner");
     spinner.style.display = "inline-block";
     const response = await fetch(
-      `http://localhost:5188/all-requests/${requestId}/deny`,
+      `https://51.103.244.171/all-requests/${requestId}/deny`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

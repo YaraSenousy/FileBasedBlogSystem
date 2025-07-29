@@ -109,7 +109,7 @@ async function newsletter() {
           } else if (response.status === 400) {
             showToast("Subscription failed. Invalid email", "danger");
           } else if (response.status === 409) {
-            showToast("Subscription failed. Email already used", "danger");
+            showToast("You have already subscribed to the newsletter", "danger");
           } else {
             showToast("Subscription failed.", "danger");
           }

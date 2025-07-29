@@ -52,6 +52,29 @@
       </div>
     </nav>
   </header>
+  <div class="modal fade" id="subscribeModal" tabindex="-1" aria-labelledby="subscribeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="subscribeModalLabel">Subscribe to Newsletter</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Enter your email to receive updates whenever a new blog is posted!</p>
+          <form id="newsletter-form">
+            <div class="mb-3">
+              <input type="email" id="newsletter-email" class="form-control" placeholder="Enter your email" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Subscribe</button>
+            <div id="newsletter-spinner" class="spinner-border text-primary ms-2" role="status"
+              style="display: none; width: 1.5rem; height: 1.5rem;">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
   <main id="post-container">Loading...</main>
   <footer id="footer" class="footer-section">
     <p>© 2025 Lets Blog. All rights reserved.</p>
@@ -77,6 +100,46 @@
       localStorage.setItem("theme", newTheme);
       updateThemeToggleIcon(newTheme);
     });
+
+    const newsletterForm = document.getElementById("newsletter-form");
+    if (newsletterForm) {
+      newsletterForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("newsletter-email").value;
+        if (email) {
+          const spinner = document.getElementById("newsletter-spinner");
+          spinner.style.display = "inline-block";
+          try {
+            const response = await fetch(
+              `https://letsblog.switzerlandnorth.cloudapp.azure.com/subscribe?email=${encodeURIComponent(email)}`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+            if (response.ok) {
+              showToast("Successfully subscribed! Check your email for confirmation.", "success");
+              newsletterForm.reset();
+              const modal = bootstrap.Modal.getInstance(document.getElementById('subscribeModal'));
+              modal.hide();
+            } else if (response.status === 400) {
+              showToast("Subscription failed. Invalid email", "danger");
+            } else if (response.status === 409) {
+              showToast("Subscription failed. Email already used", "danger");
+            } else {
+              showToast("Subscription failed.", "danger");
+            }
+          } catch (error) {
+            console.error("Error subscribing:", error);
+            showToast("An error occurred. Please try again later.", "danger");
+          } finally {
+            spinner.style.display = "none";
+          }
+        }
+      });
+    }
 
     const url = new URLSearchParams(location.search);
     const slug = location.pathname.split("/").filter(Boolean).pop();

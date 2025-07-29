@@ -1,6 +1,6 @@
 {
   "title": "File Blog",
-  "baseUrl": "https://51.103.244.171",
+  "baseUrl": "https://letsblog.switzerlandnorth.cloudapp.azure.com",
   "description": "Latest blog posts from FileBlogSystem",
   "schedulerIntervalSeconds": "60"
 }

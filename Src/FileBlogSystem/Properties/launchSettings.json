@@ -5,7 +5,7 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "https://51.103.244.171",
+      "applicationUrl": "https://letsblog.switzerlandnorth.cloudapp.azure.com",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -14,7 +14,7 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:7089;https://51.103.244.171",
+      "applicationUrl": "https://localhost:7089;https://letsblog.switzerlandnorth.cloudapp.azure.com",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

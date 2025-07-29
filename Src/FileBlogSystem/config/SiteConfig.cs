@@ -5,7 +5,7 @@ namespace FileBlogSystem.config;
 public static class SiteConfig
 {
     public static string Title { get; private set; } = "File Blog";
-    public static string BaseUrl { get; private set; } = "https://51.103.244.171";
+    public static string BaseUrl { get; private set; } = "https://letsblog.switzerlandnorth.cloudapp.azure.com";
     public static string Description { get; private set; } = "";
     public static int SchedulerIntervalSeconds { get; private set; } = 60;
 

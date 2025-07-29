@@ -14,12 +14,11 @@ async function loadBookmarkedPosts() {
   try {
     const bookmarks = getBookmarks();
     if (bookmarks.length === 0) {
-      document.getElementById("posts-container").innerHTML = "<h4>No bookmarked posts</h4>";
+      document.getElementById("posts-container").innerHTML = "<h4>No bookmarked posts</h4><p><i>Start bookmarking posts to see them here!</i></p>";
       allPosts = [];
       return;
     }
 
-    // Fetch each post individually
     allPosts = [];
     for (const slug of bookmarks) {
       try {
@@ -27,11 +26,9 @@ async function loadBookmarkedPosts() {
         allPosts.push(post);
       } catch (err) {
         console.warn(`Failed to fetch post with slug ${slug}:`, err.message);
-        // Continue fetching other posts if one fails
       }
     }
 
-    // Apply frontend search filter if searchTerm exists
     let filteredPosts = allPosts;
     if (searchTerm) {
       filteredPosts = allPosts.filter(post =>

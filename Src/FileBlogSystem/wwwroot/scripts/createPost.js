@@ -1,4 +1,4 @@
-import { fetchData, showToast } from "./utils.js";
+import { fetchData, showToast, updatePendingRequestsCount, theme } from "./utils.js";
 
 /**
  * Stores the slug of the current post being edited or created.
@@ -430,12 +430,8 @@ function showMedia(post) {
  */
 window.onload = async () => {
   easyMDE = new EasyMDE({ element: document.getElementById('markdown-textarea') });
-  const savedTheme = localStorage.getItem("theme");
-  if (savedTheme) {
-    document.documentElement.setAttribute("data-theme", savedTheme);
-  } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    document.documentElement.setAttribute("data-theme", "dark");
-  }
+  theme();
+  updatePendingRequestsCount();
 
   try {
     await loadTagsAndCategories();

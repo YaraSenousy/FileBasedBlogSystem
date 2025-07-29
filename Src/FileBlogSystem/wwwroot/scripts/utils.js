@@ -86,8 +86,8 @@ function renderPosts(posts, containerId, role = null, name = null) {
 
   posts.forEach((post) => {
     const postEl = document.createElement("article");
-    const tags = (post.tags || []).map((t) => `<span>${t}</span>`).join("");
-    const cats = (post.categories || []).map((c) => `<span>${c}</span>`).join("");
+    const tags = (post.tags || []).map((t) => `<span><a href="?tags=${t}">${t}</a></span>`).join("");
+    const cats = (post.categories || []).map((c) => `<span><a href="?category=${c}">${c}</a></span>`).join("");
     const status = post.status?.toLowerCase() || "published";
     const images = (post.mediaUrls || []).filter((url) =>
       /\.(png|jpe?g|webp|gif)$/i.test(url)

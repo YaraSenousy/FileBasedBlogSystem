@@ -6,9 +6,10 @@
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="content\**\*.*" CopyToPublishDirectory="Always" />
     <Content Include="wwwroot\**\*.*" CopyToPublishDirectory="Always" />
     <Content Include="config\**\*.*" CopyToPublishDirectory="Always" />
+    <Content Include="content\**\*.*" CopyToPublishDirectory="Never" />
+    <None Include="publish\**\*.*" ExcludeFromSingleFile="true" CopyToPublishDirectory="Never" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />

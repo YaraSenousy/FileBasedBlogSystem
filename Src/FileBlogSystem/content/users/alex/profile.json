@@ -1,0 +1,10 @@
+{
+  "Username": "alex",
+  "Name": "Alex Alan",
+  "PasswordHash": "$2a$11$x6KQCVYuoER5WPcYwgN65e1MhXK0iF7roHG5UcAcJcSlURquVmuFO",
+  "Role": "editor",
+  "Email": "alex23@gmail.com",
+  "ProfilePicture": "/content/users/alex/profile-pic.webp",
+  "Description": "A full-stack developer and technical writer who explains complex code with clarity.",
+  "AssignedAuthor": "jane"
+}

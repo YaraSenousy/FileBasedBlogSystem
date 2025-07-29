@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<rss version="2.0">
+<channel>
+<title>File Blog</title>
+<link>https://letsblog.switzerlandnorth.cloudapp.azure.com</link>
+<description>Latest blog posts from FileBlogSystem</description>
+<item>
+  <title>Why Deep Work Beats Multitasking in the Digital Age</title>
+  <link>https://letsblog.switzerlandnorth.cloudapp.azure.com/post/why-deep-work-beats-multitasking-in-the-digital-age</link>
+  <pubDate>Tue, 22 Jul 2025 07:31:00 GMT</pubDate>
+  <description>Multitasking is killing your productivity—and your focus. Learn why deep work is the real superpower in today’s distraction-heavy world.</description>
+</item>
+<item>
+  <title>🌍 10 Everyday Habits That Make Your Life More Sustainable</title>
+  <link>https://letsblog.switzerlandnorth.cloudapp.azure.com/post/10-everyday-habits-that-make-your-life-more-sustainable</link>
+  <pubDate>Mon, 21 Jul 2025 04:52:51 GMT</pubDate>
+  <description>Want to live a more eco-conscious life without making radical changes? Start with these 10 simple habits that make a real impact.</description>
+</item>
+<item>
+  <title>🌱 Sustainable Living at Home: Practical Tips for a Greener Lifestyle</title>
+  <link>https://letsblog.switzerlandnorth.cloudapp.azure.com/post/sustainable-living-at-home-practical-tips-for-a-greener-lifestyle</link>
+  <pubDate>Sat, 19 Jul 2025 10:19:00 GMT</pubDate>
+  <description>Learn how to create a more sustainable home through composting, water conservation, eco-friendly decor, and growing your own food.</description>
+</item>
+<item>
+  <title>Digital Minimalism: Reclaiming Focus in a World of Distraction</title>
+  <link>https://letsblog.switzerlandnorth.cloudapp.azure.com/post/digital-minimalism-reclaiming-focus-in-a-world-of-distraction</link>
+  <pubDate>Fri, 18 Jul 2025 07:41:38 GMT</pubDate>
+  <description>Constant notifications, endless scrolling, mental clutter—sound familiar? Discover how digital minimalism helps you reclaim time, focus, and sanity in a hyperconnected world.</description>
+</item>
+<item>
+  <title>The Rise of AI-Resilient Careers: What Makes a Job Future-Proof?</title>
+  <link>https://letsblog.switzerlandnorth.cloudapp.azure.com/post/the-rise-of-ai-resilient-careers-what-makes-a-job-future-proof</link>
+  <pubDate>Tue, 15 Jul 2025 20:11:36 GMT</pubDate>
+  <description>As AI reshapes industries, certain careers stand firm. Discover the key traits of AI-resilient jobs and how to future-proof your career.
+</description>
+</item>
+</channel>
+</rss>

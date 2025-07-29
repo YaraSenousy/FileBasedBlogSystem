@@ -1314,7 +1314,7 @@ h1 a {
 }
 
 #join-form .btn-primary {
-    width: 150px;
+    width: fit-content;
 }
 
 /* Request card styling */

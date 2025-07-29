@@ -25,7 +25,7 @@ async function newsletter() {
         spinner.style.display = "inline-block";
         try {
           const response = await fetch(
-            `https://letsblog.switzerlandnorth.cloudapp.azure.com/subscribe?email=${encodeURIComponent(email)}`,
+            `/subscribe?email=${encodeURIComponent(email)}`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (cv) formData.append("cv", cv);
 
       try {
-        const response = await fetch("https://letsblog.switzerlandnorth.cloudapp.azure.com/join", {
+        const response = await fetch("/join", {
           method: "POST",
           body: formData,
         });

@@ -76,6 +76,15 @@
     </div>
   </div>
   <main id="post-container">Loading...</main>
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="live-toast" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div id="toast-message" class="toast-body">Message goes here</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+          aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
   <footer id="footer" class="footer-section">
     <p>© 2025 Lets Blog. All rights reserved.</p>
     <p>Contact Us: <a href="mailto:letsblog047@gmail.com">letsblog047@gmail.com</a></p>
@@ -101,6 +110,13 @@
       updateThemeToggleIcon(newTheme);
     });
 
+    function showToast(message, variant = "primary") {
+      const toastEl = document.getElementById("live-toast");
+      const toastMsg = document.getElementById("toast-message");
+      toastEl.className = `toast align-items-center text-bg-${variant} border-0`;
+      toastMsg.textContent = message;
+      new bootstrap.Toast(toastEl).show();
+    }
     const newsletterForm = document.getElementById("newsletter-form");
     if (newsletterForm) {
       newsletterForm.addEventListener("submit", async (e) => {
@@ -111,7 +127,7 @@
           spinner.style.display = "inline-block";
           try {
             const response = await fetch(
-              `https://letsblog.switzerlandnorth.cloudapp.azure.com/subscribe?email=${encodeURIComponent(email)}`,
+              `/subscribe?email=${encodeURIComponent(email)}`,
               {
                 method: "POST",
                 headers: {

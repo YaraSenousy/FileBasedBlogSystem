@@ -1,6 +1,7 @@
 using System.Text;
 using FileBlogSystem.config;
 using FileBlogSystem.Features.Admin;
+using FileBlogSystem.Features.Joining;
 using FileBlogSystem.Features.Posting;
 using FileBlogSystem.Features.Render.Categories;
 using FileBlogSystem.Features.Render.Feed;
@@ -10,7 +11,6 @@ using FileBlogSystem.Features.Render.Search;
 using FileBlogSystem.Features.Render.Tags;
 using FileBlogSystem.Features.Render.UserFunctions;
 using FileBlogSystem.Features.Security;
-using FileBlogSystem.Features.Joining;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
@@ -19,7 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
-SiteConfig.Load();
+SiteConfig.Load(builder.Configuration);
 RouteMapper.LoadRoutes();
 
 builder.Services.AddHostedService<ScheduledPostPublisher>();

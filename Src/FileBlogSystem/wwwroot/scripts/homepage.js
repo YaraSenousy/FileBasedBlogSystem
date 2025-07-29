@@ -82,7 +82,7 @@ async function newsletter() {
         spinner.style.display = "inline-block"; 
         try {
           const response = await fetch(
-            `https://letsblog.switzerlandnorth.cloudapp.azure.com/subscribe?email=${encodeURIComponent(
+            `/subscribe?email=${encodeURIComponent(
               email
             )}`,
             {

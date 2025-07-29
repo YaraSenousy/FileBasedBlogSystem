@@ -2,6 +2,10 @@
 
 A lightweight file-based blogging system built using **ASP.NET Core**, Markdown for content, and a folder-based content model.
 
+The website is deployed on an Azure Virtual Machine (VM) running a Linux-based systemd service (`fileblogsystem.service`). 
+
+ - The site is live at: **https://letsblog.switzerlandnorth.cloudapp.azure.com**
+
 ---
 
 ## Features
@@ -47,24 +51,34 @@ content/
 
 ## Setup
 
-- ```cd src/FileBlogSystem```
+1. Navigate to the project directory:
+   ```bash
+   cd src/FileBlogSystem
+   ```
 
-- Create a .env file with your JWT secret key, must be at least 32 characters:
-```
-JWT_SECRET=your_secret_key_here
-```
+2. Create a `.env` file with your JWT secret key (must be at least 32 characters):
+   ```bash
+   JWT_SECRET=your_secret_key_here
+   ```
 
-- Install dependencies:
-```
-dotnet add package MailKit
-dotnet add package System.ServiceModel.Syndication
-```
+3. Set the environment variable for development:
+   ```bash
+   ASPNETCORE_ENVIRONMENT=Development
+   ```
 
-- Build & Run the server:
-```
-dotnet build
-dotnet run
-```
+4. Install dependencies:
+   ```bash
+   dotnet add package MailKit
+   dotnet add package System.ServiceModel.Syndication
+   ```
+
+5. Build and run the server:
+   ```bash
+   dotnet build
+   dotnet run
+   ```
+
+6. Access the application locally at `https://localhost:5000`.
 
 ---
 

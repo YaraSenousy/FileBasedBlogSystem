@@ -1,3 +1,4 @@
+using System.IO;
 using System.Text.Json;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
@@ -8,7 +9,7 @@ public static class Login
 {
     public static void MapLoginEndpoint(this WebApplication app)
     {
-        app.MapPost("/login", HandleLogin);
+        app.MapPost("/login", HandleLogin).RequireRateLimiting("login");
         app.MapPost("/logout", HandleLogout);
     }
 
@@ -17,24 +18,26 @@ public static class Login
         try
         {
             await antiforgery.ValidateRequestAsync(context);
-            var body = await JsonSerializer.DeserializeAsync<LoginRequest>(
-                context.Request.Body,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-            );
+
+            context.Request.EnableBuffering();
+
+            using var reader = new StreamReader(context.Request.Body);
+            var body = await reader.ReadToEndAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var bodyData = JsonSerializer.Deserialize<LoginRequest>(body, options);
 
             if (
-                body == null
-                || string.IsNullOrEmpty(body.Username)
-                || string.IsNullOrEmpty(body.Password)
+                bodyData == null
+                || string.IsNullOrEmpty(bodyData.Username)
+                || string.IsNullOrEmpty(bodyData.Password)
             )
                 return Results.BadRequest("Username and password are required.");
 
-            var path = Path.Combine("content", "users", body.Username, "profile.json");
+            var path = Path.Combine("content", "users", bodyData.Username, "profile.json");
             if (!File.Exists(path))
                 return Results.Unauthorized();
 
             var userJson = await File.ReadAllTextAsync(path);
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var user = JsonSerializer.Deserialize<User?>(userJson, options);
 
             if (user == null)
@@ -43,7 +46,7 @@ public static class Login
             if (string.IsNullOrWhiteSpace(user.PasswordHash))
                 return Results.BadRequest("Password not set for this user");
 
-            if (!BCrypt.Net.BCrypt.Verify(body.Password, user.PasswordHash))
+            if (!BCrypt.Net.BCrypt.Verify(bodyData.Password, user.PasswordHash))
                 return Results.Unauthorized();
 
             var token = JwtHelper.GenerateToken(user);

@@ -1,4 +1,5 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using FileBlogSystem.config;
 using FileBlogSystem.Features.Admin;
 using FileBlogSystem.Features.Joining;
@@ -14,6 +15,7 @@ using FileBlogSystem.Features.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using SixLabors.ImageSharp.Web.DependencyInjection;
@@ -68,6 +70,23 @@ builder.Services.Configure<NotifierSettings>(builder.Configuration.GetSection("N
 
 builder.Services.AddSingleton<EmailSubscriberService>();
 
+// Add rate limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter(
+        "login",
+        opt =>
+        {
+            opt.PermitLimit = 5;
+            opt.Window = TimeSpan.FromMinutes(1);
+            opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            opt.QueueLimit = 0;
+        }
+    );
+});
+
+builder.Services.AddAntiforgery();
+
 var app = builder.Build();
 
 app.UseImageSharp();
@@ -76,6 +95,7 @@ app.UseAuthorization();
 app.UseHsts();
 app.UseHttpsRedirection();
 app.UseMiddleware<ActivityMiddleware>();
+app.UseRateLimiter();
 
 app.UseStaticFiles();
 app.UseStaticFiles(

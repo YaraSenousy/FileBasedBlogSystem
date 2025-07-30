@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using BCrypt.Net;
 using FileBlogSystem.Features.Admin;
@@ -11,7 +12,6 @@ using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using System.Text.RegularExpressions;
 
 namespace FileBlogSystem.Features.Joining;
 
@@ -60,7 +60,7 @@ public static class JoinRequests
         // Validate password strength
         if (!AdminFunctions.IsValidPassword(password!))
             return Results.BadRequest(
-                "Invalid Password: Must be at least 8 characters, one uppercase, one lowercase, one digit"
+                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&). Consider using a passphrase like 'It’s time for vacation'"
             );
 
         // Validate email format
@@ -286,7 +286,10 @@ public static class JoinRequests
                 // Deserialize user profile to check email
                 var oldUserJson = await File.ReadAllTextAsync(file);
                 var userProfile = JsonSerializer.Deserialize<User>(oldUserJson);
-                if (userProfile?.Email?.Equals(request.Email, StringComparison.OrdinalIgnoreCase) == true)
+                if (
+                    userProfile?.Email?.Equals(request.Email, StringComparison.OrdinalIgnoreCase)
+                    == true
+                )
                     return Results.Conflict("Email already used.");
             }
         }
@@ -298,7 +301,8 @@ public static class JoinRequests
         var counter = 1;
         var username = usernameBase;
 
-        var existing = Directory.GetDirectories(root)
+        var existing = Directory
+            .GetDirectories(root)
             .Select(d => Path.GetFileName(d)?.Split('-', 4).Last()?.ToLowerInvariant())
             .ToHashSet();
 

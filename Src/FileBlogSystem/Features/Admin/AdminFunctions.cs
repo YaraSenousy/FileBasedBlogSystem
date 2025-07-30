@@ -114,7 +114,7 @@ public static class AdminFunctions
     */
     public static bool IsValidPassword(string password)
     {
-        string pattern = @"(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$";
+        string pattern = @"(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?& ]{16,}$";
         return Regex.IsMatch(password, pattern);
     }
 
@@ -156,7 +156,7 @@ public static class AdminFunctions
             return Results.BadRequest("Invalid Username: Small letters, digits and - only");
         if (!IsValidPassword(password!))
             return Results.BadRequest(
-                "Invalid Password: Must be at least 8 characters, one uppercase, one lowercase, one digit"
+                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&). Consider using a passphrase like 'It’s time for vacation'"
             );
         if (!IsValidEmail(email!))
             return Results.BadRequest("Invalid email format");
@@ -215,7 +215,7 @@ public static class AdminFunctions
 
         if (!string.IsNullOrEmpty(password) && !IsValidPassword(password!))
             return Results.BadRequest(
-                "Invalid Password: Must be at least 8 characters, one uppercase, one lowercase, one digit"
+                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&). Consider using a passphrase like 'It’s time for vacation'"
             );
         if (!string.IsNullOrEmpty(role) && role != "admin" && role != "author" && role != "editor")
             return Results.BadRequest("Invalid role");
@@ -263,6 +263,7 @@ public static class AdminFunctions
         var email = form["email"];
         var profilePicFile = form.Files["profilePic"];
         var description = form["description"];
+        var password = form["password"];
 
         var userPath = Path.Combine(
             Directory.GetCurrentDirectory(),
@@ -278,6 +279,10 @@ public static class AdminFunctions
             return Results.BadRequest("Name is required");
         if (!string.IsNullOrEmpty(email) && !IsValidEmail(email!))
             return Results.BadRequest("Invalid email format");
+        if (!string.IsNullOrEmpty(password) && !IsValidPassword(password!))
+            return Results.BadRequest(
+                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&). Consider using a passphrase like 'It’s time for vacation'"
+            );
 
         var oldUserJson = File.ReadAllText(userPath);
         var oldUserInfo = JsonSerializer.Deserialize<User>(
@@ -317,7 +322,9 @@ public static class AdminFunctions
         {
             Username = oldUserInfo!.Username!,
             Name = name!,
-            PasswordHash = oldUserInfo!.PasswordHash!,
+           PasswordHash = string.IsNullOrEmpty(password)
+                ? oldUserInfo!.PasswordHash!
+                : BCrypt.Net.BCrypt.HashPassword(password)!,
             Role = oldUserInfo!.Role!,
             Email = string.IsNullOrEmpty(email) ? oldUserInfo!.Email! : email!,
             ProfilePicture = profilePicPath,
@@ -630,7 +637,10 @@ public static class AdminFunctions
         {
             // Clear AssignedAuthor if no authorUsername provided
             editor.AssignedAuthor = string.Empty;
-            var updateJson = JsonSerializer.Serialize(editor, new JsonSerializerOptions { WriteIndented = true });
+            var updateJson = JsonSerializer.Serialize(
+                editor,
+                new JsonSerializerOptions { WriteIndented = true }
+            );
             await File.WriteAllTextAsync(editorPath, updateJson);
             return Results.Ok();
         }
@@ -648,7 +658,10 @@ public static class AdminFunctions
 
         // Update editor's AssignedAuthor
         editor.AssignedAuthor = authorUsername;
-        var updatedJson = JsonSerializer.Serialize(editor, new JsonSerializerOptions { WriteIndented = true });
+        var updatedJson = JsonSerializer.Serialize(
+            editor,
+            new JsonSerializerOptions { WriteIndented = true }
+        );
         await File.WriteAllTextAsync(editorPath, updatedJson);
 
         return Results.Ok();

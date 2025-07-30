@@ -88,11 +88,16 @@ document.addEventListener("DOMContentLoaded", () => {
           showToast("Application submitted! Check your email for confirmation.", "success");
           joinForm.reset();
         } else if (response.status === 400) {
-          showToast("Invalid input. Please check your details.", "danger");
+          response.text().then((message) => {
+            showToast(message, "danger");
+            spinner.style.display = "none";
+          });
         } else if (response.status === 409) {
           showToast("Email already used.", "danger");
+          spinner.style.display = "none";
         } else {
           showToast("Failed to submit application.", "danger");
+          spinner.style.display = "none";
         }
       } catch (error) {
         console.error("Error submitting application:", error);

@@ -23,6 +23,9 @@ async function loadProfile() {
     document.getElementById("profile-name-input").value = user.name;
     document.getElementById("profile-email-input").value = user.email || "";
     document.getElementById("profile-description-input").value = user.description || "";
+    const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+    userInfo.daysUntilExpiration = user.daysUntilExpiration;
+    localStorage.setItem("userInfo", JSON.stringify(userInfo));
   } catch (err) {
     console.error("Failed to load profile:", err.message, err);
     showToast("Failed to load profile", "danger");
@@ -61,6 +64,7 @@ async function handleProfileSubmit(e) {
   e.preventDefault();
   const nameInput = document.getElementById("profile-name-input");
   const emailInput = document.getElementById("profile-email-input");
+  const passwordInput = document.getElementById("profile-password-input");
   const descriptionInput = document.getElementById("profile-description-input");
   const profilePicInput = document.getElementById("profile-pic-input");
 
@@ -72,11 +76,33 @@ async function handleProfileSubmit(e) {
     showToast("Invalid email format", "danger");
     return;
   }
+  if (passwordInput.value) {
+    const response = await fetch("/check-password", {
+      method: "POST",
+      headers: { 
+          "Content-Type": "application/json", 
+          "X-CSRF-TOKEN": document.querySelector("#profile-form input[name='_csrf']").value 
+      },
+      body: JSON.stringify({ password: passwordInput.value }),
+      credentials: "include"
+    });
+    if (response.status === 409) {
+      showToast("New passphrase must be different from the current one", "danger");
+      return;
+    }
+    if (!response.ok) {
+      const error = await response.text();
+      showToast(`Invalid passphrase: ${error}`, "danger");
+      return;
+    }
+  }
 
   const formData = new FormData();
   formData.append("name", nameInput.value.trim());
   formData.append("email", emailInput.value);
+  formData.append("password", passwordInput.value);
   formData.append("description", descriptionInput.value.trim());
+  formData.append("_csrf", document.querySelector("#profile-form input[name='_csrf']").value);
   if (profilePicInput.files.length > 0) {
     formData.append("profilePic", profilePicInput.files[0]);
   }
@@ -85,12 +111,17 @@ async function handleProfileSubmit(e) {
     const res = await fetch("/profile/edit", {
       method: "POST",
       body: formData,
-      credentials: "include",
+      credentials: "include"
     });
     if (res.ok) {
       showToast("Profile updated successfully", "success");
       hideEditProfileForm();
       await loadProfile();
+      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+      if (passwordInput.value) {
+        userInfo.daysUntilExpiration = 30;
+        localStorage.setItem("userInfo", JSON.stringify(userInfo));
+      }
     } else {
       const error = await res.text();
       showToast(`Failed to update profile: ${error}`, "danger");
@@ -100,9 +131,54 @@ async function handleProfileSubmit(e) {
   }
 }
 
-/**
- * Logs out the user and redirects to the login page.
- */
+async function handlePassphraseSubmit(e) {
+  e.preventDefault();
+  const passwordInput = document.getElementById("new-passphrase");
+  const response = await fetch("/check-password", {
+      method: "POST",
+      headers: { 
+          "Content-Type": "application/json", 
+          "X-CSRF-TOKEN": document.querySelector("#passphrase-form input[name='_csrf']").value 
+      },
+      body: JSON.stringify({ password: passwordInput.value }),
+      credentials: "include"
+  });
+  if (response.status === 409) {
+      showToast("New passphrase must be different from the current one", "danger");
+      return;
+  }
+  if (!response.ok) {
+      const error = await response.text();
+      showToast(`Invalid passphrase: ${error}`, "danger");
+      return;
+  }
+
+  const formData = new FormData();
+  formData.append("password", passwordInput.value);
+  formData.append("_csrf", document.querySelector("#passphrase-form input[name='_csrf']").value);
+
+  try {
+      const res = await fetch("/profile/edit", {
+          method: "POST",
+          body: formData,
+          credentials: "include"
+      });
+      if (res.ok) {
+          showToast("Passphrase updated successfully", "success");
+          bootstrap.Modal.getInstance(document.getElementById("passphraseModal")).hide();
+          const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+          userInfo.daysUntilExpiration = 30;
+          localStorage.setItem("userInfo", JSON.stringify(userInfo));
+          await loadProfile();
+      } else {
+          const error = await res.text();
+          showToast(`Failed to update passphrase: ${error}`, "danger");
+      }
+  } catch (err) {
+      showToast(`Failed to update passphrase: ${err.message}`, "danger");
+  }
+}
+
 async function logout() {
   try {
     await fetch("/logout", { method: "POST" });
@@ -118,25 +194,22 @@ async function logout() {
  * Initializes the page, sets up event listeners, and loads profile.
  */
 window.onload = async () => {
-  // Load user info from localStorage
-  const { name, role } = JSON.parse(localStorage.getItem("userInfo") || "{}");
-  if (!role) {
+  const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+  if (!userInfo.role) {
     window.open("/login", "_self");
     return;
   }
 
   await updatePendingRequestsCount();
 
-  // Hide admin functions for non-admins
-  if (role !== "admin") {
+  if (userInfo.role !== "admin") {
     const adminFunctions = document.getElementsByClassName("admin-functions");
     for (const element of adminFunctions) {
       element.style.display = "none";
     }
   }
 
-  // Update navigation text for authors
-  if (role === "author") {
+  if (userInfo.role === "author") {
     document.getElementById("nav-scheduled").innerText = "My Scheduled Posts";
     document.getElementById("nav-drafts").innerText = "My Drafts";
   }
@@ -144,14 +217,22 @@ window.onload = async () => {
   // Load profile
   await loadProfile();
 
-  // Event listeners
+  if (userInfo.daysUntilExpiration <= 7) {
+    const modal = new bootstrap.Modal(document.getElementById("passphraseModal"));
+    document.getElementById("passphrase-message").innerHTML = 
+        `Your passphrase ${userInfo.daysUntilExpiration <= 0 ? 'has expired' : 'will expire soon'}. Please enter a new passphrase.`;
+    modal.show();
+  }
+
   const editButton = document.getElementById("edit-profile-btn");
   const cancelButton = document.getElementById("cancel-edit-btn");
   const profileForm = document.getElementById("profile-form");
+  const passphraseForm = document.getElementById("passphrase-form");
   const logoutButton = document.getElementById("account-logout");
   if (editButton) editButton.addEventListener("click", showEditProfileForm);
   if (cancelButton) cancelButton.addEventListener("click", hideEditProfileForm);
   if (profileForm) profileForm.addEventListener("submit", handleProfileSubmit);
+  if (passphraseForm) passphraseForm.addEventListener("submit", handlePassphraseSubmit);
   if (logoutButton) logoutButton.addEventListener("click", logout);
 
   // Initialize theme

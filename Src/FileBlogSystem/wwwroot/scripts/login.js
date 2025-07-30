@@ -34,33 +34,52 @@ document.getElementById("theme-toggle").addEventListener("click", () => {
 */
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const form = new FormData(e.target);
+  const username = document.querySelector("input[name='username']").value;
+  const password = document.querySelector("input[name='password']").value;
+  const csrfToken = document.querySelector("input[name='_csrf']").value;
   const toast = document.getElementById("live-toast");
   const toastMsg = document.getElementById("toast-message");
   try {
-      const res = await fetch("/login", {
-          method: "POST",
-          body: form,
-          credentials: "include"
-      });
-      if (res.ok) {
-          const data = await res.json();
-          if (data.success == true){
-            localStorage.setItem('userInfo', JSON.stringify({
+    const res = await fetch("/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-TOKEN": csrfToken
+      },
+      body: JSON.stringify({ username, password }),
+      credentials: "include"
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
+          localStorage.setItem('userInfo', JSON.stringify({
               name: data.name,
-              role: data.role
-            }));
-            window.location.href = "/dashboard";
+              role: data.role,
+              daysUntilExpiration: data.daysUntilExpiration
+          }));
+          if (data.daysUntilExpiration <= 7) {
+              const toast = document.getElementById("live-toast");
+              const toastMsg = document.getElementById("toast-message");
+              toastMsg.innerHTML = `Your passphrase ${data.daysUntilExpiration <= 0 ? 'has expired' : 'will expire soon'}. Please <a href="/profile" class="text-white"><u>update it now</u></a>.`;
+              toast.className = "toast align-items-center text-bg-warning border-0";
+              new bootstrap.Toast(toast).show();
+              window.location.href = "/profile";
           }
+          window.location.href = "/dashboard";
       } else {
-          toastMsg.textContent = "Invalid credentials";
+          toastMsg.textContent = data.message || "Invalid credentials";
           toast.className = "toast align-items-center text-bg-danger border-0";
           new bootstrap.Toast(toast).show();
       }
+    } else {
+        toastMsg.textContent = "Invalid credentials";
+        toast.className = "toast align-items-center text-bg-danger border-0";
+        new bootstrap.Toast(toast).show();
+    }
   } catch (error) {
-      toastMsg.textContent = "Error during login: " + error.message;
-      toast.className = "toast align-items-center text-bg-danger border-0";
-      new bootstrap.Toast(toast).show();
+    toastMsg.textContent = "Error during login: " + error.message;
+    toast.className = "toast align-items-center text-bg-danger border-0";
+    new bootstrap.Toast(toast).show();
   }
 });
 

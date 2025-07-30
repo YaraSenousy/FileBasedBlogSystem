@@ -78,9 +78,13 @@ document.addEventListener("DOMContentLoaded", () => {
       if (picture) formData.append("picture", picture);
       const cv = document.getElementById("cv").files[0];
       if (cv) formData.append("cv", cv);
+      const csrfToken = document.querySelector("input[name='_csrf']").value;
 
       try {
         const response = await fetch("/join", {
+          headers: {
+            "X-CSRF-TOKEN": csrfToken
+          },
           method: "POST",
           body: formData,
         });

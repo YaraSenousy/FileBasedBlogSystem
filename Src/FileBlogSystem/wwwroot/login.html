@@ -16,7 +16,8 @@
     <header id="header-back">
         <nav class="container d-flex justify-content-center align-items-center">
             <a href="/" class="logo">Let's Blog <i class="fas fa-blog"></i></a>
-            <button id="theme-toggle" class="btn btn-outline-secondary position-absolute end-0 me-3" aria-label="Toggle theme">
+            <button id="theme-toggle" class="btn btn-outline-secondary position-absolute end-0 me-3"
+                aria-label="Toggle theme">
                 <i class="fas fa-moon"></i>
             </button>
         </nav>
@@ -34,8 +35,11 @@
                     <div class="card-body">
                         <h1 class="card-title text-center mb-4">Login</h1>
                         <form id="loginForm">
+                            <input type="hidden" name="_csrf"
+                                value="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
                             <div class="form-floating mb-3">
-                                <input name="username" class="form-control" id="floatingInput" placeholder="Username" required>
+                                <input name="username" class="form-control" id="floatingInput" placeholder="Username"
+                                    required>
                                 <label for="floatingInput">Username</label>
                             </div>
                             <div class="form-floating mb-3">

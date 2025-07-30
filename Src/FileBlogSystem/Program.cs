@@ -75,6 +75,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseHsts();
 app.UseHttpsRedirection();
+app.UseMiddleware<ActivityMiddleware>();
 
 app.UseStaticFiles();
 app.UseStaticFiles(

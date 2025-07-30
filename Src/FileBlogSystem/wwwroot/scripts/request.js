@@ -37,38 +37,65 @@ async function loadRequest() {
     if (!container) return;
 
     container.innerHTML = `
-      <h5>${request.name}</h5>
-      <p><strong>Email:</strong> ${request.email}</p>
-      <p><strong>Description:</strong> ${request.description}</p>
-      <p><strong>Why Join:</strong> ${request.whyJoin}</p>
-      <p><strong>Submitted:</strong> ${new Date(
-        request.creationDate
-      ).toLocaleString("en-GB", {
-        weekday: "short",
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-        timeZoneName: "short",
-      })}</p>
-      <p><strong>Status:</strong> ${request.status}</p>
-      ${
-        request.reviewedBy
-          ? `<p><strong>Reviewed By:</strong> ${request.reviewedBy}</p>`
-          : ""
-      }
-      ${
-        request.picturePath
-          ? `<p><strong>Picture:</strong> <img src="/content/${request.picturePath}" alt="Profile Picture" class="img-fluid" style="max-width: 200px;"></p>`
-          : ""
-      }
-      ${
-        request.cvPath
-          ? `<p><strong>CV:</strong> <a href="/content/${request.cvPath}" target="_blank">Download CV</a></p>`
-          : ""
-      }
+      <div class="request-profile-pic">
+        ${
+          request.picturePath
+            ? `<img src="/content/${request.picturePath}?width=200&height=200" alt="Profile Picture" class="img-fluid request-img">`
+            : `<p class="no-image-text">No profile picture provided</p>`
+        }
+      </div>
+      <div class="request-info">
+        <h5 class="request-title">Join Request Details</h5>
+        <div class="request-field">
+          <label><strong>Name:</strong></label>
+          <span>${request.name}</span>
+        </div>
+        <div class="request-field">
+          <label><strong>Email:</strong></label>
+          <span>${request.email}</span>
+        </div>
+        <div class="request-field">
+          <label><strong>Description:</strong></label>
+          <span>${request.description}</span>
+        </div>
+        <div class="request-field">
+          <label><strong>Why Join:</strong></label>
+          <span>${request.whyJoin}</span>
+        </div>
+        <div class="request-field">
+          <label><strong>Submitted:</strong></label>
+          <span>${new Date(request.creationDate).toLocaleString("en-GB", {
+            weekday: "short",
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+            timeZoneName: "short",
+          })}</span>
+        </div>
+        <div class="request-field">
+          <label><strong>Status:</strong></label>
+          <span>${request.status}</span>
+        </div>
+        ${
+          request.reviewedBy
+            ? `<div class="request-field">
+                 <label><strong>Reviewed By:</strong></label>
+                 <span>${request.reviewedBy}</span>
+               </div>`
+            : ""
+        }
+        ${
+          request.cvPath
+            ? `<div class="request-field">
+                 <label><strong>CV:</strong></label>
+                 <span><a href="/content/${request.cvPath}" target="_blank">Download CV</a></span>
+               </div>`
+            : ""
+        }
+      </div>
     `;
 
     const actionsContainer = document.getElementById("request-actions");
@@ -97,18 +124,15 @@ async function approveRequest() {
   const spinner = document.getElementById("request-spinner");
   try {
     spinner.style.display = "inline-block";
-    const response = await fetch(
-      `/all-requests/${requestId}/approve`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    const response = await fetch(`/all-requests/${requestId}/approve`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
     if (response.ok) {
       showToast("Request approved and user created.", "success");
       window.location.href = "/requests";
     } else {
-       response.text().then(message => {
+      response.text().then((message) => {
         showToast(message, "danger");
         spinner.style.display = "none";
       });
@@ -130,13 +154,10 @@ async function denyRequest() {
   try {
     const spinner = document.getElementById("request-spinner");
     spinner.style.display = "inline-block";
-    const response = await fetch(
-      `/all-requests/${requestId}/deny`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    const response = await fetch(`/all-requests/${requestId}/deny`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
     if (response.ok) {
       showToast("Request denied.", "success");
       window.location.href = "/requests";

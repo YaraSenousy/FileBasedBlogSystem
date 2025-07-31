@@ -543,4 +543,20 @@ async function updatePendingRequestsCount() {
   }
 }
 
-export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, theme, toggleBookmark, getBookmarks, isBookmarked, updatePendingRequestsCount };
+/**
+ * handles logout
+ */
+async function handleLogout() {
+  const logoutButton = document.getElementById("account-logout");
+  if (logoutButton) logoutButton.addEventListener("click", async () => {
+    try {
+      await fetch("/logout", { method: "POST" });
+      showToast("Logged out", "success");
+      localStorage.removeItem("userInfo");
+      location.href = "/login";
+    } catch (err) {
+      showToast("Failed to log out", "danger");
+    }
+  });
+}
+export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, theme, toggleBookmark, getBookmarks, isBookmarked, updatePendingRequestsCount, handleLogout };

@@ -95,7 +95,12 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
           new bootstrap.Toast(toast).show();
       }
     } else {
-        toastMsg.textContent = "Invalid credentials";
+        if (res.status === 401) 
+          toastMsg.textContent = "Invalid credentials";
+        else if (res.status === 503)
+          toastMsg.textContent = "Service unavailable: too many attempts";
+        else
+          toastMsg.textContent = "Couldn't login";
         toast.className = "toast align-items-center text-bg-danger border-0";
         new bootstrap.Toast(toast).show();
     }

@@ -23,9 +23,6 @@ async function loadProfile() {
     document.getElementById("profile-name-input").value = user.name;
     document.getElementById("profile-email-input").value = user.email || "";
     document.getElementById("profile-description-input").value = user.description || "";
-    const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-    userInfo.daysUntilExpiration = user.daysUntilExpiration;
-    localStorage.setItem("userInfo", JSON.stringify(userInfo));
   } catch (err) {
     console.error("Failed to load profile:", err.message, err);
     showToast("Failed to load profile", "danger");
@@ -55,6 +52,30 @@ function hideEditProfileForm() {
   const profileCard = document.getElementById("profile-card");
   editForm.classList.add("d-none");
   profileCard.classList.remove("d-none");
+}
+
+/**
+ * Fetches CSRF token from /api/csrf-token and sets it in the form
+ */
+async function fetchCsrfToken() {
+    try {
+        const response = await fetch("/api/csrf-token", {
+            method: "GET",
+            credentials: "include"
+        });
+        if (!response.ok) {
+            throw new Error("Failed to fetch CSRF token");
+        }
+        const data = await response.json();
+        document.querySelector("#profile-form input[name='_csrf']").value = data.token;
+        document.querySelector("#passphrase-form input[name='_csrf']").value = data.token;
+    } catch (error) {
+        const toast = document.getElementById("live-toast");
+        const toastMsg = document.getElementById("toast-message");
+        toastMsg.textContent = "Error fetching CSRF token: " + error.message;
+        toast.className = "toast align-items-center text-bg-danger border-0";
+        new bootstrap.Toast(toast).show();
+    }
 }
 
 /**
@@ -102,7 +123,6 @@ async function handleProfileSubmit(e) {
   formData.append("email", emailInput.value);
   formData.append("password", passwordInput.value);
   formData.append("description", descriptionInput.value.trim());
-  formData.append("_csrf", document.querySelector("#profile-form input[name='_csrf']").value);
   if (profilePicInput.files.length > 0) {
     formData.append("profilePic", profilePicInput.files[0]);
   }
@@ -110,6 +130,9 @@ async function handleProfileSubmit(e) {
   try {
     const res = await fetch("/profile/edit", {
       method: "POST",
+      headers: { 
+        "X-CSRF-TOKEN": document.querySelector("#profile-form input[name='_csrf']").value
+      },
       body: formData,
       credentials: "include"
     });
@@ -237,4 +260,5 @@ window.onload = async () => {
 
   // Initialize theme
   theme();
+  fetchCsrfToken();
 };

@@ -29,6 +29,29 @@ document.getElementById("theme-toggle").addEventListener("click", () => {
 });
 
 /**
+ * Fetches CSRF token from /api/csrf-token and sets it in the form
+ */
+async function fetchCsrfToken() {
+    try {
+        const response = await fetch("/api/csrf-token", {
+            method: "GET",
+            credentials: "include"
+        });
+        if (!response.ok) {
+            throw new Error("Failed to fetch CSRF token");
+        }
+        const data = await response.json();
+        document.getElementById("_csrf").value = data.token;
+    } catch (error) {
+        const toast = document.getElementById("live-toast");
+        const toastMsg = document.getElementById("toast-message");
+        toastMsg.textContent = "Error fetching CSRF token: " + error.message;
+        toast.className = "toast align-items-center text-bg-danger border-0";
+        new bootstrap.Toast(toast).show();
+    }
+}
+
+/**
 * Handles the login form submission.
 * Prevents default form submission, sends credentials to /login, and redirects on success.
 */
@@ -64,8 +87,8 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
               toast.className = "toast align-items-center text-bg-warning border-0";
               new bootstrap.Toast(toast).show();
               window.location.href = "/profile";
-          }
-          window.location.href = "/dashboard";
+          } else 
+            window.location.href = "/dashboard";
       } else {
           toastMsg.textContent = data.message || "Invalid credentials";
           toast.className = "toast align-items-center text-bg-danger border-0";
@@ -85,3 +108,4 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
 // Initialize theme on page load
 initializeTheme();
+fetchCsrfToken();

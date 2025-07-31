@@ -12,6 +12,7 @@ using FileBlogSystem.Features.Render.Search;
 using FileBlogSystem.Features.Render.Tags;
 using FileBlogSystem.Features.Render.UserFunctions;
 using FileBlogSystem.Features.Security;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
@@ -69,8 +70,6 @@ builder.Services.AddHostedService<RssEmailNotifierService>();
 builder.Services.Configure<NotifierSettings>(builder.Configuration.GetSection("Notifier"));
 
 builder.Services.AddSingleton<EmailSubscriberService>();
-
-// Add rate limiting
 builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter(
@@ -85,7 +84,10 @@ builder.Services.AddRateLimiter(options =>
     );
 });
 
-builder.Services.AddAntiforgery();
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-CSRF-TOKEN";
+});
 
 var app = builder.Build();
 
@@ -135,6 +137,10 @@ app.MapFallback(context =>
         || path == "/users"
         || path == "/tag"
         || path == "/category"
+        || path == "/my-posts"
+        || path == "/profile"
+        || path == "/requests"
+        || path.StartsWithSegments("/requests", out var remaining)
     )
     {
         var user = context.User;
@@ -150,7 +156,7 @@ app.MapFallback(context =>
     if (path == "/create")
         return context.Response.SendFileAsync("wwwroot/create.html");
     if (
-        path.StartsWithSegments("/post", out var remaining)
+        path.StartsWithSegments("/post", out remaining)
         && remaining!.Value!.Trim('/').Length > 0
     )
         return context.Response.SendFileAsync("wwwroot/post.html");

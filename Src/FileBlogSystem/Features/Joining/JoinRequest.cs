@@ -65,7 +65,7 @@ public static class JoinRequests
             // Validate password strength
             if (!AdminFunctions.IsValidPassword(password!))
                 return Results.BadRequest(
-                    "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&). Consider using a passphrase like 'It’s time for vacation'"
+                    "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'It’s time for vacation'"
                 );
 
             // Validate email format

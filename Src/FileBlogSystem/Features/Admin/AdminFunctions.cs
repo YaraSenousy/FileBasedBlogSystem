@@ -49,18 +49,21 @@ public static class AdminFunctions
             var userPath = Path.Combine(dir, "profile.json");
             if (File.Exists(userPath))
             {
-                var json = await File.ReadAllTextAsync(userPath);
-                var user = JsonSerializer.Deserialize<User>(json);
-                if (
-                    user != null
-                    && (
-                        string.IsNullOrEmpty(role)
-                        || user.Role.Equals(role, StringComparison.OrdinalIgnoreCase)
-                    )
-                )
+                try
                 {
-                    users.Add(user);
-                }
+                    var json = await File.ReadAllTextAsync(userPath);
+                    var user = JsonSerializer.Deserialize<User>(json);
+                    if (
+                        user != null
+                        && (
+                            string.IsNullOrEmpty(role)
+                            || user.Role.Equals(role, StringComparison.OrdinalIgnoreCase)
+                        )
+                    )
+                    {
+                        users.Add(user);
+                    }
+                } catch (Exception ex) { Console.WriteLine("Failed to parse user profile: " + ex.Message); }
             }
         }
 
@@ -116,7 +119,7 @@ public static class AdminFunctions
     */
     public static bool IsValidPassword(string password)
     {
-        string pattern = @"(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?& ]{16,}$";
+        string pattern = @"(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-])[A-Za-z\d@$!%*?&_\- ]{16,}$";
         return Regex.IsMatch(password, pattern);
     }
 
@@ -158,7 +161,7 @@ public static class AdminFunctions
             return Results.BadRequest("Invalid Username: Small letters, digits and - only");
         if (!IsValidPassword(password!))
             return Results.BadRequest(
-                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&). Consider using a passphrase like 'It’s time for vacation'"
+                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'It’s time for vacation'"
             );
         if (!IsValidEmail(email!))
             return Results.BadRequest("Invalid email format");
@@ -218,7 +221,7 @@ public static class AdminFunctions
 
         if (!string.IsNullOrEmpty(password) && !IsValidPassword(password!))
             return Results.BadRequest(
-                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&). Consider using a passphrase like 'It’s time for vacation'"
+                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'It’s time for vacation'"
             );
         if (!string.IsNullOrEmpty(role) && role != "admin" && role != "author" && role != "editor")
             return Results.BadRequest("Invalid role");
@@ -290,7 +293,7 @@ public static class AdminFunctions
                 return Results.BadRequest("Invalid email format");
             if (!string.IsNullOrEmpty(password) && !IsValidPassword(password!))
                 return Results.BadRequest(
-                    "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&). Consider using a passphrase like 'It’s time for vacation'"
+                    "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'It’s time for vacation'"
                 );
 
             var oldUserJson = File.ReadAllText(userPath);
@@ -417,7 +420,7 @@ public static class AdminFunctions
 
             if (!IsValidPassword(body.Password))
                 return Results.BadRequest(
-                    "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&). Consider using a passphrase like 'MySecretPhrase123!'"
+                    "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'MySecretPhrase123!'"
                 );
 
             return Results.Ok();

@@ -11,6 +11,7 @@ public static class Login
     {
         app.MapPost("/login", HandleLogin).RequireRateLimiting("login");
         app.MapPost("/logout", HandleLogout);
+        app.MapGet("/api/csrf-token", GetCsrfToken);
     }
 
     public static async Task<IResult> HandleLogin(HttpContext context, IAntiforgery antiforgery)
@@ -117,6 +118,12 @@ public static class Login
         );
 
         return Results.Ok(new { success = true });
+    }
+
+    public static IResult GetCsrfToken(HttpContext context, IAntiforgery antiforgery)
+    {
+        var tokens = antiforgery.GetAndStoreTokens(context);
+        return Results.Ok(new { token = tokens.RequestToken });
     }
 
     private class LoginRequest

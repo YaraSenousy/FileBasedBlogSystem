@@ -1,10 +1,11 @@
 {
   "Username": "letsblog047",
   "Name": "Chris Mendez",
-  "PasswordHash": "$2a$11$AI7PSKKtwF.1qCEw4sFcLuoOfmhqwtCTiMe740zkQSmbjw8m4EM6W",
+  "PasswordHash": "$2a$11$xWbYFmtW2PUf68pJ/9ykou/Wb/90DXYbv7WaY8YWnFMRMtxDFdje.",
   "Role": "editor",
   "Email": "chris3@gmail.com",
   "ProfilePicture": "content\\users\\letsblog047\\profile-pic.webp",
   "Description": "",
-  "AssignedAuthor": ""
+  "AssignedAuthor": "",
+  "PasswordSetDate": "2025-07-07T00:01:23.2359303Z"
 }

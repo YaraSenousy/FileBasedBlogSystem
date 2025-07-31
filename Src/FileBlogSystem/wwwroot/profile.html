@@ -119,8 +119,8 @@
                             <label for="profile-password-input" class="form-label">New Password</label>
                             <input type="password" class="form-control" id="profile-password-input" name="password"
                                 required
-                                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&-_])[A-Za-z\d@$!%*?&-_]{16,}$"
-                                title="Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'It’s time for vacation'">
+                                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&-_])[A-Za-z\d@$!%*?&-_ ]{16,}$"
+                                title="Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'block-curious-sunny-leaves'">
                         </div>
                         <div class="mb-3">
                             <label for="profile-description-input" class="form-label">Description (optional)</label>
@@ -159,7 +159,7 @@
                             <input type="password" class="form-control" id="new-passphrase" name="password" required />
                             <small class="form-text text-muted">
                                 <p>Must be at least 16 characters, including one uppercase, one lowercase, one digit, and
-                                one special character (@$!%*?&-_). Example: It’s time for vacation</p>
+                                one special character (@$!%*?&-_). Example: block-curious-sunny-leaves</p>
                             </small>
                         </div>
                         <button type="submit" class="btn btn-primary">Update Password</button>

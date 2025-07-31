@@ -161,7 +161,7 @@ public static class AdminFunctions
             return Results.BadRequest("Invalid Username: Small letters, digits and - only");
         if (!IsValidPassword(password!))
             return Results.BadRequest(
-                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'It’s time for vacation'"
+                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'block-curious-sunny-leaves'"
             );
         if (!IsValidEmail(email!))
             return Results.BadRequest("Invalid email format");
@@ -221,7 +221,7 @@ public static class AdminFunctions
 
         if (!string.IsNullOrEmpty(password) && !IsValidPassword(password!))
             return Results.BadRequest(
-                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'It’s time for vacation'"
+                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'block-curious-sunny-leaves'"
             );
         if (!string.IsNullOrEmpty(role) && role != "admin" && role != "author" && role != "editor")
             return Results.BadRequest("Invalid role");
@@ -293,7 +293,7 @@ public static class AdminFunctions
                 return Results.BadRequest("Invalid email format");
             if (!string.IsNullOrEmpty(password) && !IsValidPassword(password!))
                 return Results.BadRequest(
-                    "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'It’s time for vacation'"
+                    "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'block-curious-sunny-leaves'"
                 );
 
             var oldUserJson = File.ReadAllText(userPath);
@@ -492,7 +492,7 @@ public static class AdminFunctions
             var postFile = Path.Combine(postDir, "meta.json");
             var postJson = File.ReadAllText(postFile);
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var post = JsonSerializer.Deserialize<Post>(postJson, options);
+            var post = JsonSerializer.Deserialize<PostMeta>(postJson, options);
 
             List<string>? postData;
             if (type == "tags")

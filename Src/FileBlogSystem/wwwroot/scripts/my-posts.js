@@ -1,5 +1,5 @@
 // Import utility functions for fetching data and displaying toasts
-import { fetchData, showToast, updatePendingRequestsCount, theme } from "./utils.js";
+import { fetchData, showToast, updatePendingRequestsCount, theme, handleLogout } from "./utils.js";
 
 // Global state for managing posts, user role, search term, and current tab
 let allUserPosts = []; // Stores all user posts fetched from /user-posts
@@ -330,19 +330,6 @@ async function saveAsDraft(slug) {
 }
 
 /**
- * Logs out the user and redirects to the login page.
- */
-async function logout() {
-  try {
-    await fetch("/logout", { method: "POST" });
-    showToast("Logged out", "success");
-    location.href = "/login";
-  } catch (err) {
-    showToast("Failed to log out", "danger");
-  }
-}
-
-/**
  * Initializes the page, sets up event listeners, and loads posts.
  */
 window.onload = async () => {
@@ -389,12 +376,6 @@ window.onload = async () => {
   document.getElementById("create-post").addEventListener("click", (e) => {
     e.preventDefault();
     window.open("/create", "_self");
-  });
-
-  // Logout button
-  document.getElementById("account-logout").addEventListener("click", (e) => {
-    e.preventDefault();
-    logout();
   });
 
   // Tab switching
@@ -444,4 +425,5 @@ window.onload = async () => {
   theme();
   // Initialize delete button
   deleteButtonInitialise();
+  handleLogout();
 };

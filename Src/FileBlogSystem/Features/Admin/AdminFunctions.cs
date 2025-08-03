@@ -6,6 +6,7 @@ using FileBlogSystem.Features.Posting;
 using FileBlogSystem.Features.Render.Categories;
 using FileBlogSystem.Features.Render.Tags;
 using FileBlogSystem.Features.Security;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
 
 namespace FileBlogSystem.Features.Admin;
@@ -29,6 +30,7 @@ public static class AdminFunctions
         app.MapPost("/profile/edit", (Delegate)EditProfile).RequireAuthorization();
         app.MapPatch("/admin/users/{editorUsername}/assign-author", AssignAuthor)
             .RequireAuthorization("AdminLevel");
+        app.MapPost("/check-password", CheckPassword).RequireAuthorization();
     }
 
     /*
@@ -47,18 +49,21 @@ public static class AdminFunctions
             var userPath = Path.Combine(dir, "profile.json");
             if (File.Exists(userPath))
             {
-                var json = await File.ReadAllTextAsync(userPath);
-                var user = JsonSerializer.Deserialize<User>(json);
-                if (
-                    user != null
-                    && (
-                        string.IsNullOrEmpty(role)
-                        || user.Role.Equals(role, StringComparison.OrdinalIgnoreCase)
-                    )
-                )
+                try
                 {
-                    users.Add(user);
-                }
+                    var json = await File.ReadAllTextAsync(userPath);
+                    var user = JsonSerializer.Deserialize<User>(json);
+                    if (
+                        user != null
+                        && (
+                            string.IsNullOrEmpty(role)
+                            || user.Role.Equals(role, StringComparison.OrdinalIgnoreCase)
+                        )
+                    )
+                    {
+                        users.Add(user);
+                    }
+                } catch (Exception ex) { Console.WriteLine("Failed to parse user profile: " + ex.Message); }
             }
         }
 
@@ -114,7 +119,7 @@ public static class AdminFunctions
     */
     public static bool IsValidPassword(string password)
     {
-        string pattern = @"(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?& ]{16,}$";
+        string pattern = @"(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-])[A-Za-z\d@$!%*?&_\- ]{16,}$";
         return Regex.IsMatch(password, pattern);
     }
 
@@ -156,7 +161,7 @@ public static class AdminFunctions
             return Results.BadRequest("Invalid Username: Small letters, digits and - only");
         if (!IsValidPassword(password!))
             return Results.BadRequest(
-                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&). Consider using a passphrase like 'It’s time for vacation'"
+                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'block-curious-sunny-leaves'"
             );
         if (!IsValidEmail(email!))
             return Results.BadRequest("Invalid email format");
@@ -180,6 +185,7 @@ public static class AdminFunctions
             Role = role!,
             Email = (string.IsNullOrEmpty(email!)) ? email! : string.Empty,
             ProfilePicture = null,
+            PasswordSetDate = DateTime.UtcNow,
         };
 
         var userJson = JsonSerializer.Serialize(
@@ -215,7 +221,7 @@ public static class AdminFunctions
 
         if (!string.IsNullOrEmpty(password) && !IsValidPassword(password!))
             return Results.BadRequest(
-                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&). Consider using a passphrase like 'It’s time for vacation'"
+                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'block-curious-sunny-leaves'"
             );
         if (!string.IsNullOrEmpty(role) && role != "admin" && role != "author" && role != "editor")
             return Results.BadRequest("Invalid role");
@@ -238,6 +244,9 @@ public static class AdminFunctions
             Role = string.IsNullOrEmpty(role) ? oldUserInfo!.Role! : role!,
             Email = string.IsNullOrEmpty(email) ? oldUserInfo!.Email! : email!,
             ProfilePicture = oldUserInfo!.ProfilePicture,
+            PasswordSetDate = string.IsNullOrEmpty(password)
+                ? oldUserInfo!.PasswordSetDate
+                : DateTime.UtcNow,
         };
 
         var userJson = JsonSerializer.Serialize(
@@ -252,94 +261,174 @@ public static class AdminFunctions
     /*
     Handles editing the current user's profile by taking name, email, and optional profile picture
     */
-    public static async Task<IResult> EditProfile(HttpContext context)
+    public static async Task<IResult> EditProfile(HttpContext context, IAntiforgery antiforgery)
     {
-        var username = context.User.Identity?.Name;
-        if (string.IsNullOrEmpty(username))
-            return Results.Unauthorized();
-
-        var form = await context.Request.ReadFormAsync();
-        var name = form["name"];
-        var email = form["email"];
-        var profilePicFile = form.Files["profilePic"];
-        var description = form["description"];
-        var password = form["password"];
-
-        var userPath = Path.Combine(
-            Directory.GetCurrentDirectory(),
-            "content",
-            "users",
-            username,
-            "profile.json"
-        );
-        if (!File.Exists(userPath))
-            return Results.NotFound("User not found");
-
-        if (string.IsNullOrEmpty(name))
-            return Results.BadRequest("Name is required");
-        if (!string.IsNullOrEmpty(email) && !IsValidEmail(email!))
-            return Results.BadRequest("Invalid email format");
-        if (!string.IsNullOrEmpty(password) && !IsValidPassword(password!))
-            return Results.BadRequest(
-                "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&). Consider using a passphrase like 'It’s time for vacation'"
-            );
-
-        var oldUserJson = File.ReadAllText(userPath);
-        var oldUserInfo = JsonSerializer.Deserialize<User>(
-            oldUserJson,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-        );
-
-        string? profilePicPath = oldUserInfo!.ProfilePicture;
-        if (profilePicFile != null && profilePicFile.Length > 0)
+        try
         {
-            if (!profilePicFile.ContentType.StartsWith("image/"))
-                return Results.BadRequest("Profile picture must be an image");
-            var extension = Path.GetExtension(profilePicFile.FileName).ToLower();
-            if (
-                extension != ".jpg"
-                && extension != ".jpeg"
-                && extension != ".png"
-                && extension != ".webp"
-            )
-                return Results.BadRequest("Profile picture must be JPG or PNG or WEBP");
+            await antiforgery.ValidateRequestAsync(context);
+            var username = context.User.Identity?.Name;
+            if (string.IsNullOrEmpty(username))
+                return Results.Unauthorized();
 
-            var picPath = Path.Combine(
+            var form = await context.Request.ReadFormAsync();
+            var name = form["name"];
+            var email = form["email"];
+            var password = form["password"];
+            var profilePicFile = form.Files["profilePic"];
+            var description = form["description"];
+
+            var userPath = Path.Combine(
                 Directory.GetCurrentDirectory(),
                 "content",
                 "users",
                 username,
-                "profile-pic" + extension
+                "profile.json"
             );
-            using (var stream = new FileStream(picPath, FileMode.Create))
+            if (!File.Exists(userPath))
+                return Results.NotFound("User not found");
+
+            if (string.IsNullOrEmpty(name))
+                return Results.BadRequest("Name is required");
+            if (!string.IsNullOrEmpty(email) && !IsValidEmail(email!))
+                return Results.BadRequest("Invalid email format");
+            if (!string.IsNullOrEmpty(password) && !IsValidPassword(password!))
+                return Results.BadRequest(
+                    "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'block-curious-sunny-leaves'"
+                );
+
+            var oldUserJson = File.ReadAllText(userPath);
+            var oldUserInfo = JsonSerializer.Deserialize<User>(
+                oldUserJson,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            string? profilePicPath = oldUserInfo!.ProfilePicture;
+            if (profilePicFile != null && profilePicFile.Length > 0)
             {
-                await profilePicFile.CopyToAsync(stream);
+                if (!profilePicFile.ContentType.StartsWith("image/"))
+                    return Results.BadRequest("Profile picture must be an image");
+                var extension = Path.GetExtension(profilePicFile.FileName).ToLower();
+                if (
+                    extension != ".jpg"
+                    && extension != ".jpeg"
+                    && extension != ".png"
+                    && extension != ".webp"
+                )
+                    return Results.BadRequest("Profile picture must be JPG or PNG or WEBP");
+
+                var picPath = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "content",
+                    "users",
+                    username,
+                    "profile-pic" + extension
+                );
+                using (var stream = new FileStream(picPath, FileMode.Create))
+                {
+                    await profilePicFile.CopyToAsync(stream);
+                }
+                profilePicPath = $"/content/users/{username}/profile-pic{extension}";
             }
-            profilePicPath = $"/content/users/{username}/profile-pic{extension}";
+
+            var newUserInfo = new User
+            {
+                Username = oldUserInfo!.Username!,
+                Name = name!,
+                PasswordHash = string.IsNullOrEmpty(password)
+                    ? oldUserInfo!.PasswordHash!
+                    : BCrypt.Net.BCrypt.HashPassword(password)!,
+                Role = oldUserInfo!.Role!,
+                Email = string.IsNullOrEmpty(email) ? oldUserInfo!.Email! : email!,
+                ProfilePicture = profilePicPath,
+                Description = string.IsNullOrEmpty(description)
+                    ? oldUserInfo!.Description
+                    : description,
+                PasswordSetDate =
+                    (
+                        string.IsNullOrEmpty(password)
+                        || BCrypt.Net.BCrypt.Verify(password, oldUserInfo!.PasswordHash)
+                    )
+                        ? oldUserInfo!.PasswordSetDate
+                        : DateTime.UtcNow,
+            };
+
+            var userJson = JsonSerializer.Serialize(
+                newUserInfo,
+                new JsonSerializerOptions { WriteIndented = true }
+            );
+
+            await File.WriteAllTextAsync(userPath, userJson);
+            return Results.Ok(
+                new
+                {
+                    newUserInfo.Username,
+                    newUserInfo.Name,
+                    newUserInfo.Role,
+                    newUserInfo.Email,
+                    newUserInfo.ProfilePicture,
+                    newUserInfo.Description,
+                    newUserInfo.PasswordSetDate,
+                    daysUntilExpiration = newUserInfo.PasswordSetDate.HasValue
+                        ? (
+                            newUserInfo.PasswordSetDate.Value.AddDays(30) - DateTime.UtcNow
+                        ).TotalDays
+                        : double.MaxValue,
+                }
+            );
         }
-
-        var newUserInfo = new User
+        catch (AntiforgeryValidationException)
         {
-            Username = oldUserInfo!.Username!,
-            Name = name!,
-           PasswordHash = string.IsNullOrEmpty(password)
-                ? oldUserInfo!.PasswordHash!
-                : BCrypt.Net.BCrypt.HashPassword(password)!,
-            Role = oldUserInfo!.Role!,
-            Email = string.IsNullOrEmpty(email) ? oldUserInfo!.Email! : email!,
-            ProfilePicture = profilePicPath,
-            Description = string.IsNullOrEmpty(description)
-                ? oldUserInfo!.Description
-                : description,
-        };
+            return Results.BadRequest("Invalid CSRF token.");
+        }
+    }
 
-        var userJson = JsonSerializer.Serialize(
-            newUserInfo,
-            new JsonSerializerOptions { WriteIndented = true }
-        );
+    public static async Task<IResult> CheckPassword(HttpContext context, IAntiforgery antiforgery)
+    {
+        try
+        {
+            await antiforgery.ValidateRequestAsync(context);
+            var username = context.User.Identity?.Name;
+            if (string.IsNullOrEmpty(username))
+                return Results.Unauthorized();
 
-        await File.WriteAllTextAsync(userPath, userJson);
-        return Results.Ok(newUserInfo);
+            var body = await JsonSerializer.DeserializeAsync<PasswordCheckRequest>(
+                context.Request.Body,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            if (string.IsNullOrEmpty(body?.Password))
+                return Results.BadRequest("Password is required");
+
+            var userPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "content",
+                "users",
+                username,
+                "profile.json"
+            );
+            if (!File.Exists(userPath))
+                return Results.NotFound("User not found");
+
+            var userJson = await File.ReadAllTextAsync(userPath);
+            var user = JsonSerializer.Deserialize<User>(
+                userJson,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            if (BCrypt.Net.BCrypt.Verify(body.Password, user!.PasswordHash))
+                return Results.Conflict("New passphrase matches current passphrase");
+
+            if (!IsValidPassword(body.Password))
+                return Results.BadRequest(
+                    "Invalid Password: Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'MySecretPhrase123!'"
+                );
+
+            return Results.Ok();
+        }
+        catch (AntiforgeryValidationException)
+        {
+            return Results.BadRequest("Invalid CSRF token.");
+        }
     }
 
     /*
@@ -403,7 +492,7 @@ public static class AdminFunctions
             var postFile = Path.Combine(postDir, "meta.json");
             var postJson = File.ReadAllText(postFile);
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var post = JsonSerializer.Deserialize<Post>(postJson, options);
+            var post = JsonSerializer.Deserialize<PostMeta>(postJson, options);
 
             List<string>? postData;
             if (type == "tags")
@@ -665,5 +754,10 @@ public static class AdminFunctions
         await File.WriteAllTextAsync(editorPath, updatedJson);
 
         return Results.Ok();
+    }
+
+    private class PasswordCheckRequest
+    {
+        public string? Password { get; set; } = string.Empty;
     }
 }

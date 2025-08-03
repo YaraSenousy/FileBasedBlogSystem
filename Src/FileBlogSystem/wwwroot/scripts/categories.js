@@ -1,5 +1,5 @@
 
-import {updatePendingRequestsCount, theme} from "./utils.js";
+import {updatePendingRequestsCount, theme, handleLogout} from "./utils.js";
 
 /**
  * Configuration and state
@@ -286,5 +286,6 @@ async function fetchCategories() {
 
 // Initialize by fetching categories
 theme();
+handleLogout();
 fetchCategories();
 await updatePendingRequestsCount();

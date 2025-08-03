@@ -1,4 +1,5 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using FileBlogSystem.config;
 using FileBlogSystem.Features.Admin;
 using FileBlogSystem.Features.Joining;
@@ -11,9 +12,11 @@ using FileBlogSystem.Features.Render.Search;
 using FileBlogSystem.Features.Render.Tags;
 using FileBlogSystem.Features.Render.UserFunctions;
 using FileBlogSystem.Features.Security;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using SixLabors.ImageSharp.Web.DependencyInjection;
@@ -67,6 +70,26 @@ builder.Services.AddHostedService<RssEmailNotifierService>();
 builder.Services.Configure<NotifierSettings>(builder.Configuration.GetSection("Notifier"));
 
 builder.Services.AddSingleton<EmailSubscriberService>();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    
+    options.AddFixedWindowLimiter(
+        "login",
+        opt =>
+        {
+            opt.PermitLimit = 5;
+            opt.Window = TimeSpan.FromMinutes(1);
+            opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            opt.QueueLimit = 0;
+        }
+    );
+});
+
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-CSRF-TOKEN";
+});
 
 var app = builder.Build();
 
@@ -75,6 +98,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseHsts();
 app.UseHttpsRedirection();
+app.UseMiddleware<ActivityMiddleware>();
+app.UseRateLimiter();
 
 app.UseStaticFiles();
 app.UseStaticFiles(
@@ -114,12 +139,19 @@ app.MapFallback(context =>
         || path == "/users"
         || path == "/tag"
         || path == "/category"
+        || path == "/my-posts"
+        || path == "/profile"
+        || path == "/requests"
+        || path.StartsWithSegments("/requests", out var remaining)
     )
     {
         var user = context.User;
         if (!user.Identity?.IsAuthenticated ?? true)
         {
-            context.Response.Redirect("/login");
+            var loginUrl =
+                $"/login?returnUrl={Uri.EscapeDataString(context.Request.Path + context.Request.QueryString)}";
+            context.Response.StatusCode = StatusCodes.Status302Found;
+            context.Response.Headers.Location = loginUrl;
             return Task.CompletedTask;
         }
     }
@@ -128,10 +160,7 @@ app.MapFallback(context =>
         return context.Response.SendFileAsync("wwwroot/dashboard.html");
     if (path == "/create")
         return context.Response.SendFileAsync("wwwroot/create.html");
-    if (
-        path.StartsWithSegments("/post", out var remaining)
-        && remaining!.Value!.Trim('/').Length > 0
-    )
+    if (path.StartsWithSegments("/post", out remaining) && remaining!.Value!.Trim('/').Length > 0)
         return context.Response.SendFileAsync("wwwroot/post.html");
     if (path == "/login")
         return context.Response.SendFileAsync("wwwroot/login.html");

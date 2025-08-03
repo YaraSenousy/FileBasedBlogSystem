@@ -119,23 +119,25 @@
 
     <!-- Subscribe Modal -->
     <div class="modal fade" id="subscribeModal" tabindex="-1" aria-labelledby="subscribeModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="subscribeModalLabel">Subscribe to Newsletter</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <p>Enter your email to receive updates whenever a new blog is posted!</p>
                     <form id="newsletter-form">
                         <div class="mb-3">
-                            <label for="newsletter-email" class="form-label">Email address</label>
-                            <input type="email" class="form-control" id="newsletter-email" required>
+                            <label for="newsletter-email" hidden>Email:</label>
+                            <input type="email" id="newsletter-email" class="form-control"
+                                placeholder="Enter your email" required>
                         </div>
-                        <button type="submit" class="btn btn-primary">
-                            Subscribe
-                            <span id="newsletter-spinner" style="display: none;"
-                                class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        </button>
+                        <button type="submit" class="btn btn-primary">Subscribe</button>
+                        <div id="newsletter-spinner" class="spinner-border text-primary ms-2" role="status"
+                            style="display: none; width: 1.5rem; height: 1.5rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
                     </form>
                 </div>
             </div>

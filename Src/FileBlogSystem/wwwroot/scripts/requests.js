@@ -1,4 +1,4 @@
-import { fetchData, showToast, renderPagination, updatePendingRequestsCount, theme  } from "./utils.js";
+import { fetchData, showToast, renderPagination, updatePendingRequestsCount, theme, handleLogout  } from "./utils.js";
 
 let currentPage = 1;
 const limit = 3;
@@ -202,4 +202,5 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   //initialize theme
   theme();
+  handleLogout();
 });

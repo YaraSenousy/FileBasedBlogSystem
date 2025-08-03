@@ -1,4 +1,4 @@
-import { fetchData, showToast, updatePendingRequestsCount, theme } from "./utils.js";
+import { fetchData, showToast, updatePendingRequestsCount, theme, handleLogout } from "./utils.js";
 
 let role = null;
 
@@ -204,4 +204,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   //initialize theme
   theme();
+  handleLogout();
 });

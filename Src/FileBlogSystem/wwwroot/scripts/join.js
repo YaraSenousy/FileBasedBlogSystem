@@ -55,6 +55,29 @@ async function newsletter() {
 }
 
 /**
+ * Fetches CSRF token from /api/csrf-token and sets it in the form
+ */
+async function fetchCsrfToken() {
+    try {
+        const response = await fetch("/api/csrf-token", {
+            method: "GET",
+            credentials: "include"
+        });
+        if (!response.ok) {
+            throw new Error("Failed to fetch CSRF token");
+        }
+        const data = await response.json();
+        document.getElementById("_csrf").value = data.token;
+    } catch (error) {
+        const toast = document.getElementById("live-toast");
+        const toastMsg = document.getElementById("toast-message");
+        toastMsg.textContent = "Error fetching CSRF token: " + error.message;
+        toast.className = "toast align-items-center text-bg-danger border-0";
+        new bootstrap.Toast(toast).show();
+    }
+}
+
+/**
  * Initializes the join page by setting up the form submission handler and other event listeners.
  */
 document.addEventListener("DOMContentLoaded", () => {
@@ -78,9 +101,13 @@ document.addEventListener("DOMContentLoaded", () => {
       if (picture) formData.append("picture", picture);
       const cv = document.getElementById("cv").files[0];
       if (cv) formData.append("cv", cv);
+      const csrfToken = document.querySelector("input[name='_csrf']").value;
 
       try {
         const response = await fetch("/join", {
+          headers: {
+            "X-CSRF-TOKEN": csrfToken
+          },
           method: "POST",
           body: formData,
         });
@@ -116,4 +143,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   theme();
+  fetchCsrfToken();
 });

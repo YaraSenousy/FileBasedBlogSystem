@@ -1,4 +1,4 @@
-import { fetchData, showToast, updatePendingRequestsCount, theme } from "./utils.js";
+import { fetchData, showToast, updatePendingRequestsCount, theme, handleLogout } from "./utils.js";
 
 /**
  * Stores the slug of the current post being edited or created.
@@ -431,6 +431,7 @@ function showMedia(post) {
 window.onload = async () => {
   easyMDE = new EasyMDE({ element: document.getElementById('markdown-textarea') });
   theme();
+  handleLogout();
   updatePendingRequestsCount();
 
   try {

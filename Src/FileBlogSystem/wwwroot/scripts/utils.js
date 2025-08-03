@@ -559,4 +559,19 @@ async function handleLogout() {
     }
   });
 }
+
+const originalFetch = window.fetch;
+
+window.fetch = async (...args) => {
+  const response = await originalFetch(...args);
+
+  if (response.status === 401) {
+    const returnUrl = encodeURIComponent(window.location.pathname);
+    window.location.href = `/login?returnUrl=${returnUrl}`;
+    return Promise.reject("Token expired. Redirecting to login.");
+  }
+
+  return response;
+};
+
 export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, theme, toggleBookmark, getBookmarks, isBookmarked, updatePendingRequestsCount, handleLogout };

@@ -146,7 +146,10 @@ app.MapFallback(context =>
         var user = context.User;
         if (!user.Identity?.IsAuthenticated ?? true)
         {
-            context.Response.Redirect("/login");
+            var loginUrl =
+                $"/login?returnUrl={Uri.EscapeDataString(context.Request.Path + context.Request.QueryString)}";
+            context.Response.StatusCode = StatusCodes.Status302Found;
+            context.Response.Headers.Location = loginUrl;
             return Task.CompletedTask;
         }
     }
@@ -155,10 +158,7 @@ app.MapFallback(context =>
         return context.Response.SendFileAsync("wwwroot/dashboard.html");
     if (path == "/create")
         return context.Response.SendFileAsync("wwwroot/create.html");
-    if (
-        path.StartsWithSegments("/post", out remaining)
-        && remaining!.Value!.Trim('/').Length > 0
-    )
+    if (path.StartsWithSegments("/post", out remaining) && remaining!.Value!.Trim('/').Length > 0)
         return context.Response.SendFileAsync("wwwroot/post.html");
     if (path == "/login")
         return context.Response.SendFileAsync("wwwroot/login.html");

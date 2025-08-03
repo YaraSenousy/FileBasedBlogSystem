@@ -72,6 +72,8 @@ builder.Services.Configure<NotifierSettings>(builder.Configuration.GetSection("N
 builder.Services.AddSingleton<EmailSubscriberService>();
 builder.Services.AddRateLimiter(options =>
 {
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    
     options.AddFixedWindowLimiter(
         "login",
         opt =>

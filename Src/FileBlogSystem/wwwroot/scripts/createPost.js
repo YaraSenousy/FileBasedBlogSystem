@@ -429,7 +429,19 @@ function showMedia(post) {
  * @returns {Promise<void>}
  */
 window.onload = async () => {
-  easyMDE = new EasyMDE({ element: document.getElementById('markdown-textarea') });
+  easyMDE = new EasyMDE({
+    element: document.getElementById('markdown-textarea'),
+    renderingConfig: {
+      codeSyntaxHighlighting: true,
+    },
+    onChange: () => {
+      document.getElementById('markdown-textarea').value = easyMDE.value();
+    }
+  });
+  const cmEditor = document.querySelector('.CodeMirror textarea');
+  if (cmEditor) {
+    cmEditor.setAttribute('aria-label', 'Blog content markdown editor');
+  }
   theme();
   handleLogout();
   updatePendingRequestsCount();

@@ -159,7 +159,7 @@ function renderPosts(posts, containerId, role = null, name = null) {
     const bookmarkHtml = role === null && name === null
       ? `
         <div class="bookmark-container">
-          <button class="btn btn-outline-secondary btn-sm bookmark-btn" data-slug="${post.slug}">
+          <button class="btn btn-outline-secondary btn-sm bookmark-btn" data-slug="${post.slug}" title="bookmark blog">
             <i class="bi ${isBookmarked(post.slug) ? 'bi-bookmark-fill' : 'bi-bookmark'}"></i>
           </button>
         </div>

@@ -111,7 +111,7 @@ function renderPosts(posts, containerId, role, name) {
                       <li>
                         <a class="dropdown-item" href="#" data-action="schedule" data-slug="${post.slug}">Schedule</a>
                         <div class="px-2 schedule-input" data-slug="${post.slug}" style="display: none;">
-                          <input type="datetime-local" class="form-control schedule-time" data-slug="${post.slug}">
+                          <input id="schedule-time-${post.slug}" title="Schedule Time" type="datetime-local" class="form-control schedule-time" data-slug="${post.slug}">
                         </div>
                       </li>`
                     : ""

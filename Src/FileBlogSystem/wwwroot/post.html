@@ -8,17 +8,156 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
 <body>
+  <header>
+    <h1><a href="/">Lets Blog</a> <i class="fas fa-blog"></i></h1>
+    <nav class="navbar navbar-expand-md bg-body-tertiary">
+      <div class="container-fluid">
+        <a class="navbar-brand" id="nav-home" href="/">Home</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" id="nav-blogs" href="/blogs">Blogs</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/saved">Saved Blogs</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/team">Our Team</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/join">Join Us</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#footer">Contact Us</a>
+            </li>
+          </ul>
+          <div class="d-flex align-items-center">
+            <button id="subscribe-btn" class="btn btn-outline-primary" data-bs-toggle="modal"
+              data-bs-target="#subscribeModal">
+              Subscribe
+            </button>
+            <button id="theme-toggle" class="btn btn-outline-secondary me-2" aria-label="Toggle theme">
+              <i class="fas fa-moon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+  <div class="modal fade" id="subscribeModal" tabindex="-1" aria-labelledby="subscribeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="subscribeModalLabel">Subscribe to Newsletter</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Enter your email to receive updates whenever a new blog is posted!</p>
+          <form id="newsletter-form">
+            <div class="mb-3">
+              <label for="newsletter-email" hidden>Email:</label>
+              <input type="email" id="newsletter-email" class="form-control" placeholder="Enter your email" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Subscribe</button>
+            <div id="newsletter-spinner" class="spinner-border text-primary ms-2" role="status"
+              style="display: none; width: 1.5rem; height: 1.5rem;">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
   <main id="post-container">Loading...</main>
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="live-toast" class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div id="toast-message" class="toast-body">Message goes here</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+          aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+  <footer id="footer" class="footer-section">
+    <p>© 2025 Lets Blog. All rights reserved.</p>
+    <p>Contact Us: <a href="mailto:letsblog047@gmail.com">letsblog047@gmail.com</a></p>
+  </footer>
   <script>
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) {
-      document.documentElement.setAttribute("data-theme", savedTheme);
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      document.documentElement.setAttribute("data-theme", "dark");
+    function updateThemeToggleIcon(theme) {
+      const icon = document.getElementById("theme-toggle").querySelector("i");
+      icon.className = theme === "dark" ? "fas fa-sun" : "fas fa-moon";
     }
+    const savedTheme = localStorage.getItem("theme");
+    const theme = savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+    if (savedTheme) {
+      updateThemeToggleIcon(savedTheme);
+    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      updateThemeToggleIcon("dark");
+    }
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+      const currentTheme = document.documentElement.getAttribute("data-theme");
+      const newTheme = currentTheme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", newTheme);
+      localStorage.setItem("theme", newTheme);
+      updateThemeToggleIcon(newTheme);
+    });
+
+    function showToast(message, variant = "primary") {
+      const toastEl = document.getElementById("live-toast");
+      const toastMsg = document.getElementById("toast-message");
+      toastEl.className = `toast align-items-center text-bg-${variant} border-0`;
+      toastMsg.textContent = message;
+      new bootstrap.Toast(toastEl).show();
+    }
+    const newsletterForm = document.getElementById("newsletter-form");
+    if (newsletterForm) {
+      newsletterForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("newsletter-email").value;
+        if (email) {
+          const spinner = document.getElementById("newsletter-spinner");
+          spinner.style.display = "inline-block";
+          try {
+            const response = await fetch(
+              `/subscribe?email=${encodeURIComponent(email)}`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+            if (response.ok) {
+              showToast("Successfully subscribed! Check your email for confirmation.", "success");
+              newsletterForm.reset();
+              const modal = bootstrap.Modal.getInstance(document.getElementById('subscribeModal'));
+              modal.hide();
+            } else if (response.status === 400) {
+              showToast("Subscription failed. Invalid email", "danger");
+            } else if (response.status === 409) {
+              showToast("You have already subscribed to the newsletter", "danger");
+            } else {
+              showToast("Subscription failed.", "danger");
+            }
+          } catch (error) {
+            console.error("Error subscribing:", error);
+            showToast("An error occurred. Please try again later.", "danger");
+          } finally {
+            spinner.style.display = "none";
+          }
+        }
+      });
+    }
+
     const url = new URLSearchParams(location.search);
     const slug = location.pathname.split("/").filter(Boolean).pop();
     const preview = url.get("preview");

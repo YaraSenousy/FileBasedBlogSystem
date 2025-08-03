@@ -8,7 +8,8 @@ import {
   renderPagination,
   clearTags,
   updatePendingRequestsCount,
-  theme
+  theme,
+  handleLogout
 } from "./utils.js";
 
 /**
@@ -454,16 +455,6 @@ async function clearSearch() {
 }
 
 /**
- * Logs out the user and redirects to the login page.
- */
-async function logout() {
-  await fetch("/logout", { method: "POST" });
-  showToast("Logged out", "success");
-  localStorage.removeItem("userInfo");
-  location.href = "/login";
-}
-
-/**
  * Loads and renders the user's posts for the current page.
  */
 async function loadMyPosts() {
@@ -525,6 +516,7 @@ window.onload = async () => {
   await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory);
   await updatePendingRequestsCount();
   theme();
+  handleLogout();
 
   const dropdown = document.getElementById("category-dropdown");
   if (selectedCategory && currentView === "published") {
@@ -605,10 +597,6 @@ window.onload = async () => {
   document.getElementById("create-post").addEventListener("click", (e) => {
     e.preventDefault();
     window.open("/create", "_self");
-  });
-  document.getElementById("account-logout").addEventListener("click", (e) => {
-    e.preventDefault();
-    logout();
   });
 
   window.addEventListener("popstate", async (event) => {

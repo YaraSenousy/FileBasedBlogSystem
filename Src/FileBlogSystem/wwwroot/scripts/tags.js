@@ -1,9 +1,10 @@
-import {updatePendingRequestsCount, theme} from "./utils.js";
+import {updatePendingRequestsCount, theme, handleLogout} from "./utils.js";
 
 /**
  * Initialize theme
  */
 theme(); 
+handleLogout();
 
 /**
  * Configuration and state

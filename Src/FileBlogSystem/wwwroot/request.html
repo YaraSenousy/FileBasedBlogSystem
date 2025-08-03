@@ -14,7 +14,7 @@
 <body>
   <header>
     <h1><a href="/">Lets Blog</a> <i class="fas fa-blog"></i></h1>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <nav class="navbar navbar-expand-md bg-body-tertiary">
       <div class="container-fluid">
         <a class="navbar-brand" id="nav-home" href="/dashboard">Published Blogs</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -97,6 +97,7 @@
           <p>Enter your email to receive updates whenever a new blog is posted!</p>
           <form id="newsletter-form">
             <div class="mb-3">
+              <label for="newsletter-email" hidden>Email:</label>
               <input type="email" id="newsletter-email" class="form-control" placeholder="Enter your email" required>
             </div>
             <button type="submit" class="btn btn-primary">Subscribe</button>

@@ -1,8 +1,8 @@
 using System.ServiceModel.Syndication;
 using System.Xml;
+using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using MailKit.Net.Smtp;
 
 public class RssEmailNotifierService : BackgroundService
 {
@@ -15,7 +15,8 @@ public class RssEmailNotifierService : BackgroundService
     public RssEmailNotifierService(
         ILogger<RssEmailNotifierService> logger,
         IOptions<NotifierSettings> options,
-        EmailSubscriberService subscriberService)
+        EmailSubscriberService subscriberService
+    )
     {
         _logger = logger;
         _settings = options.Value;
@@ -51,12 +52,12 @@ public class RssEmailNotifierService : BackgroundService
     private async Task SendEmailAsync(SyndicationItem item)
     {
         var bodyTemplate = """
-            <h3>{0}</h3>
-            <p>{1}</p>
-            <p><a href='{2}'>Read more</a></p>
-            <hr/>
-            <p style='font-size: 0.8em;'>Don't want updates? <a href='{3}/unsubscribe?email={4}'>Unsubscribe</a></p>
-        """;
+                <h3>{0}</h3>
+                <p>{1}</p>
+                <p><a href='{2}'>Read more</a></p>
+                <hr/>
+                <p style='font-size: 0.8em;'>Don't want updates? <a href='{3}/unsubscribe?email={4}'>Unsubscribe</a></p>
+            """;
 
         foreach (var email in _subscriberService.All())
         {
@@ -76,14 +77,21 @@ public class RssEmailNotifierService : BackgroundService
             message.Subject = "New Blog Post: " + item.Title.Text;
             message.Body = new TextPart("html")
             {
-                Text = body.Replace("{{email}}", Uri.EscapeDataString(email))
+                Text = body.Replace("{{email}}", Uri.EscapeDataString(email)),
             };
 
             using var client = new SmtpClient();
-            await client.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, _settings.UseSsl);
-            await client.AuthenticateAsync(_settings.SmtpUser, _settings.SmtpPass);
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
+            try
+            {
+                await client.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, _settings.UseSsl);
+                await client.AuthenticateAsync(_settings.SmtpUser, _settings.SmtpPass);
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Failed to send email to " + email + ": " + ex.Message);
+            }
         }
     }
 }

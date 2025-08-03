@@ -1,4 +1,7 @@
+using System.IO;
 using System.Text.Json;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Http;
 
 namespace FileBlogSystem.Features.Security;
 
@@ -6,55 +9,84 @@ public static class Login
 {
     public static void MapLoginEndpoint(this WebApplication app)
     {
-        app.MapPost("/login", HandleLogin);
+        app.MapPost("/login", HandleLogin).RequireRateLimiting("login");
         app.MapPost("/logout", HandleLogout);
+        app.MapGet("/api/csrf-token", GetCsrfToken);
     }
 
-    public static async Task<IResult> HandleLogin(HttpRequest request)
+    public static async Task<IResult> HandleLogin(HttpContext context, IAntiforgery antiforgery)
     {
-        var form = await request.ReadFormAsync();
-        var username = form["username"].ToString();
-        var password = form["password"].ToString();
+        try
+        {
+            await antiforgery.ValidateRequestAsync(context);
 
-        var path = Path.Combine("content", "users", username, "profile.json");
-        if (!File.Exists(path))
-            return Results.Unauthorized();
+            context.Request.EnableBuffering();
 
-        var userJson = await File.ReadAllTextAsync(path);
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var user = JsonSerializer.Deserialize<User?>(userJson, options);
+            using var reader = new StreamReader(context.Request.Body);
+            var body = await reader.ReadToEndAsync();
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var bodyData = JsonSerializer.Deserialize<LoginRequest>(body, options);
 
-        if (user == null)
-            return Results.BadRequest("User profile is invalid or corrupt.");
+            if (
+                bodyData == null
+                || string.IsNullOrEmpty(bodyData.Username)
+                || string.IsNullOrEmpty(bodyData.Password)
+            )
+                return Results.BadRequest("Username and password are required.");
 
-        if (string.IsNullOrWhiteSpace(user.PasswordHash))
-            return Results.BadRequest("Password not set for this user");
+            var path = Path.Combine("content", "users", bodyData.Username, "profile.json");
+            if (!File.Exists(path))
+                return Results.Unauthorized();
 
-        if (!BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
-            return Results.Unauthorized();
+            var userJson = await File.ReadAllTextAsync(path);
+            var user = JsonSerializer.Deserialize<User?>(userJson, options);
 
-        var token = JwtHelper.GenerateToken(user);
+            if (user == null)
+                return Results.BadRequest("User profile is invalid or corrupt.");
 
-        request.HttpContext.Response.Cookies.Append(
-            "auth",
-            token,
-            new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddDays(1),
-            }
-        );
+            if (string.IsNullOrWhiteSpace(user.PasswordHash))
+                return Results.BadRequest("Password not set for this user");
 
-        return Results.Ok(
-            new
-            {
-                success = true,
-                role = user.Role,
-                name = user.Username,
-            }
-        );
+            if (!BCrypt.Net.BCrypt.Verify(bodyData.Password, user.PasswordHash))
+                return Results.Unauthorized();
+
+            var token = JwtHelper.GenerateToken(user);
+
+            context.Response.Cookies.Append(
+                "auth",
+                token,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(15),
+                }
+            );
+
+            var daysUntilExpiration = user.PasswordSetDate.HasValue
+                ? (user.PasswordSetDate.Value.AddDays(30) - DateTime.UtcNow).TotalDays
+                : double.MaxValue;
+
+            return Results.Ok(
+                new
+                {
+                    success = true,
+                    role = user.Role,
+                    name = user.Username,
+                    passwordSetDate = user.PasswordSetDate,
+                    daysUntilExpiration,
+                }
+            );
+        }
+        catch (AntiforgeryValidationException)
+        {
+            return Results.BadRequest("Invalid CSRF token.");
+        }
+        catch (JsonException)
+        {
+            return Results.BadRequest("Invalid request format.");
+        }
     }
 
     public static IResult HandleLogout(HttpContext context)
@@ -86,5 +118,17 @@ public static class Login
         );
 
         return Results.Ok(new { success = true });
+    }
+
+    public static IResult GetCsrfToken(HttpContext context, IAntiforgery antiforgery)
+    {
+        var tokens = antiforgery.GetAndStoreTokens(context);
+        return Results.Ok(new { token = tokens.RequestToken });
+    }
+
+    private class LoginRequest
+    {
+        public string? Username { get; set; } = string.Empty;
+        public string? Password { get; set; } = string.Empty;
     }
 }

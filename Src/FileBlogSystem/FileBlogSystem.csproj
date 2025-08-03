@@ -1,11 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
   </PropertyGroup>
-
+  <ItemGroup>
+    <Content Include="wwwroot\**\*.*" CopyToPublishDirectory="Always" />
+    <Content Include="config\**\*.*" CopyToPublishDirectory="Always" />
+    <Content Include="content\**\*.*" CopyToPublishDirectory="Never" />
+    <None Include="publish\**\*.*" ExcludeFromSingleFile="true" CopyToPublishDirectory="Never" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="DotNetEnv" Version="3.1.1" />
@@ -15,5 +20,4 @@
     <PackageReference Include="SixLabors.ImageSharp.Web" Version="3.1.5" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="9.0.7" />
   </ItemGroup>
-
 </Project>

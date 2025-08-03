@@ -12,9 +12,9 @@
 </head>
 
 <body>
-<header>
+    <header>
         <h1><a href="/">Lets Blog</a> <i class="fas fa-blog"></i></h1>
-        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <nav class="navbar navbar-expand-md bg-body-tertiary">
             <div class="container-fluid">
                 <a class="navbar-brand" id="nav-home" href="/dashboard">Published Blogs</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -73,7 +73,8 @@
                     </li>
                     <li class="admin-functions nav-item">
                         <a class="nav-link" href="/requests">
-                            <i class="fas fa-user-plus"></i> Requests <span id="pending-requests-count" class="badge bg-danger">0</span>
+                            <i class="fas fa-user-plus"></i> Join Requests <span id="pending-requests-count"
+                                class="badge bg-danger">0</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -95,8 +96,7 @@
                         placeholder="Search by username, name, or email..." aria-label="Search users" />
                     <button class="btn btn-outline-secondary clear-search-btn" type="button" id="clear-search-btn"
                         title="Clear search">×</button>
-                    <button class="btn btn-outline-success" type="button" id="search-btn"
-                        title="Search users">
+                    <button class="btn btn-outline-success" type="button" id="search-btn" title="Search users">
                         <i class="fa fa-search"></i>
                     </button>
                 </div>
@@ -109,20 +109,20 @@
                 <form id="addUserForm">
                     <div class="mb-3">
                         <label for="add-username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="add-username" name="username"
-                            placeholder="Username" pattern="^[a-z0-9\-]+$"
-                            title="Username can only contain small letter, digits and -" required />
+                        <input type="text" class="form-control" id="add-username" name="username" placeholder="Username"
+                            pattern="^[a-z0-9\-]+$" title="Username can only contain small letter, digits and -"
+                            required />
                     </div>
                     <div class="mb-3">
                         <label for="add-name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="add-name" name="name" placeholder="Name"
-                            required />
+                        <input type="text" class="form-control" id="add-name" name="name" placeholder="Name" required />
                     </div>
                     <div class="mb-3">
                         <label for="add-password" class="form-label">Password</label>
                         <input type="password" class="form-control" id="add-password" name="password"
-                            placeholder="Password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                            title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"
+                            placeholder="Password"
+                            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&-_])[A-Za-z\d@$!%*?&-_ ]{16,}$"
+                            title="Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'block-curious-sunny-leaves'"
                             required />
                     </div>
                     <div class="mb-3">
@@ -140,7 +140,8 @@
                     </div>
                     <div class="d-flex">
                         <button type="submit" class="btn btn-primary w-100">Add User</button>
-                        <button type="button" class="btn btn-secondary cancel-btn w-100" id="cancel-add-btn">Cancel</button>
+                        <button type="button" class="btn btn-secondary cancel-btn w-100"
+                            id="cancel-add-btn">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -165,8 +166,9 @@
                     <div class="mb-3">
                         <label for="edit-password" class="form-label">New Password (optional)</label>
                         <input type="password" class="form-control" id="edit-password" name="password"
-                            placeholder="New Password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                            title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters" />
+                            placeholder="New Password"
+                            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&-_])[A-Za-z\d@$!%*?&-_ ]{16,}$"
+                            title="Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'block-curious-sunny-leaves'">
                     </div>
                     <div class="mb-3">
                         <label for="edit-role" class="form-label">Role</label>
@@ -178,7 +180,8 @@
                     </div>
                     <div class="d-flex">
                         <button type="submit" class="btn btn-primary w-100">Save Changes</button>
-                        <button type="button" class="btn btn-secondary cancel-btn w-100" id="cancel-edit-btn">Cancel</button>
+                        <button type="button" class="btn btn-secondary cancel-btn w-100"
+                            id="cancel-edit-btn">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -187,11 +190,13 @@
                     <thead>
                         <tr>
                             <th scope="col">Profile Picture</th>
-                            <th scope="col" class="sortable" data-sort="username">Username <i class="fas fa-sort"></i></th>
+                            <th scope="col" class="sortable" data-sort="username">Username <i class="fas fa-sort"></i>
+                            </th>
                             <th scope="col" class="sortable" data-sort="name">Name <i class="fas fa-sort"></i></th>
                             <th scope="col" class="sortable" data-sort="email">Email <i class="fas fa-sort"></i></th>
                             <th scope="col" class="sortable" data-sort="role">Role <i class="fas fa-sort"></i></th>
-                            <th scope="col" class="sortable" data-sort="assignedAuthor">Assigned Author <i class="fas fa-sort"></i></th>
+                            <th scope="col" class="sortable" data-sort="assignedAuthor">Assigned Author <i
+                                    class="fas fa-sort"></i></th>
                             <th scope="col">Actions</th>
                         </tr>
                     </thead>

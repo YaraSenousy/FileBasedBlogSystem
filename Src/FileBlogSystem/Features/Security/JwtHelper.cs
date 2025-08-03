@@ -7,8 +7,9 @@ namespace FileBlogSystem.Features.Security;
 
 public static class JwtHelper
 {
-    private static string Key = Environment.GetEnvironmentVariable("JWT_SECRET") 
-             ?? throw new Exception("Missing JWT_SECRET in .env");
+    private static string Key =
+        Environment.GetEnvironmentVariable("JWT_SECRET")
+        ?? throw new Exception("Missing JWT_SECRET in .env");
 
     public static string GenerateToken(User user)
     {
@@ -23,18 +24,20 @@ public static class JwtHelper
             expires: DateTime.UtcNow.AddDays(1),
             signingCredentials: new SigningCredentials(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key)),
-                SecurityAlgorithms.HmacSha256)
+                SecurityAlgorithms.HmacSha256
+            )
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public static TokenValidationParameters GetValidationParameters() => new()
-    {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key))
-    };
+    public static TokenValidationParameters GetValidationParameters() =>
+        new()
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key)),
+        };
 }

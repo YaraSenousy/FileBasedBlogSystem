@@ -14,12 +14,11 @@ async function loadBookmarkedPosts() {
   try {
     const bookmarks = getBookmarks();
     if (bookmarks.length === 0) {
-      document.getElementById("posts-container").innerHTML = "<h4>No bookmarked posts</h4>";
+      document.getElementById("posts-container").innerHTML = "<h4>No bookmarked posts</h4><p><i>Start bookmarking posts to see them here!</i></p>";
       allPosts = [];
       return;
     }
 
-    // Fetch each post individually
     allPosts = [];
     for (const slug of bookmarks) {
       try {
@@ -27,11 +26,9 @@ async function loadBookmarkedPosts() {
         allPosts.push(post);
       } catch (err) {
         console.warn(`Failed to fetch post with slug ${slug}:`, err.message);
-        // Continue fetching other posts if one fails
       }
     }
 
-    // Apply frontend search filter if searchTerm exists
     let filteredPosts = allPosts;
     if (searchTerm) {
       filteredPosts = allPosts.filter(post =>
@@ -96,7 +93,7 @@ async function newsletter() {
         spinner.style.display = "inline-block";
         try {
           const response = await fetch(
-            `http://localhost:5188/subscribe?email=${encodeURIComponent(email)}`,
+            `/subscribe?email=${encodeURIComponent(email)}`,
             {
               method: "POST",
               headers: {
@@ -112,7 +109,7 @@ async function newsletter() {
           } else if (response.status === 400) {
             showToast("Subscription failed. Invalid email", "danger");
           } else if (response.status === 409) {
-            showToast("Subscription failed. Email already used", "danger");
+            showToast("You have already subscribed to the newsletter", "danger");
           } else {
             showToast("Subscription failed.", "danger");
           }

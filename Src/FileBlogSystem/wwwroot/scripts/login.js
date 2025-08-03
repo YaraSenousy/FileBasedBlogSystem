@@ -9,17 +9,17 @@ function initializeTheme() {
 }
 
 /**
-* Updates the theme toggle button icon based on the current theme
-* @param {string} theme - Current theme ('light' or 'dark')
-*/
+ * Updates the theme toggle button icon based on the current theme
+ * @param {string} theme - Current theme ('light' or 'dark')
+ */
 function updateThemeToggleIcon(theme) {
   const icon = document.getElementById("theme-toggle").querySelector("i");
   icon.className = theme === "dark" ? "fas fa-sun" : "fas fa-moon";
 }
 
 /**
-* Toggles between light and dark theme
-*/
+ * Toggles between light and dark theme
+ */
 document.getElementById("theme-toggle").addEventListener("click", () => {
   const currentTheme = document.documentElement.getAttribute("data-theme");
   const newTheme = currentTheme === "dark" ? "light" : "dark";
@@ -29,40 +29,94 @@ document.getElementById("theme-toggle").addEventListener("click", () => {
 });
 
 /**
-* Handles the login form submission.
-* Prevents default form submission, sends credentials to /login, and redirects on success.
-*/
+ * Fetches CSRF token from /api/csrf-token and sets it in the form
+ */
+async function fetchCsrfToken() {
+    try {
+        const response = await fetch("/api/csrf-token", {
+            method: "GET",
+            credentials: "include"
+        });
+        if (!response.ok) {
+            throw new Error("Failed to fetch CSRF token");
+        }
+        const data = await response.json();
+        document.getElementById("_csrf").value = data.token;
+    } catch (error) {
+        const toast = document.getElementById("live-toast");
+        const toastMsg = document.getElementById("toast-message");
+        toastMsg.textContent = "Error fetching CSRF token: " + error.message;
+        toast.className = "toast align-items-center text-bg-danger border-0";
+        new bootstrap.Toast(toast).show();
+    }
+}
+
+/**
+ * Handles the login form submission.
+ * Prevents default form submission, sends credentials to /login, and redirects on success.
+ */
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const form = new FormData(e.target);
+  const username = document.querySelector("input[name='username']").value;
+  const password = document.querySelector("input[name='password']").value;
+  const csrfToken = document.querySelector("input[name='_csrf']").value;
   const toast = document.getElementById("live-toast");
   const toastMsg = document.getElementById("toast-message");
+
   try {
-      const res = await fetch("/login", {
-          method: "POST",
-          body: form,
-          credentials: "include"
-      });
-      if (res.ok) {
-          const data = await res.json();
-          if (data.success == true){
-            localStorage.setItem('userInfo', JSON.stringify({
-              name: data.name,
-              role: data.role
-            }));
-            window.location.href = "/dashboard";
-          }
-      } else {
-          toastMsg.textContent = "Invalid credentials";
-          toast.className = "toast align-items-center text-bg-danger border-0";
+    const res = await fetch("/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-TOKEN": csrfToken
+      },
+      body: JSON.stringify({ username, password }),
+      credentials: "include"
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem('userInfo', JSON.stringify({
+          name: data.name,
+          role: data.role,
+          daysUntilExpiration: data.daysUntilExpiration
+        }));
+
+        // Check for returnUrl in query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnUrl = urlParams.get('returnUrl') || "/dashboard";
+
+        if (data.daysUntilExpiration <= 7) {
+          toastMsg.innerHTML = `Your passphrase ${data.daysUntilExpiration <= 0 ? 'has expired' : 'will expire soon'}. Please <a href="/profile" class="text-white"><u>update it now</u></a>.`;
+          toast.className = "toast align-items-center text-bg-warning border-0";
           new bootstrap.Toast(toast).show();
+          window.location.href = "/profile";
+        } else {
+          window.location.href = returnUrl;
+        }
+      } else {
+        toastMsg.textContent = data.message || "Invalid credentials";
+        toast.className = "toast align-items-center text-bg-danger border-0";
+        new bootstrap.Toast(toast).show();
       }
-  } catch (error) {
-      toastMsg.textContent = "Error during login: " + error.message;
+    } else {
+      if (res.status === 401)
+        toastMsg.textContent = "Invalid credentials";
+      else if (res.status === 429)
+        toastMsg.textContent = "Too many login attempts. Please try again later.";
+      else
+        toastMsg.textContent = "Couldn't login";
       toast.className = "toast align-items-center text-bg-danger border-0";
       new bootstrap.Toast(toast).show();
+    }
+  } catch (error) {
+    toastMsg.textContent = "Error during login: " + error.message;
+    toast.className = "toast align-items-center text-bg-danger border-0";
+    new bootstrap.Toast(toast).show();
   }
 });
 
-// Initialize theme on page load
+// Initialize theme and fetch CSRF token on page load
 initializeTheme();
+fetchCsrfToken();

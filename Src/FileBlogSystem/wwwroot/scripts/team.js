@@ -104,7 +104,7 @@ async function newsletter() {
         spinner.style.display = "inline-block";
         try {
           const response = await fetch(
-            `http://localhost:5188/subscribe?email=${encodeURIComponent(email)}`,
+            `/subscribe?email=${encodeURIComponent(email)}`,
             {
               method: "POST",
               headers: {
@@ -120,7 +120,7 @@ async function newsletter() {
           } else if (response.status === 400) {
             showToast("Subscription failed. Invalid email", "danger");
           } else if (response.status === 409) {
-            showToast("Subscription failed. Email already used", "danger");
+            showToast("You have already subscribed to the newsletter", "danger");
           } else {
             showToast("Subscription failed.", "danger");
           }

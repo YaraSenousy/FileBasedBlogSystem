@@ -86,8 +86,8 @@ function renderPosts(posts, containerId, role = null, name = null) {
 
   posts.forEach((post) => {
     const postEl = document.createElement("article");
-    const tags = (post.tags || []).map((t) => `<span>${t}</span>`).join("");
-    const cats = (post.categories || []).map((c) => `<span>${c}</span>`).join("");
+    const tags = (post.tags || []).map((t) => `<span><a href="?tags=${t}">${t}</a></span>`).join("");
+    const cats = (post.categories || []).map((c) => `<span><a href="?category=${c}">${c}</a></span>`).join("");
     const status = post.status?.toLowerCase() || "published";
     const images = (post.mediaUrls || []).filter((url) =>
       /\.(png|jpe?g|webp|gif)$/i.test(url)
@@ -543,4 +543,35 @@ async function updatePendingRequestsCount() {
   }
 }
 
-export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, theme, toggleBookmark, getBookmarks, isBookmarked, updatePendingRequestsCount };
+/**
+ * handles logout
+ */
+async function handleLogout() {
+  const logoutButton = document.getElementById("account-logout");
+  if (logoutButton) logoutButton.addEventListener("click", async () => {
+    try {
+      await fetch("/logout", { method: "POST" });
+      showToast("Logged out", "success");
+      localStorage.removeItem("userInfo");
+      location.href = "/login";
+    } catch (err) {
+      showToast("Failed to log out", "danger");
+    }
+  });
+}
+
+const originalFetch = window.fetch;
+
+window.fetch = async (...args) => {
+  const response = await originalFetch(...args);
+
+  if (response.status === 401) {
+    const returnUrl = encodeURIComponent(window.location.pathname);
+    window.location.href = `/login?returnUrl=${returnUrl}`;
+    return Promise.reject("Token expired. Redirecting to login.");
+  }
+
+  return response;
+};
+
+export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, theme, toggleBookmark, getBookmarks, isBookmarked, updatePendingRequestsCount, handleLogout };

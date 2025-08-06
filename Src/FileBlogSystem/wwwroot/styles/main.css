@@ -326,6 +326,7 @@ nav a {
     0% {
         transform: translateX(0);
     }
+
     100% {
         transform: translateX(-100%);
     }
@@ -954,7 +955,8 @@ article {
 }
 
 [data-theme="dark"] .post-meta {
-    color: #B0A0C0; /* Improved contrast for dark theme */
+    color: #B0A0C0;
+    /* Improved contrast for dark theme */
 }
 
 .post-meta p {
@@ -1344,7 +1346,8 @@ input[type="datetime-local"]:focus {
 }
 
 [data-theme="dark"] #posts-container article a {
-    color: #B0A0C0; /* Improved contrast for dark theme */
+    color: #B0A0C0;
+    /* Improved contrast for dark theme */
 }
 
 #posts-container article a:hover {
@@ -1357,16 +1360,29 @@ input[type="datetime-local"]:focus {
     margin-top: 20px;
 }
 
-#pagination .page-link {
+.pagination .page-link {
     background-color: #ECE4F0;
     color: #4A2F6B;
     border-color: #4A2F6B;
 }
 
-#pagination .page-link:hover {
+.pagination .page-link:hover {
     background-color: #D8C4E8;
     color: #5A407F;
 }
+
+.pagination .page-item.active .page-link {
+    background-color: #4A2F6B;
+    border-color: #4A2F6B;
+    color: #ffffff;
+}
+
+.pagination .page-item.disabled .page-link {
+    background-color: #ECE4F0;
+    border-color: #ECE4F0;
+    color: #666;
+}
+
 #page-numbers {
     display: flex;
     align-items: center;
@@ -1881,7 +1897,8 @@ input[type="datetime-local"]:focus {
 }
 
 [data-theme="dark"] .request-field span a {
-    color: #B0A0C0; /* Improved contrast for dark theme */
+    color: #B0A0C0;
+    /* Improved contrast for dark theme */
 }
 
 .request-field span a:hover {
@@ -2007,7 +2024,8 @@ input[type="datetime-local"]:focus {
 }
 
 [data-theme="dark"] .footer-section a {
-    color: #B0A0C0; /* Improved contrast for dark theme */
+    color: #B0A0C0;
+    /* Improved contrast for dark theme */
 }
 
 .footer-section a:hover {
@@ -2261,11 +2279,13 @@ input[type="datetime-local"]:focus {
     }
 
     .post-meta {
-        color: #B0A0C0; /* Improved contrast */
+        color: #B0A0C0;
+        /* Improved contrast */
     }
 
     .post-meta p {
-        color: #B0A0C0; /* Improved contrast */
+        color: #B0A0C0;
+        /* Improved contrast */
     }
 
     .post-description {
@@ -2342,7 +2362,8 @@ input[type="datetime-local"]:focus {
     }
 
     #posts-container article a {
-        color: #B0A0C0; /* Improved contrast */
+        color: #B0A0C0;
+        /* Improved contrast */
     }
 
     .error {

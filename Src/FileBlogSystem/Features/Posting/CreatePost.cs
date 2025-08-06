@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FileBlogSystem.config;
+using Ganss.Xss;
 
 namespace FileBlogSystem.Features.Posting;
 
@@ -7,12 +8,14 @@ public static class CreatePost
 {
     public static void MapPostCreationEndpoint(this WebApplication app)
     {
-        app.MapPost("/posts", HandleCreatePost).RequireAuthorization("AdminAuthor");
+        app.MapPost("/posts", HandleCreatePost)
+            .RequireAuthorization("AdminAuthor")
+            .RequireRateLimiting("login");
     }
 
     /*
     Handles creating a new post
-    generated a new slug using the post's title 
+    generated a new slug using the post's title
     creates a new folder for the post and adds its route in routes.json
     ensures no duplicate titles and takes content as markdown
     sets status to draft and publish date to now
@@ -25,15 +28,21 @@ public static class CreatePost
             return Results.Unauthorized();
 
         var form = await request.ReadFormAsync();
-        var title = form["title"];
-        var description = form["description"];
-        var categories = form["categories"].ToString().Split(',', StringSplitOptions.RemoveEmptyEntries);
+        var title = new HtmlSanitizer().Sanitize(form["title"].ToString());
+        var description = new HtmlSanitizer().Sanitize(form["description"].ToString());
+        var categories = form["categories"]
+            .ToString()
+            .Split(',', StringSplitOptions.RemoveEmptyEntries);
         var tags = form["tags"].ToString().Split(',', StringSplitOptions.RemoveEmptyEntries);
         var content = form["content"];
         var status = "draft";
         var publishDate = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
 
-        if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(description) || string.IsNullOrEmpty(content))
+        if (
+            string.IsNullOrEmpty(title)
+            || string.IsNullOrEmpty(description)
+            || string.IsNullOrEmpty(content)
+        )
             return Results.BadRequest("Post data incomplete");
 
         foreach (var category in categories)
@@ -64,13 +73,13 @@ public static class CreatePost
             Published = publishDate,
             Tags = tags.ToList(),
             Categories = categories.ToList(),
-            CreatedBy = username
+            CreatedBy = username,
         };
 
-        var metaJson = JsonSerializer.Serialize(meta, new JsonSerializerOptions
-        {
-            WriteIndented = true
-        });
+        var metaJson = JsonSerializer.Serialize(
+            meta,
+            new JsonSerializerOptions { WriteIndented = true }
+        );
 
         await File.WriteAllTextAsync(Path.Combine(postPath, "meta.json"), metaJson);
         await File.WriteAllTextAsync(Path.Combine(postPath, "content.md"), content!);

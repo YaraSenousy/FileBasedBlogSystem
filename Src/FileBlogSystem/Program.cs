@@ -73,7 +73,7 @@ builder.Services.AddSingleton<EmailSubscriberService>();
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-    
+
     options.AddFixedWindowLimiter(
         "login",
         opt =>
@@ -93,13 +93,43 @@ builder.Services.AddAntiforgery(options =>
 
 var app = builder.Build();
 
+app.UseHsts();
+app.UseHttpsRedirection();
+app.UseCookiePolicy();
 app.UseImageSharp();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseHsts();
-app.UseHttpsRedirection();
 app.UseMiddleware<ActivityMiddleware>();
 app.UseRateLimiter();
+
+// Secure file serving for /content/*
+app.MapGet(
+    "/content/{*path}",
+    (string path, HttpContext context) =>
+    {
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "content", path);
+        if (!File.Exists(filePath))
+            return Results.NotFound();
+
+        // Prevent serving executable file types
+        var extension = Path.GetExtension(filePath).ToLowerInvariant();
+        if (extension is ".js" or ".html")
+            return Results.BadRequest("File type not allowed.");
+
+        var contentType = extension switch
+        {
+            ".jpg" => "image/jpeg",
+            ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".webp" => "image/webp",
+            ".pdf" => "application/pdf",
+            _ => "application/octet-stream",
+        };
+
+        context.Response.Headers.Append("Content-Disposition", "inline");
+        return Results.File(filePath, contentType);
+    }
+);
 
 app.UseStaticFiles();
 app.UseStaticFiles(

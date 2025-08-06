@@ -107,11 +107,7 @@ async function loadRequests() {
       loadRequests,
       new Set(),
       "",
-      () => {
-        currentPage = 1;
-        loadRequests();
-      },
-      `${selectedStatus.toLowerCase()}-pagination`
+      setPage
     );
   } catch (err) {
     console.error("Failed to load requests:", err.message);
@@ -139,6 +135,30 @@ function clearSearch() {
   searchTerm = "";
   currentPage = 1;
   loadRequests();
+}
+
+/**
+ * Advances to the next page of posts.
+ */
+function nextPage() {
+  if (currentPage < totalPages) {
+    currentPage++;
+    loadRequests();
+  }
+}
+
+/**
+ * Returns to the previous page of posts.
+ */
+function prevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    loadRequests();
+  }
+}
+
+function setPage(page) {
+  currentPage = page;
 }
 
 /**
@@ -198,6 +218,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     selectedStatus = "Denied";
     currentPage = 1;
     loadRequests();
+  });
+
+  document.getElementById("next-page").addEventListener("click", (e) => {
+    e.preventDefault();
+    nextPage();
+  });
+
+  document.getElementById("prev-page").addEventListener("click", (e) => {
+    e.preventDefault();
+    prevPage();
   });
 
   //initialize theme

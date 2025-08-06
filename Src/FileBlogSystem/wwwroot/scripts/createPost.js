@@ -180,7 +180,7 @@ async function saveAsDraft() {
     document.getElementById("save-draft").textContent = "Save Edits";
     document.querySelector(".back-btn").addEventListener("click", (e) => {
       e.preventDefault();
-      window.open(`/create/${postSlug}`, "_self");
+      window.open(`/create?slug=${postSlug}`, "_self");
     });
   } catch (error) {
     showToast("Save failed due to an error.", "danger");
@@ -254,7 +254,9 @@ async function uploadMedia(slug) {
         credentials: "include",
       });
       if (!res.ok) {
-        showToast("Upload failed.", "danger");
+          response.text().then((message) => {
+            showToast(message, "danger");
+          });
       }
     } catch (error) {
       showToast("Upload failed due to an error.", "danger");

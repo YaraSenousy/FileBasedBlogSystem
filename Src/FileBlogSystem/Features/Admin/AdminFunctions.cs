@@ -6,6 +6,7 @@ using FileBlogSystem.Features.Posting;
 using FileBlogSystem.Features.Render.Categories;
 using FileBlogSystem.Features.Render.Tags;
 using FileBlogSystem.Features.Security;
+using Ganss.Xss;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
 
@@ -63,7 +64,11 @@ public static class AdminFunctions
                     {
                         users.Add(user);
                     }
-                } catch (Exception ex) { Console.WriteLine("Failed to parse user profile: " + ex.Message); }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Failed to parse user profile: " + ex.Message);
+                }
             }
         }
 
@@ -119,7 +124,8 @@ public static class AdminFunctions
     */
     public static bool IsValidPassword(string password)
     {
-        string pattern = @"(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-])[A-Za-z\d@$!%*?&_\- ]{16,}$";
+        string pattern =
+            @"(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-])[A-Za-z\d@$!%*?&_\- ]{16,}$";
         return Regex.IsMatch(password, pattern);
     }
 
@@ -129,10 +135,24 @@ public static class AdminFunctions
     */
     public static bool IsValidEmail(string email)
     {
-        if (string.IsNullOrEmpty(email))
-            return true; // Email is optional
-        string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-        return Regex.IsMatch(email, pattern);
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == email;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    /*
+    HtmlSanitizer to strip HTML tags
+    */
+    public static string SanitizeInput(string input)
+    {
+        var sanitizer = new HtmlSanitizer();
+        return sanitizer.Sanitize(input);
     }
 
     /*
@@ -271,11 +291,11 @@ public static class AdminFunctions
                 return Results.Unauthorized();
 
             var form = await context.Request.ReadFormAsync();
-            var name = form["name"];
+            var name = SanitizeInput(form["name"].ToString());
             var email = form["email"];
             var password = form["password"];
             var profilePicFile = form.Files["profilePic"];
-            var description = form["description"];
+            var description = SanitizeInput(form["description"].ToString());
 
             var userPath = Path.Combine(
                 Directory.GetCurrentDirectory(),

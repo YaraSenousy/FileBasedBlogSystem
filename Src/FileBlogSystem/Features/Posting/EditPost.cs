@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
+using Ganss.Xss;
 using Microsoft.Extensions.Primitives;
 
 namespace FileBlogSystem.Features.Posting;
@@ -64,17 +65,17 @@ public static class EditPost
         }
         else if (meta.CreatedBy != username)
             return Results.Unauthorized();
-            
+
         if (meta.Status == "published")
             return Results.BadRequest();
 
-        var title = form["title"];
-        var description = form["description"];
+        var title = new HtmlSanitizer().Sanitize(form["title"].ToString());
+        var description = new HtmlSanitizer().Sanitize(form["description"].ToString());
         var categories = form["categories"]
             .ToString()
             .Split(',', StringSplitOptions.RemoveEmptyEntries);
         var tags = form["tags"].ToString().Split(',', StringSplitOptions.RemoveEmptyEntries);
-        var content = form["content"];
+        var content = new HtmlSanitizer().Sanitize(form["content"].ToString());
         if (
             string.IsNullOrEmpty(title)
             || string.IsNullOrEmpty(description)

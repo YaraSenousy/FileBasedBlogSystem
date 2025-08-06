@@ -8,11 +8,13 @@ using System.Threading.Tasks;
 using BCrypt.Net;
 using FileBlogSystem.Features.Admin;
 using FileBlogSystem.Features.Security;
+using Ganss.Xss;
 using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using SixLabors.ImageSharp;
 
 namespace FileBlogSystem.Features.Joining;
 
@@ -20,7 +22,7 @@ public static class JoinRequests
 {
     public static void MapJoinRequests(this WebApplication app)
     {
-        app.MapPost("/join", HandleJoinRequest);
+        app.MapPost("/join", HandleJoinRequest).RequireRateLimiting("login");
         app.MapGet("/all-requests", GetRequests).RequireAuthorization("AdminLevel");
         app.MapGet("/all-requests/pending/count", GetPendingRequestsCount)
             .RequireAuthorization("AdminLevel");
@@ -29,6 +31,49 @@ public static class JoinRequests
             .RequireAuthorization("AdminLevel");
         app.MapPost("/all-requests/{requestId}/deny", DenyRequest)
             .RequireAuthorization("AdminLevel");
+    }
+
+    /*
+    HtmlSanitizer to strip HTML tags
+    */
+    public static string SanitizeInput(string input)
+    {
+        var sanitizer = new HtmlSanitizer();
+        return sanitizer.Sanitize(input);
+    }
+
+    /*
+    Validates that a file is a valid image using ImageSharp
+    */
+    private static bool IsValidImage(IFormFile file)
+    {
+        try
+        {
+            using var image = Image.Load(file.OpenReadStream());
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    /*
+    Validates that a file is a valid PDF by checking the header
+    */
+    private static bool IsValidPdf(IFormFile file)
+    {
+        try
+        {
+            using var stream = file.OpenReadStream();
+            byte[] header = new byte[5];
+            stream.ReadExactly(header, 0, 5);
+            return header.SequenceEqual(new byte[] { 0x25, 0x50, 0x44, 0x46, 0x2D });
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private static async Task<IResult> HandleJoinRequest(
@@ -44,11 +89,11 @@ public static class JoinRequests
                 return Results.BadRequest("Invalid form data.");
 
             var form = await context.Request.ReadFormAsync();
-            var name = form["name"].ToString();
+            var name = SanitizeInput(form["name"].ToString());
             var email = form["email"].ToString();
-            var description = form["description"].ToString();
+            var description = SanitizeInput(form["description"].ToString());
             var password = form["password"].ToString();
-            var whyJoin = form["whyJoin"].ToString();
+            var whyJoin = SanitizeInput(form["whyJoin"].ToString());
             var picture = form.Files["picture"];
             var cv = form.Files["cv"];
 
@@ -69,7 +114,7 @@ public static class JoinRequests
                 );
 
             // Validate email format
-            if (!IsValidEmail(email))
+            if (!AdminFunctions.IsValidEmail(email))
                 return Results.BadRequest("Invalid email address.");
 
             // Check if email is already a user
@@ -93,11 +138,21 @@ public static class JoinRequests
                 }
             }
 
-            // Validate file types
-            if (picture != null && !picture.ContentType.StartsWith("image/"))
-                return Results.BadRequest("Picture must be an image (jpg/png).");
-            if (cv != null && cv.ContentType != "application/pdf")
-                return Results.BadRequest("CV must be a PDF.");
+            // Validate file types and sizes
+            if (picture != null)
+            {
+                if (picture.Length > 5 * 1024 * 1024) // 5MB limit
+                    return Results.BadRequest("Picture file too large. Maximum size is 5MB.");
+                if (!picture.ContentType.StartsWith("image/") || !IsValidImage(picture))
+                    return Results.BadRequest("Picture must be a valid image (jpg, png, webp).");
+            }
+            if (cv != null)
+            {
+                if (cv.Length > 10 * 1024 * 1024) // 10MB limit
+                    return Results.BadRequest("CV file too large. Maximum size is 10MB.");
+                if (cv.ContentType != "application/pdf" || !IsValidPdf(cv))
+                    return Results.BadRequest("CV must be a valid PDF.");
+            }
 
             // Create request object
             var request = new Request
@@ -119,6 +174,15 @@ public static class JoinRequests
             if (picture != null)
             {
                 var ext = Path.GetExtension(picture.FileName).ToLowerInvariant();
+                if (ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".webp")
+                    return Results.BadRequest("Picture must be JPG, PNG, or WEBP.");
+                if (
+                    picture.FileName.Contains("..")
+                    || picture.FileName.Contains("/")
+                    || picture.FileName.Contains("\\")
+                )
+                    return Results.BadRequest("Invalid picture filename.");
+
                 var picturePath = Path.Combine(assetsDir, $"picture{ext}");
                 using (var stream = new FileStream(picturePath, FileMode.Create))
                 {
@@ -135,6 +199,13 @@ public static class JoinRequests
             // Save CV if provided
             if (cv != null)
             {
+                if (
+                    cv.FileName.Contains("..")
+                    || cv.FileName.Contains("/")
+                    || cv.FileName.Contains("\\")
+                )
+                    return Results.BadRequest("Invalid CV filename.");
+
                 var cvPath = Path.Combine(assetsDir, "cv.pdf");
                 using (var stream = new FileStream(cvPath, FileMode.Create))
                 {
@@ -156,8 +227,10 @@ public static class JoinRequests
             );
             await File.WriteAllTextAsync(metaPath, requestJson);
 
-            // Send confirmation email
+            // Send confirmation email with sanitized inputs
             var settings = config.Value;
+            var sanitizer = new HtmlSanitizer();
+            var sanitizedName = sanitizer.Sanitize(name);
             var msg = new MimeMessage();
             msg.From.Add(MailboxAddress.Parse(settings.FromEmail));
             msg.To.Add(MailboxAddress.Parse(email));
@@ -165,7 +238,7 @@ public static class JoinRequests
             msg.Body = new TextPart("html")
             {
                 Text = $"""
-                    <h2>Thank You, {name}!</h2>
+                    <h2>Thank You, {sanitizedName}!</h2>
                     <p>We’ve received your application to join Lets Blog.</p>
                     <p>Our team will review your request, and we’ll contact you soon with the result.</p>
                     <hr/>
@@ -229,12 +302,12 @@ public static class JoinRequests
 
         var totalItems = requests.Count;
         var pagedRequests = requests
-            .OrderBy(r => r.CreationDate)
+            .OrderByDescending(r => r.CreationDate)
             .Skip((page - 1) * limit)
             .Take(limit)
             .ToList();
 
-        return Results.Ok(requests);
+        return Results.Ok(new { data = pagedRequests, totalItems });
     }
 
     private static async Task<IResult> GetPendingRequestsCount()
@@ -388,8 +461,11 @@ public static class JoinRequests
         );
         await File.WriteAllTextAsync(metaPath, updatedJson);
 
-        // Send approval email
+        // Send approval email with sanitized inputs
         var settings = config.Value;
+        var sanitizer = new HtmlSanitizer();
+        var sanitizedName = sanitizer.Sanitize(request.Name);
+        var sanitizedUsername = sanitizer.Sanitize(username);
         var msg = new MimeMessage();
         msg.From.Add(MailboxAddress.Parse(settings.FromEmail));
         msg.To.Add(MailboxAddress.Parse(request.Email));
@@ -397,9 +473,9 @@ public static class JoinRequests
         msg.Body = new TextPart("html")
         {
             Text = $"""
-                <h2>Congratulations, {request.Name}!</h2>
+                <h2>Congratulations, {sanitizedName}!</h2>
                 <p>Your application to join Lets Blog has been approved.</p>
-                <p>You can now log in using your username: {username} and password at <a href="{settings.BaseUrl}/login">{settings.BaseUrl}/login</a>.</p>
+                <p>You can now log in using your username: {sanitizedUsername} and password at <a href="{settings.BaseUrl}/login">{settings.BaseUrl}/login</a>.</p>
                 <hr/>
                 <p style='font-size: 0.8em;'>Questions? Contact us at <a href='mailto:letsblog047@gmail.com'>letsblog047@gmail.com</a></p>
                 """,
@@ -444,8 +520,10 @@ public static class JoinRequests
         );
         await File.WriteAllTextAsync(metaPath, updatedJson);
 
-        // Send denial email
+        // Send denial email with sanitized inputs
         var settings = config.Value;
+        var sanitizer = new HtmlSanitizer();
+        var sanitizedName = sanitizer.Sanitize(request.Name);
         var msg = new MimeMessage();
         msg.From.Add(MailboxAddress.Parse(settings.FromEmail));
         msg.To.Add(MailboxAddress.Parse(request.Email));
@@ -453,7 +531,7 @@ public static class JoinRequests
         msg.Body = new TextPart("html")
         {
             Text = $"""
-                <h2>Dear {request.Name},</h2>
+                <h2>Dear {sanitizedName},</h2>
                 <p>Thank you for applying to join Lets Blog.</p>
                 <p>After careful consideration, we regret to inform you that your application has not been approved at this time.</p>
                 <p>We appreciate your interest and encourage you to apply again in the future.</p>
@@ -469,18 +547,5 @@ public static class JoinRequests
         await client.DisconnectAsync(true);
 
         return Results.Ok("Request denied.");
-    }
-
-    private static bool IsValidEmail(string email)
-    {
-        try
-        {
-            var addr = new System.Net.Mail.MailAddress(email);
-            return addr.Address == email;
-        }
-        catch
-        {
-            return false;
-        }
     }
 }

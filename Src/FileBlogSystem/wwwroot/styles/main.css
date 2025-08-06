@@ -1143,12 +1143,13 @@ input[type="datetime-local"]:focus {
 }
 
 [data-theme="dark"] .post-actions .btn-outline-secondary {
-    color: #9B287B;
-    border-color: #9B287B;
+    color: #E2CEF0;
+    border-color: #E2CEF0;
 }
 
 .post-actions .btn-outline-secondary:hover {
     background-color: #6B4E8A;
+    border-color: #6B4E8A;
     color: #ffffff;
 }
 
@@ -1971,8 +1972,8 @@ input[type="datetime-local"]:focus {
 }
 
 [data-theme="dark"] .nav-tabs .nav-link.active {
-    color: #9B287B;
-    background-color: #402039;
+    color: #E2CEF0;
+    background-color: #9B287B;
     border-color: #5C164E;
     border-bottom: 1px solid #402039;
 }
@@ -2280,12 +2281,10 @@ input[type="datetime-local"]:focus {
 
     .post-meta {
         color: #B0A0C0;
-        /* Improved contrast */
     }
 
     .post-meta p {
         color: #B0A0C0;
-        /* Improved contrast */
     }
 
     .post-description {
@@ -2363,7 +2362,6 @@ input[type="datetime-local"]:focus {
 
     #posts-container article a {
         color: #B0A0C0;
-        /* Improved contrast */
     }
 
     .error {
@@ -2382,12 +2380,6 @@ input[type="datetime-local"]:focus {
         border-color: #9B287B;
     }
 
-    #create-post {
-        border-color: #9B287B;
-        color: #9B287B;
-    }
-
-    #create-post:hover,
     #edit-btn {
         background-color: #9B287B;
         color: white;
@@ -2423,7 +2415,7 @@ input[type="datetime-local"]:focus {
     .pagination .page-item.disabled .page-link {
         background-color: #402039;
         border-color: #5C164E;
-        color: #666;
+        color: #CFCFCF;
     }
 
     input[type="datetime-local"] {

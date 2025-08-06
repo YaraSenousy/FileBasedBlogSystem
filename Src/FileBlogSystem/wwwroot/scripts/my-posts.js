@@ -77,7 +77,7 @@ function renderPosts(posts, containerId, role, name) {
             ${images.length > 0 ? `<div class="post-thumbnail me-3">${thumbnail}</div>` : ""}
             <div class="post-content flex-grow-1">
               <h2>${post.title}</h2>
-              <p class="post-status text-${post.status === "published" ? "success" : post.status === "scheduled" ? "primary" : "secondary"}">
+              <p class="post-status ${post.status}">
                 ${post.status === "published" && post.published
                   ? `Published: ${new Date(post.published).toLocaleString()}`
                   : post.status === "scheduled"

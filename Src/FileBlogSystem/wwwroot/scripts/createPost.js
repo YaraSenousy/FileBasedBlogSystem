@@ -22,7 +22,7 @@ var easyMDE;
 async function goToPreview() {
   const titleInput = document.querySelector("input[name='title']");
   const descriptionInput = document.querySelector("textarea[name='description']");
-  const contentInputElement = document.querySelector("#markdown-textarea");
+  const contentInputElement = document.querySelector('div.CodeMirror');
   const contentInput = easyMDE.value();
 
   // Remove invalid classes
@@ -40,20 +40,26 @@ async function goToPreview() {
   const content = contentInput.trim();
   let isValid = true;
 
-  if (!title) {
-    titleInput.classList.add("is-invalid");
-    isValid = false;
-  }
-  if (!description) {
-    descriptionInput.classList.add("is-invalid");
-    isValid = false;
-  }
   if (!content) {
     contentInputElement.classList.add("is-invalid");
     const cmWrapper = contentInputElement.nextElementSibling;
     if (cmWrapper && cmWrapper.classList.contains("CodeMirror")) {
       cmWrapper.classList.add("is-invalid");
     }
+    contentInputElement.scrollIntoView({ behavior: "smooth" });
+    contentInputElement.focus();
+    isValid = false;
+  }
+  if (!description) {
+    descriptionInput.classList.add("is-invalid");
+    descriptionInput.scrollIntoView({ behavior: "smooth" });
+    descriptionInput.focus();
+    isValid = false;
+  }
+  if (!title) {
+    titleInput.classList.add("is-invalid");
+    titleInput.scrollIntoView({ behavior: "smooth" });
+    titleInput.focus();
     isValid = false;
   }
 

@@ -5,6 +5,12 @@
 <link>http://localhost:5000</link>
 <description>Latest blog posts from FileBlogSystem</description>
 <item>
+  <title>What Is Logic Design? A Beginner&apos;s Guide to the Brains Behind Hardware</title>
+  <link>http://localhost:5000/post/logic</link>
+  <pubDate>Sat, 09 Aug 2025 01:11:00 GMT</pubDate>
+  <description>Logic design is the blueprint of all digital systems. Learn what it is, how it works, and why it’s the foundation of everything from calculators to CPUs.</description>
+</item>
+<item>
   <title>Why Deep Work Beats Multitasking in the Digital Age</title>
   <link>http://localhost:5000/post/why-deep-work-beats-multitasking-in-the-digital-age</link>
   <pubDate>Tue, 22 Jul 2025 07:31:00 GMT</pubDate>

@@ -25,8 +25,8 @@ function renderTeam(users) {
         <p id="profile-role" class="${user.role == "admin"? "green" : user.role == "editor"? "gold": "blue"}">${user.role}</p>
         <img class="team-pic" src="${user.profilePicture || placeholderProfilePic}" alt="${user.name}'s profile picture">
         <h3 class="team-name">${user.name}</h3>
-        <p class="team-username">@${user.username}</p>
-        <p class="team-description">${user.description || "No description provided"}</p>
+        <h4 class="team-username">@${user.username}</h4>
+        <h5 class="team-description">${user.description || "No description provided"}</h5>
         <a class="team-link" href="/profiles/${user.username}">View Profile</a>
       </div>
     `;

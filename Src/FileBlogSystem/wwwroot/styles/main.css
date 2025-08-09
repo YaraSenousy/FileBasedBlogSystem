@@ -633,6 +633,7 @@ main {
     border-color: #402039;
     background-color: #5C164E;
     color: #9B287B;
+    border-left-color: transparent;
 }
 
 #clear-search-btn:hover {

@@ -24,7 +24,7 @@ async function loadFeaturedPosts() {
               .map(
                 (url, i) => `
               <div class="carousel-item ${i === 0 ? "active" : ""}">
-                <img src="${url}?width=350&height=200&mode=pad" class="d-block w-100 carousel-img img-fluid" alt="Post image" loading="lazy">
+                <img src="${url}?width=350&height=200&mode=pad" class="d-block w-100 carousel-img img-fluid" alt="Thumbnail image for ${post.title}" loading="lazy">
               </div>
             `
               )
@@ -49,7 +49,7 @@ async function loadFeaturedPosts() {
         : "";
     card.innerHTML = `
       ${thumbnail}
-      <h5>${post.title}</h5>
+      <h4 class="homepage-post-title">${post.title}</h4>
       <p>${post.description.substring(0, 200)}...</p>
       <a href="/post/${
         post.slug

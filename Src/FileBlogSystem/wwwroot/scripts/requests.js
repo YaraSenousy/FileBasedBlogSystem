@@ -52,7 +52,7 @@ function renderRequests(requests, containerId) {
     requestEl.innerHTML = `
       <div class="row">
         <div class="col-md-8">
-          <h5>${request.name}</h5>
+          <h2 id="request-name">${request.name}</h2>
           <p><strong>Email:</strong> ${request.email}</p>
           <p><strong>Submitted:</strong> ${new Date(
             request.creationDate
@@ -70,7 +70,7 @@ function renderRequests(requests, containerId) {
         <div class="col-md-4 text-end">
           <a href="/requests/${
             request.id
-          }" id="view-request-btn" class="btn btn-outline-primary btn-sm">View Request</a>
+          }" id="view-request-btn" class="btn btn-outline-secondary btn-sm">View Request</a>
         </div>
       </div>
     `;

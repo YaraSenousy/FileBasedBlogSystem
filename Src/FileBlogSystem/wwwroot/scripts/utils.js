@@ -100,7 +100,7 @@ function renderPosts(posts, containerId, role = null, name = null) {
               .map(
                 (url, i) => `
               <div class="carousel-item ${i === 0 ? "active" : ""}">
-                <img src="${url}?width=300&height=300&mode=pad" class="d-block w-100 carousel-img img-fluid" alt="Post image" loading="lazy">
+                <img src="${url}?width=300&height=300&mode=pad" class="d-block w-100 carousel-img img-fluid" alt="Thumbnail image for ${post.title}" loading="lazy">
               </div>
             `
               )

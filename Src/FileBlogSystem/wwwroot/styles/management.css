@@ -567,6 +567,11 @@ header nav a:hover {
     margin-right: 0.5rem;
 }
 
+label.assign-author {
+    color: transparent;
+    display: none;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     #form-heading {

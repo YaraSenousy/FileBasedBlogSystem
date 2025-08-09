@@ -71,7 +71,7 @@ function renderUsers(usersToRender) {
     paginatedUsers.forEach(user => {
         const tr = document.createElement('tr');
         const authorSelect = user.role === 'editor' ? `
-            <select class="form-select form-select-sm assign-author" data-username="${user.username}">
+            <select aria-label="Assigned Author" id="assign-author-${user.username}" class="form-select form-select-sm assign-author" data-username="${user.username}">
                 <option value="" ${!user.assignedAuthor ? 'selected' : ''}>None</option>
                 ${authors.map(author => `
                     <option value="${author.username}" ${user.assignedAuthor === author.username ? 'selected' : ''}>

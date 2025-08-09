@@ -154,6 +154,10 @@ nav a {
     color: #4A2F6B;
 }
 
+.homepage-post-title {
+    font-size: 1.25rem;
+}
+
 /* Conveyor Belt and Post Card */
 .conveyor-belt {
     display: flex;
@@ -230,7 +234,7 @@ nav a {
     transform: scale(1.05);
 }
 
-.post-card h5 {
+.post-card h4 {
     margin: 20px 0 6px;
     font-family: 'Georgia', serif;
     color: #4A2F6B;
@@ -240,11 +244,7 @@ nav a {
     font-size: 1.2rem;
 }
 
-[data-theme="light"] .post-card h5 {
-    color: #4A2F6B;
-}
-
-[data-theme="dark"] .post-card h5 {
+[data-theme="dark"] .post-card h4 {
     color: #E2CEF0;
 }
 
@@ -1136,26 +1136,26 @@ input[type="datetime-local"]:focus {
     box-shadow: 0 0 0 0.2rem rgba(155, 40, 123, 0.25);
 }
 
-.post-actions .btn-outline-secondary {
+.btn-outline-secondary {
     margin-left: 0.5rem;
-    color: #6B4E8A;
-    border-color: #6B4E8A;
+    color: #6B4E8A !important;
+    border-color: #6B4E8A !important;
 }
 
-[data-theme="dark"] .post-actions .btn-outline-secondary {
-    color: #E2CEF0;
-    border-color: #E2CEF0;
+[data-theme="dark"] .btn-outline-secondary {
+    color: #E2CEF0 !important;
+    border-color: #E2CEF0 !important;
 }
 
-.post-actions .btn-outline-secondary:hover {
-    background-color: #6B4E8A;
-    border-color: #6B4E8A;
-    color: #ffffff;
+.btn-outline-secondary:hover {
+    background-color: #6B4E8A !important;
+    border-color: #6B4E8A !important;
+    color: #ffffff !important;
 }
 
-[data-theme="dark"] .post-actions .btn-outline-secondary:hover {
-    background-color: #9B287B;
-    color: #E2CEF0;
+[data-theme="dark"] .btn-outline-secondary:hover {
+    background-color: #9B287B !important;
+    color: #E2CEF0 !important;
 }
 
 .post-actions label {
@@ -1795,9 +1795,10 @@ input[type="datetime-local"]:focus {
 }
 
 [data-theme="dark"] #view-request-btn {
-    color: #9B287B;
-    border-color: #9B287B;
+    color: #E2CEF0;
+    border-color: #E2CEF0;
 }
+
 
 [data-theme="dark"] #view-request-btn:hover {
     background-color: #9B287B;
@@ -1805,6 +1806,9 @@ input[type="datetime-local"]:focus {
     border-color: #9B287B;
 }
 
+#request-name {
+    font-size: 1.5rem;
+}
 /* Request details styling */
 #request-details {
     max-width: 600px;

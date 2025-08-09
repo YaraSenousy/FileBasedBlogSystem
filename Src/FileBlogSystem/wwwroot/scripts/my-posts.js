@@ -39,7 +39,7 @@ function renderPosts(posts, containerId, role, name) {
   const container = document.getElementById(containerId);
   // Display message if no posts are available
   container.innerHTML = posts.length === 0
-    ? "<h4>No posts found.</h4>"
+    ? "<h2>No posts found.</h2>"
     : posts.map(post => {
       // Filter images from mediaUrls
       const images = (post.mediaUrls || []).filter(url => /\.(png|jpe?g|webp|gif)$/i.test(url));
@@ -67,24 +67,21 @@ function renderPosts(posts, containerId, role, name) {
           </div>
         `
         : "";
-      // Log warning if scheduled post lacks scheduled date
-      if (post.status === "scheduled" && !post.scheduled) {
-        console.warn(`Scheduled post "${post.title}" missing scheduled date`);
-      }
+
       return `
         <article class="post card mb-3">
           <div class="card-body d-flex">
             ${images.length > 0 ? `<div class="post-thumbnail me-3">${thumbnail}</div>` : ""}
             <div class="post-content flex-grow-1">
               <h2>${post.title}</h2>
-              <p class="post-status ${post.status}">
+              <h3 class="post-status ${post.status}">
                 ${post.status === "published" && post.published
                   ? `Published: ${new Date(post.published).toLocaleString()}`
                   : post.status === "scheduled"
                     ? `Scheduled: ${post.published ? new Date(post.published).toLocaleString() : "No Date"}`
                     : "Draft"
                 }
-              </p>
+              </h3>
               <p>${post.description || "No description available."}</p>
               <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -111,7 +108,7 @@ function renderPosts(posts, containerId, role, name) {
                       <li>
                         <a class="dropdown-item" href="#" data-action="schedule" data-slug="${post.slug}">Schedule</a>
                         <div class="px-2 schedule-input" data-slug="${post.slug}" style="display: none;">
-                          <input id="schedule-time-${post.slug}" title="Schedule Time" type="datetime-local" class="form-control schedule-time" data-slug="${post.slug}">
+                          <input aria-label="schedule time" id="schedule-time-${post.slug}" title="Schedule Time" type="datetime-local" class="form-control schedule-time" data-slug="${post.slug}">
                         </div>
                       </li>`
                     : ""

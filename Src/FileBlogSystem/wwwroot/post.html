@@ -56,7 +56,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="subscribeModalLabel">Subscribe to Newsletter</h5>
+          <h2 class="modal-title" id="subscribeModalLabel">Subscribe to Newsletter</h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -212,7 +212,7 @@
           if (imageUrls.length > 0) {
             const carouselItems = imageUrls.map((url, index) => `
               <div class="carousel-item${index === 0 ? ' active' : ''}">
-                <img src="${url}?width=600" class="carousel-img" alt="Post media">
+                <img src="${url}?width=600" class="carousel-img" alt="Thumbnail image for ${post.title}" loading="lazy">
               </div>
             `).join('');
             mediaHtml += `

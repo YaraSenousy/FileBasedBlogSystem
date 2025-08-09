@@ -510,6 +510,25 @@ function theme() {
     localStorage.setItem("theme", newTheme);
     updateThemeToggleIcon(newTheme);
   });
+
+  var { name, role } = JSON.parse(localStorage.getItem("userInfo") || "{}");
+  if (role) {
+    const contactLink = Array.from(document.querySelectorAll(".nav-link"))
+      .find(link => link.textContent.trim() === "Contact Us");
+
+    if (contactLink) {
+      const dashboardLink = document.createElement("a");
+      dashboardLink.className = "nav-link";
+      dashboardLink.href = "/dashboard";
+      dashboardLink.textContent = "Dashboard";
+
+      const dashboardItem = document.createElement("li");
+      dashboardItem.className = "nav-item";
+      dashboardItem.appendChild(dashboardLink);
+
+      contactLink.parentElement.insertAdjacentElement("afterend", dashboardItem);
+    }
+  } 
 }
 
 /**

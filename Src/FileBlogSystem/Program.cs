@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry.Trace;
 using SixLabors.ImageSharp.Web.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +28,17 @@ RouteMapper.LoadRoutes();
 
 builder.Services.AddHostedService<ScheduledPostPublisher>();
 builder.Services.AddImageSharp();
+
+builder.Services.AddControllers();
+// Setup OpenTelemetry Tracing
+builder.Services.AddOpenTelemetry().WithTracing(builder =>
+{
+    builder
+        // Configure ASP.NET Core Instrumentation
+        .AddAspNetCoreInstrumentation()
+        // Configure OpenTelemetry Protocol (OTLP) Exporter
+        .AddOtlpExporter();
+});
 
 DotNetEnv.Env.Load();
 var jwtKey =

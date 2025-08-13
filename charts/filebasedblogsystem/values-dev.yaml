@@ -2,4 +2,4 @@ replicaCount: 1
 image:
   repository: registry.arc-center.run/silverkeytech/filebasedblogsystem/backstage
   pullPolicy: IfNotPresent
-  tag: backstage-filebasedblogsystem-dev-latest
+  tag: b6e298

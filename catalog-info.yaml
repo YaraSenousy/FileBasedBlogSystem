@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: filebasedblogsystem
+  description: Dot Net app. Named filebasedblogsystem
+  annotations:
+    github.com/project-slug: silverkeytech/filebasedblogsystem
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: service
+  owner: development
+  lifecycle: experimental

@@ -1,0 +1,5 @@
+replicaCount: 1
+image:
+  repository: registry.arc-center.run/silverkeytech/filebasedblogsystem/mariam
+  pullPolicy: IfNotPresent
+  tag: mariam-filebasedblogsystem-dev-latest

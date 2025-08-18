@@ -23,7 +23,7 @@ ingress:
   enabled: true
   className: "nginx"
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/cluster-issuer: clusterissuer-arc-center-domain
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
   hosts:
     - host: filebasedblogsystem-mariam-dev.arc-center.run

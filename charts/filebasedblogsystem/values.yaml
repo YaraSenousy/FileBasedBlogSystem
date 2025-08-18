@@ -22,13 +22,18 @@ service:
 ingress:
   enabled: true
   className: "nginx"
-  annotations: {}
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
   hosts:
     - host: filebasedblogsystem-mariam-dev.arc-center.run
       paths:
         - path: /
           pathType: Prefix
-  tls: []
+  tls:
+    - hosts:
+        - filebasedblogsystem-mariam-dev.arc-center.run
+      secretName: filebasedblogsystem-mariam-dev-tls
 resources:
   requests:
     cpu: 50m

@@ -1,6 +1,6 @@
 /* User Management Page Styling */
 body {
-    background: linear-gradient(135deg, #ECE4F0, #ffffff);
+    background: #ECE4F0;
     font-family: 'Arial', sans-serif;
     color: #4A2F6B;
     margin: 0;
@@ -13,11 +13,6 @@ body {
     margin-bottom: 1.5rem;
     font-family: 'Georgia', serif;
     text-align: center;
-}
-
-[data-theme="dark"] body {
-    background: linear-gradient(135deg, #402039, #170F11);
-    color: #E2CEF0;
 }
 
 [data-theme="dark"] #form-heading {
@@ -608,7 +603,7 @@ label.assign-author {
 /* Dark Theme */
 [data-theme="dark"] {
     body {
-        background: linear-gradient(135deg, #402039, #170F11);
+        background:#402039;
         color: #E2CEF0;
     }
 

@@ -1,5 +1,5 @@
 body {
-  background: linear-gradient(135deg, #ECE4F0, #ffffff);
+  background: #ECE4F0;
   font-family: 'Arial', sans-serif;
   color: #4A2F6B;
   margin: 0;
@@ -220,7 +220,7 @@ nav {
 
 /* Dark Theme */
 [data-theme="dark"] body {
-  background: linear-gradient(135deg, #402039, #170F11);
+  background:#402039;
   color: #E2CEF0;
 }
 

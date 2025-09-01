@@ -1686,7 +1686,7 @@ input[type="datetime-local"]:focus {
     color: #9B287B;
 }
 
-.modal-body .btn-primary {
+.modal .btn-primary {
     padding: 8px 15px;
     background: #4A2F6B;
     border: none;
@@ -1697,26 +1697,28 @@ input[type="datetime-local"]:focus {
     transition: transform 0.3s ease, background 0.3s ease;
 }
 
-[data-theme="dark"] .modal-body .btn-primary {
+[data-theme="dark"] .modal-body .btn-primary,
+[data-theme="dark"] .modal-footer .btn-primary {
     background: #9B287B;
 }
 
-.modal-body .btn-primary:hover {
+.modal .btn-primary:hover {
     transform: translateY(-2px);
     background: #D8C4E8;
 }
 
-[data-theme="dark"] .modal-body .btn-primary:hover {
+[data-theme="dark"] .modal .btn-primary:hover {
     background: #5C164E;
 }
 
 /* bookmark */
-.bookmark-container {
+.bookmark-share-container {
     top: 10px;
     right: 10px;
 }
 
-.bookmark-btn {
+.bookmark-btn,
+.share-btn {
     padding: 0;
     font-size: 1.5rem;
     margin-bottom: 0.5rem;
@@ -1725,20 +1727,24 @@ input[type="datetime-local"]:focus {
 }
 
 [data-theme="dark"] .bookmark-btn i.bi-bookmark,
+[data-theme="dark"] .share-btn i.bi-share,
 [data-theme="dark"] .bookmark-btn i.bi-bookmark-fill {
     color: #E2CEF0;
 }
 
 [data-theme="light"] .bookmark-btn i.bi-bookmark,
+[data-theme="light"] .share-btn i.bi-share,
 [data-theme="light"] .bookmark-btn i.bi-bookmark-fill {
     color: #4A2F6B;
 }
 
-.bookmark-btn:hover i {
+.bookmark-btn:hover i,
+.share-btn:hover i {
     color: #5A407F;
 }
 
-[data-theme="dark"] .bookmark-btn:hover i {
+[data-theme="dark"] .bookmark-btn:hover i,
+[data-theme="dark"] .share-btn:hover i {
     color: #9B287B;
 }
 

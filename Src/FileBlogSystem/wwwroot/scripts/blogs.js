@@ -1,4 +1,4 @@
-import { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, theme } from "./utils.js";
+import { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, theme, shareActions } from "./utils.js";
 
 /**
  * Manages the current page number, limit per page, total pages, active tags, and selected category for the homepage.
@@ -392,9 +392,9 @@ window.onload = async () => {
         dropdown.querySelector("[data-value='']").classList.add("active");
       }
       await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory);
-      await loadPosts();
+      loadPosts();
     }
   });
-
+  shareActions();
   theme();
 };

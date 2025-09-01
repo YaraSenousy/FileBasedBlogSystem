@@ -14,10 +14,9 @@ async function fetchData(endpoint, paginated = false) {
     if (paginated)
       return {
         data: result.data || result,
-        totalItems: result.totalItems || result.length || 0
+        totalItems: result.totalItems || result.length || 0,
       };
-    else
-      return result;
+    else return result;
   } catch (err) {
     console.error(`Failed to fetch from ${endpoint}:`, err.message);
     throw err;
@@ -40,7 +39,7 @@ function getTagFilterParam(activeTags) {
 function toggleBookmark(slug) {
   const bookmarks = getBookmarks();
   if (bookmarks.includes(slug)) {
-    const updatedBookmarks = bookmarks.filter(s => s !== slug);
+    const updatedBookmarks = bookmarks.filter((s) => s !== slug);
     localStorage.setItem("bookmarkedPosts", JSON.stringify(updatedBookmarks));
     showToast("Post removed from bookmarks", "info");
   } else {
@@ -86,21 +85,30 @@ function renderPosts(posts, containerId, role = null, name = null) {
 
   posts.forEach((post) => {
     const postEl = document.createElement("article");
-    const tags = (post.tags || []).map((t) => `<span><a href="?tags=${t}">${t}</a></span>`).join("");
-    const cats = (post.categories || []).map((c) => `<span><a href="?category=${c}">${c}</a></span>`).join("");
+    const tags = (post.tags || [])
+      .map((t) => `<span><a href="?tags=${t}">${t}</a></span>`)
+      .join("");
+    const cats = (post.categories || [])
+      .map((c) => `<span><a href="?category=${c}">${c}</a></span>`)
+      .join("");
     const status = post.status?.toLowerCase() || "published";
     const images = (post.mediaUrls || []).filter((url) =>
       /\.(png|jpe?g|webp|gif)$/i.test(url)
     );
-    const thumbnail = images.length > 0
-      ? `
-        <div id="carousel-${post.slug}" class="carousel slide" data-bs-ride="carousel">
+    const thumbnail =
+      images.length > 0
+        ? `
+        <div id="carousel-${
+          post.slug
+        }" class="carousel slide" data-bs-ride="carousel">
           <div class="carousel-inner">
             ${images
               .map(
                 (url, i) => `
               <div class="carousel-item ${i === 0 ? "active" : ""}">
-                <img src="${url}?width=300&height=300&mode=pad" class="d-block w-100 carousel-img img-fluid" alt="Thumbnail image for ${post.title}" loading="lazy">
+                <img src="${url}?width=300&height=300&mode=pad" class="d-block w-100 carousel-img img-fluid" alt="Thumbnail image for ${
+                  post.title
+                }" loading="lazy">
               </div>
             `
               )
@@ -122,16 +130,16 @@ function renderPosts(posts, containerId, role = null, name = null) {
           }
         </div>
       `
-      : "";
+        : "";
 
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = post.htmlContent || "";
 
     const imgTags = tempDiv.querySelectorAll("img");
-    imgTags.forEach(img => img.remove());
+    imgTags.forEach((img) => img.remove());
 
     const links = tempDiv.querySelectorAll("a");
-    links.forEach(link => {
+    links.forEach((link) => {
       const href = link.getAttribute("href") || "";
       if (href.match(/\.(jpg|jpeg|png|gif|mp4|mp3|wav|pdf|docx|xlsx|pptx)$/i)) {
         link.remove();
@@ -148,37 +156,62 @@ function renderPosts(posts, containerId, role = null, name = null) {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
-      timeZoneName: "short"
+      timeZoneName: "short",
     };
-    const publishedDate = new Date(post.published).toLocaleString("en-GB", dateOptions);
+    const publishedDate = new Date(post.published).toLocaleString(
+      "en-GB",
+      dateOptions
+    );
     const modifiedDate =
       post.modified !== "0001-01-01T00:00:00"
         ? new Date(post.modified).toLocaleString("en-GB", dateOptions)
         : "";
 
-    const bookmarkHtml = role === null && name === null
-      ? `
-        <div class="bookmark-container">
-          <button class="btn btn-outline-secondary btn-sm bookmark-btn" data-slug="${post.slug}" title="bookmark blog">
-            <i class="bi ${isBookmarked(post.slug) ? 'bi-bookmark-fill' : 'bi-bookmark'}"></i>
-          </button>
-        </div>
-      `
-      : "";
+    const shareAndBookmarkHtml =
+      role === null && name === null
+        ? `
+    <div class="gap-2 bookmark-share-container">
+      <button class="btn btn-outline-secondary btn-sm bookmark-btn" data-slug="${
+        post.slug
+      }" title="Bookmark post">
+        <i class="bi ${
+          isBookmarked(post.slug) ? "bi-bookmark-fill" : "bi-bookmark"
+        }"></i>
+      </button>
+      <button class="btn btn-outline-secondary btn-sm share-btn" data-slug="${
+        post.slug
+      }" data-title="${post.title}" title="Share post">
+        <i class="bi bi-share"></i>
+      </button>
+    </div>
+  `
+        : "";
 
     postEl.innerHTML = `
       <div class="row position-relative">
-        ${bookmarkHtml}
+        ${shareAndBookmarkHtml}
         <div class="col-md-7">
           <h2>${post.title}</h2>
           <div class="post-meta">
-            ${post.createdBy ? `<a href="/profiles/${post.createdBy}"> By: ${post.createdBy} </a>` : ""}
-            ${post.modifiedBy ? `<a href="/profiles/${post.modifiedBy}"><br>Edit by: ${post.modifiedBy}</a>` : ""}
+            ${
+              post.createdBy
+                ? `<a href="/profiles/${post.createdBy}"> By: ${post.createdBy} </a>`
+                : ""
+            }
+            ${
+              post.modifiedBy
+                ? `<a href="/profiles/${post.modifiedBy}"><br>Edit by: ${post.modifiedBy}</a>`
+                : ""
+            }
           </div>
-          <div class="post-description"><span>Description: </span><p>${post.description}</p></div>
+          <div class="post-description"><span>Description: </span><p>${
+            post.description
+          }</p></div>
           <div class="post-preview"><p>${preview}</p></div>
           <div class="post-details">
-            <a href="/post/${post.slug}${role && status !== 'published' ? '?preview=true' : ''}" class="btn btn-outline-primary view-post-btn">
+            <a href="/post/${post.slug}${
+      role && status !== "published" ? "?preview=true" : ""
+    }" class="btn btn-outline-primary view-post-btn">
               View Full Post <i class="bi bi-arrow-right"></i>
             </a>
           </div>
@@ -237,13 +270,19 @@ function renderPosts(posts, containerId, role = null, name = null) {
           actions.appendChild(scheduleBtn);
         }
       }
-      if (status === "scheduled" && (post.createdBy === name || role === "admin")) {
+      if (
+        status === "scheduled" &&
+        (post.createdBy === name || role === "admin")
+      ) {
         const draftBtn = document.createElement("button");
         draftBtn.className = "btn btn-outline-secondary btn-sm ms-1";
         draftBtn.textContent = "Save as Draft";
         actions.appendChild(draftBtn);
       }
-      if (status === "published" && (role === "admin" || post.createdBy === name)) {
+      if (
+        status === "published" &&
+        (role === "admin" || post.createdBy === name)
+      ) {
         const deleteBtn = document.createElement("button");
         deleteBtn.className = "btn btn-danger btn-sm m-1";
         deleteBtn.textContent = "Delete Post";
@@ -257,22 +296,74 @@ function renderPosts(posts, containerId, role = null, name = null) {
       }
       postEl.appendChild(actions);
     }
-    if (role === null && name === null) {
-      const bookmarkBtn = postEl.querySelector(".bookmark-btn");
-      if (bookmarkBtn) {
-        bookmarkBtn.addEventListener("click", () => {
-          toggleBookmark(post.slug);
-          const icon = bookmarkBtn.querySelector("i");
-          icon.className = `bi ${isBookmarked(post.slug) ? 'bi-bookmark-fill' : 'bi-bookmark'}`;
-          if (window.location.pathname === "/saved") {
-            import("./saved.js").then(module => module.loadBookmarkedPosts());
-          }
-        });
-      }
+    const bookmarkBtn = postEl.querySelector(".bookmark-btn");
+    if (bookmarkBtn) {
+      bookmarkBtn.addEventListener("click", () => {
+        toggleBookmark(post.slug);
+        const icon = bookmarkBtn.querySelector("i");
+        icon.className = `bi ${
+          isBookmarked(post.slug) ? "bi-bookmark-fill" : "bi-bookmark"
+        }`;
+        if (window.location.pathname === "/saved") {
+          import("./saved.js").then((module) => module.loadBookmarkedPosts());
+        }
+      });
     }
 
+    const shareBtn = postEl.querySelector(".share-btn");
+    if (shareBtn) {
+      shareBtn.addEventListener("click", () => {
+        const slug = shareBtn.dataset.slug;
+        const postUrl = `${window.location.origin}/post/${slug}`;
+        const shareLinkInput = document.getElementById("shareLink");
+        shareLinkInput.value = postUrl;
+
+        const modal = new bootstrap.Modal(
+          document.getElementById("shareModal")
+        );
+        modal.show();
+      });
+    }
     container.appendChild(postEl);
   });
+}
+
+function shareActions() {
+  // Only inject modal once
+  if (!document.getElementById("shareModal")) {
+    const modalHtml = `
+      <div class="modal fade" id="shareModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Share this post</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <input type="text" id="shareLink" class="form-control" readonly>
+            </div>
+            <div class="modal-footer">
+              <button id="copyLinkBtn" class="btn btn-primary">Copy Link</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
+  }
+
+  // Attach event for Copy button
+  const copyBtn = document.getElementById("copyLinkBtn");
+  if (copyBtn) {
+    copyBtn.addEventListener("click", () => {
+      const linkInput = document.getElementById("shareLink");
+      linkInput.select();
+      linkInput.setSelectionRange(0, 99999); // mobile fix
+      navigator.clipboard.writeText(linkInput.value).then(() => {
+        showToast("Link copied to clipboard!", "success");
+      });
+    });
+  }
 }
 
 /**
@@ -296,7 +387,12 @@ function showToast(message, variant = "primary") {
  * @param {Function} loadPosts - The function to call when tags change.
  * @param {string} selectedCategory - The slug of the selected category.
  */
-async function loadTags(setCurrentState, activeTags, loadPosts, selectedCategory) {
+async function loadTags(
+  setCurrentState,
+  activeTags,
+  loadPosts,
+  selectedCategory
+) {
   const tags = await fetchData("/tags");
   const container = document.getElementById("tag-checkboxes");
   container.innerHTML = "";
@@ -345,7 +441,12 @@ function clearTags() {
  * @param {Function} loadPostsByCategory - The function to call when a category is selected.
  * @param {Set} activeTags - The set of active tags.
  */
-async function loadCategories(setCurrentState, loadPostsByCategory, activeTags, loadPublishedPosts) {
+async function loadCategories(
+  setCurrentState,
+  loadPostsByCategory,
+  activeTags,
+  loadPublishedPosts
+) {
   const dropdown = document.getElementById("category-dropdown");
   dropdown.innerHTML = "";
 
@@ -356,11 +457,12 @@ async function loadCategories(setCurrentState, loadPostsByCategory, activeTags, 
   allCategoriesA.textContent = "All Categories";
   allCategoriesA.dataset.value = "";
   allCategoriesA.onclick = () => {
-    dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
-      item.classList.remove("active")
-    );
+    dropdown
+      .querySelectorAll(".dropdown-item")
+      .forEach((item) => item.classList.remove("active"));
     allCategoriesA.classList.add("active");
-    document.getElementById("category-dropdown-button").textContent = "All Categories";
+    document.getElementById("category-dropdown-button").textContent =
+      "All Categories";
     setCurrentState(1, activeTags, "");
     loadPublishedPosts();
   };
@@ -376,11 +478,12 @@ async function loadCategories(setCurrentState, loadPostsByCategory, activeTags, 
     a.textContent = cat.name;
     a.dataset.value = cat.slug;
     a.onclick = () => {
-      dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
-        item.classList.remove("active")
-      );
+      dropdown
+        .querySelectorAll(".dropdown-item")
+        .forEach((item) => item.classList.remove("active"));
       a.classList.add("active");
-      document.getElementById("category-dropdown-button").textContent = cat.name;
+      document.getElementById("category-dropdown-button").textContent =
+        cat.name;
       setCurrentState(1, activeTags, cat.slug);
       loadPostsByCategory(cat.slug, cat.name);
     };
@@ -397,15 +500,21 @@ async function loadCategories(setCurrentState, loadPostsByCategory, activeTags, 
  * @param {Set} activeTags - The set of active tag slugs.
  * @param {string} selectedCategory - The slug of the selected category.
  */
-function renderPagination(currentPage, totalPages, loadPosts, activeTags, selectedCategory, setCurrentState) {
+function renderPagination(
+  currentPage,
+  totalPages,
+  loadPosts,
+  activeTags,
+  selectedCategory,
+  setCurrentState
+) {
   const pageNumbersContainer = document.getElementById("page-numbers");
   pageNumbersContainer.innerHTML = "";
 
-    if (totalPages === 1) {
-        document.getElementById('pagination').style.display = 'none';
-        return; 
-    }else 
-        document.getElementById('pagination').style.display = 'block';
+  if (totalPages === 1) {
+    document.getElementById("pagination").style.display = "none";
+    return;
+  } else document.getElementById("pagination").style.display = "block";
 
   const maxPagesToShow = 5;
   let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
@@ -496,7 +605,11 @@ function updateThemeToggleIcon(theme) {
 
 function theme() {
   const savedTheme = localStorage.getItem("theme");
-  const theme = savedTheme || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const theme =
+    savedTheme ||
+    (window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light");
   document.documentElement.setAttribute("data-theme", theme);
   if (savedTheme) {
     updateThemeToggleIcon(savedTheme);
@@ -513,8 +626,9 @@ function theme() {
 
   var { name, role } = JSON.parse(localStorage.getItem("userInfo") || "{}");
   if (role) {
-    const joinLink = Array.from(document.querySelectorAll(".nav-link"))
-      .find(link => link.textContent.trim() === "Join Us");
+    const joinLink = Array.from(document.querySelectorAll(".nav-link")).find(
+      (link) => link.textContent.trim() === "Join Us"
+    );
 
     if (joinLink) {
       const dashboardLink = document.createElement("a");
@@ -529,7 +643,7 @@ function theme() {
       joinLink.parentElement.insertAdjacentElement("afterend", dashboardItem);
       joinLink.style.display = "none";
     }
-  } 
+  }
 }
 
 /**
@@ -550,7 +664,9 @@ async function updatePendingRequestsCount() {
   if (role === "author") {
     document.getElementById("nav-scheduled").innerText = "My Scheduled Posts";
   }
-  document.getElementById("accountOffcanvasLabel").textContent = `Hello, ${name.split(" ")[0]}`;
+  document.getElementById("accountOffcanvasLabel").textContent = `Hello, ${
+    name.split(" ")[0]
+  }`;
   const countElement = document.getElementById("pending-requests-count");
   if (countElement && role === "admin") {
     try {
@@ -568,16 +684,17 @@ async function updatePendingRequestsCount() {
  */
 async function handleLogout() {
   const logoutButton = document.getElementById("account-logout");
-  if (logoutButton) logoutButton.addEventListener("click", async () => {
-    try {
-      await fetch("/logout", { method: "POST" });
-      showToast("Logged out", "success");
-      localStorage.removeItem("userInfo");
-      location.href = "/login";
-    } catch (err) {
-      showToast("Failed to log out", "danger");
-    }
-  });
+  if (logoutButton)
+    logoutButton.addEventListener("click", async () => {
+      try {
+        await fetch("/logout", { method: "POST" });
+        showToast("Logged out", "success");
+        localStorage.removeItem("userInfo");
+        location.href = "/login";
+      } catch (err) {
+        showToast("Failed to log out", "danger");
+      }
+    });
 }
 
 const originalFetch = window.fetch;
@@ -594,4 +711,20 @@ window.fetch = async (...args) => {
   return response;
 };
 
-export { fetchData, getTagFilterParam, renderPosts, showToast, loadTags, loadCategories, renderPagination, clearTags, theme, toggleBookmark, getBookmarks, isBookmarked, updatePendingRequestsCount, handleLogout };
+export {
+  fetchData,
+  getTagFilterParam,
+  renderPosts,
+  showToast,
+  loadTags,
+  loadCategories,
+  renderPagination,
+  clearTags,
+  theme,
+  toggleBookmark,
+  getBookmarks,
+  isBookmarked,
+  updatePendingRequestsCount,
+  handleLogout,
+  shareActions,
+};

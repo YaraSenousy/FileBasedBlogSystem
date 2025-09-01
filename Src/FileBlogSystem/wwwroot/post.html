@@ -184,6 +184,7 @@
           hour12: false,
           timeZoneName: "short"
         })}</i></h3>
+              ${post.createdBy ? `<h3><i>Created By: <a href="/profiles/${post.createdBy}">${post.createdBy}</a> ${post.modifiedBy ? `<br> Edited By: <a href="/profiles/${post.modifiedBy}">${post.modifiedBy}</a></i></h3>` : "</i></h3>"}` : ""}
               <div id="tts-controls" class="d-flex flex-column align-items-center">
                 <button id="tts-toggle" class="btn btn-sm btn-outline-secondary w-100 mb-2">
                   <i class="fas fa-volume-up"></i> Read Aloud

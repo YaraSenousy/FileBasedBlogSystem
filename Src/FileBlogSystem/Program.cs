@@ -105,6 +105,8 @@ builder.Services.AddAntiforgery(options =>
 
 var app = builder.Build();
 
+LuceneIndexer.RebuildIndex();
+
 app.UseHsts();
 app.UseHttpsRedirection();
 app.UseCookiePolicy();

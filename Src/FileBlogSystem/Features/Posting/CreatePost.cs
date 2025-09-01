@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FileBlogSystem.config;
+using FileBlogSystem.Features.Render.Search;
 using Ganss.Xss;
 
 namespace FileBlogSystem.Features.Posting;
@@ -84,6 +85,12 @@ public static class CreatePost
         await File.WriteAllTextAsync(Path.Combine(postPath, "meta.json"), metaJson);
         await File.WriteAllTextAsync(Path.Combine(postPath, "content.md"), content!);
         RouteMapper.AddRoute(slug, folderName);
+
+        var post = PostReader.ReadPostFromFolder(postPath);
+        if (post != null)
+        {
+            LuceneIndexer.IndexPost(post);
+        }
 
         return Results.Created($"/posts/{slug}", new { slug });
     }

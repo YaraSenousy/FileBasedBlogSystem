@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using Ganss.Xss;
-using Microsoft.Extensions.Primitives;
+using FileBlogSystem.Features.Render.Search;
 
 namespace FileBlogSystem.Features.Posting;
 
@@ -112,6 +112,12 @@ public static class EditPost
             JsonSerializer.Serialize(meta, new JsonSerializerOptions { WriteIndented = true })
         );
         File.WriteAllText(contentPath, markdown);
+
+        var updatedPost = PostReader.ReadPostFromFolder(folder);
+        if (updatedPost != null)
+        {
+            LuceneIndexer.IndexPost(updatedPost);
+        }
 
         return Results.Created($"/posts/{slug}", new { slug });
     }

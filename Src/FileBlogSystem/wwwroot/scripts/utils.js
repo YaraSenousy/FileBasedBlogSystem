@@ -336,11 +336,11 @@ function shareActions() {
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title">Share this post</h5>
+              <h2 class="modal-title">Share this post</h2>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <input type="text" id="shareLink" class="form-control" readonly>
+              <input type="text" aria-label="Post link" id="shareLink" class="form-control" readonly>
             </div>
             <div class="modal-footer">
               <button id="copyLinkBtn" class="btn btn-primary">Copy Link</button>

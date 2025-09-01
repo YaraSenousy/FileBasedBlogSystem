@@ -1096,18 +1096,25 @@ article {
     display: inline-block;
 }
 
-.post-categories span,
-.post-tags span {
+.post-categories span a,
+.post-tags span a{
     background: #ECE4F0;
     padding: 0.3rem 0.8rem;
     margin-right: 0.5rem;
     border-radius: 15px;
     font-size: 0.85rem;
     color: #4A2F6B;
+    text-decoration: none;
 }
 
-[data-theme="dark"] .post-categories span,
-[data-theme="dark"] .post-tags span {
+.post-categories span a:hover,
+.post-tags span a:hover{
+    color: #5A407F;
+    text-decoration: underline;
+}
+
+[data-theme="dark"] .post-categories span a,
+[data-theme="dark"] .post-tags span a {
     background: #5C164E;
     color: #E2CEF0;
 }
@@ -2336,12 +2343,6 @@ input[type="datetime-local"]:focus {
 
     .post-content p,
     .post-content li {
-        color: #E2CEF0;
-    }
-
-    .post-categories span,
-    .post-tags span {
-        background: #5C164E;
         color: #E2CEF0;
     }
 

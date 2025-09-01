@@ -1763,6 +1763,10 @@ input[type="datetime-local"]:focus {
     font-size: 0.9em;
 }
 
+[data-theme="dark"] #join-form .text-danger {
+    color: #FFA3E5 !important;
+}
+
 [data-theme="dark"] #join-form .form-control,
 [data-theme="dark"] #join-form .form-control:focus {
     background-color: #402039;
@@ -1856,7 +1860,7 @@ input[type="datetime-local"]:focus {
 }
 
 [data-theme="dark"] .no-image-text {
-    color: #9B287B;
+    color: #E2CEF0;
 }
 
 .request-title {
@@ -1896,7 +1900,7 @@ input[type="datetime-local"]:focus {
     margin-right: 1rem;
 }
 
-[data-theme="dark"] .request-field label {
+[data-theme="dark"] .request-field p {
     color: #E2CEF0;
 }
 
@@ -2063,7 +2067,7 @@ input[type="datetime-local"]:focus {
     }
 
     a:hover {
-        color: #9B287B;
+        color: #9B287B !important;
     }
 
     header {
@@ -2081,7 +2085,7 @@ input[type="datetime-local"]:focus {
         color: #E2CEF0;
     }
 
-    h1 a {
+    a {
         color: #E2CEF0 !important;
     }
 
@@ -2300,7 +2304,7 @@ input[type="datetime-local"]:focus {
         color: #B0A0C0;
     }
 
-    .post-meta p {
+    .post-meta h3 {
         color: #B0A0C0;
     }
 

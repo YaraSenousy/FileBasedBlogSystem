@@ -45,25 +45,25 @@ async function loadRequest() {
         }
       </div>
       <div class="request-info">
-        <h5 class="request-title">Join Request Details</h5>
+        <h3 class="request-title">Join Request Details</h3>
         <div class="request-field">
-          <label><strong>Name:</strong></label>
+          <p><strong>Name:</strong></p>
           <span>${request.name}</span>
         </div>
         <div class="request-field">
-          <label><strong>Email:</strong></label>
+          <p><strong>Email:</strong></p>
           <span>${request.email}</span>
         </div>
         <div class="request-field">
-          <label><strong>Description:</strong></label>
+          <p><strong>Description:</strong></p>
           <span>${request.description}</span>
         </div>
         <div class="request-field">
-          <label><strong>Why Join:</strong></label>
+          <p><strong>Why Join:</strong></p>
           <span>${request.whyJoin}</span>
         </div>
         <div class="request-field">
-          <label><strong>Submitted:</strong></label>
+          <p><strong>Submitted:</strong></p>
           <span>${new Date(request.creationDate).toLocaleString("en-GB", {
             weekday: "short",
             day: "2-digit",
@@ -76,13 +76,13 @@ async function loadRequest() {
           })}</span>
         </div>
         <div class="request-field">
-          <label><strong>Status:</strong></label>
+          <p><strong>Status:</strong></p>
           <span>${request.status}</span>
         </div>
         ${
           request.reviewedBy
             ? `<div class="request-field">
-                 <label><strong>Reviewed By:</strong></label>
+                 <p><strong>Reviewed By:</strong></p>
                  <span>${request.reviewedBy}</span>
                </div>`
             : ""

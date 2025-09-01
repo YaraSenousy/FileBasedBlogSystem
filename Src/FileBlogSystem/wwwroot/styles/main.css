@@ -950,11 +950,21 @@ article {
     color: #E2CEF0;
 }
 
-.post-meta {
-    font-size: 1.1rem;
+.post-meta h3{
+    font-size: 1.2rem;
     color: #6B4E8A;
     font-style: italic;
     margin: 1.5rem 0;
+    font-weight: 700;
+}
+
+.post-meta a {
+    color: #4A2F6B;
+}
+
+.post-meta a:hover {
+    text-decoration: none;
+    color: #5A407F;
 }
 
 [data-theme="dark"] .post-meta {
@@ -1502,7 +1512,7 @@ input[type="datetime-local"]:focus {
 
 .newsletter-section p {
     font-size: 1rem;
-    color: #6B4E8A;
+    color: #4A2F6B;
     max-width: 600px;
     margin: 0 auto 15px;
 }
@@ -1879,7 +1889,7 @@ input[type="datetime-local"]:focus {
     margin-bottom: 1rem;
 }
 
-.request-field label {
+.request-field p {
     min-width: 120px;
     font-weight: bold;
     color: #4A2F6B;
@@ -1916,8 +1926,8 @@ input[type="datetime-local"]:focus {
 /* Request actions styling */
 #request-actions .btn {
     width: 100px;
-    background-color: #D8C4E8;
-    color: #ffffff;
+    background-color: #E2CEF0;
+    color: #6B4E8A;
     border: 1px solid #6B4E8A;
 }
 

@@ -172,9 +172,9 @@
         let html = `
           <article class="post-article">
             <header class="post-header">
-              <h1 class="post-title">${post.title}</h1>
+              <h2 class="post-title">${post.title}</h2>
               <div class="post-meta">
-                <p><i>Published: ${new Date(post.published).toLocaleDateString("en-GB", {
+                <h3><i>Published: ${new Date(post.published).toLocaleDateString("en-GB", {
           weekday: "short",
           day: "2-digit",
           month: "short",
@@ -183,8 +183,8 @@
           minute: "2-digit",
           hour12: false,
           timeZoneName: "short"
-        })}</i></p>
-                ${post.createdBy ? `<p><i>Created By: <a href="/profiles/${post.createdBy}">${post.createdBy}</a> ${post.modifiedBy ? `<br> Edited By: <a href="/profiles/${post.modifiedBy}">${post.modifiedBy}</a></i></p>` : "</i></p>"}` : ""}
+        })}</i></h3>
+                ${post.createdBy ? `<h3><i>Created By: <a href="/profiles/${post.createdBy}">${post.createdBy}</a> ${post.modifiedBy ? `<br> Edited By: <a href="/profiles/${post.modifiedBy}">${post.modifiedBy}</a></i></h3>` : "</i></h3>"}` : ""}
               </div>
             </header>
             <div class="post-content-wrapper">

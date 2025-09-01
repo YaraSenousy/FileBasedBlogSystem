@@ -14,7 +14,7 @@ async function loadBookmarkedPosts() {
   try {
     const bookmarks = getBookmarks();
     if (bookmarks.length === 0) {
-      document.getElementById("posts-container").innerHTML = "<h4>No bookmarked posts</h4><p><i>Start bookmarking posts to see them here!</i></p>";
+      document.getElementById("posts-container").innerHTML = "<h3>No bookmarked posts</h3><p><i>Start bookmarking posts to see them here!</i></p>";
       allPosts = [];
       return;
     }

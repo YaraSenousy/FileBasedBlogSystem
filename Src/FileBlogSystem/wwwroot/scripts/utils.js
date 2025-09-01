@@ -80,7 +80,7 @@ function renderPosts(posts, containerId, role = null, name = null) {
   container.innerHTML = "";
 
   if (posts.length <= 0) {
-    container.innerHTML = "<h4>No results</h4>";
+    container.innerHTML = "<h3>No results</h3>";
     return;
   }
 
@@ -513,10 +513,10 @@ function theme() {
 
   var { name, role } = JSON.parse(localStorage.getItem("userInfo") || "{}");
   if (role) {
-    const contactLink = Array.from(document.querySelectorAll(".nav-link"))
-      .find(link => link.textContent.trim() === "Contact Us");
+    const joinLink = Array.from(document.querySelectorAll(".nav-link"))
+      .find(link => link.textContent.trim() === "Join Us");
 
-    if (contactLink) {
+    if (joinLink) {
       const dashboardLink = document.createElement("a");
       dashboardLink.className = "nav-link";
       dashboardLink.href = "/dashboard";
@@ -526,7 +526,8 @@ function theme() {
       dashboardItem.className = "nav-item";
       dashboardItem.appendChild(dashboardLink);
 
-      contactLink.parentElement.insertAdjacentElement("afterend", dashboardItem);
+      joinLink.parentElement.insertAdjacentElement("afterend", dashboardItem);
+      joinLink.style.display = "none";
     }
   } 
 }

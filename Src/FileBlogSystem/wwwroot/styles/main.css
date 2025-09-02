@@ -2076,7 +2076,7 @@ input[type="datetime-local"]:focus {
 /* Dark Theme */
 [data-theme="dark"] {
     body {
-        background: #402039;
+        background: #402039 !important;
         color: #E2CEF0;
     }
 

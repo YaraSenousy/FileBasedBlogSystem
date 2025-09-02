@@ -80,46 +80,49 @@
 
   <div class="container-fluid">
     <div class="row">
-      <main class="col-12 col-md-9 mx-auto">
-        <h1>Join Our Team</h1>
-        <form id="join-form" enctype="multipart/form-data">
-          <input type="hidden" id="_csrf" name="_csrf" value="" />
-          <div class="mb-3">
-            <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="name" required>
-          </div>
-          <div class="mb-3">
-            <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-            <input type="email" title="Enter a valid email" class="form-control" id="email" required>
-          </div>
-          <div class="mb-3">
-            <label for="description" class="form-label">Describe Yourself <span class="text-danger">*</span></label>
-            <textarea class="form-control" id="description" rows="4" required></textarea>
-          </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-            <input type="password" class="form-control" id="password" required
-              pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&-_])[A-Za-z\d@$!%*?&-_ ]{16,}$"
-              title="Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'block-curious-sunny-leaves'">
-          </div>
-          <div class="mb-3">
-            <label for="picture" class="form-label">Profile Picture (Optional, .jpg/.png, .WEBP)</label>
-            <input type="file" class="form-control" id="picture" accept="image/jpeg,image/png,image/webp">
-          </div>
-          <div class="mb-3">
-            <label for="why-join" class="form-label">Why do you want to join? <span class="text-danger">*</span></label>
-            <textarea class="form-control" id="why-join" rows="4" required></textarea>
-          </div>
-          <div class="mb-3">
-            <label for="cv" class="form-label">CV (Optional, .pdf)</label>
-            <input type="file" class="form-control" id="cv" accept="application/pdf">
-          </div>
-          <button type="submit" class="btn btn-primary">Submit Application</button>
-          <div id="join-spinner" class="spinner-border text-primary ms-2" role="status"
-            style="display: none; width: 1.5rem; height: 1.5rem;">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-        </form>
+      <main class="col-12 col-md-9 mx-auto d-flex justify-content-center align-items-center">
+        <div class="join-container">
+          <h1 class="text-center">Join Our Team</h1>
+          <form id="join-form" enctype="multipart/form-data">
+            <input type="hidden" id="_csrf" name="_csrf" value="" />
+            <div class="mb-3">
+              <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="name" required>
+            </div>
+            <div class="mb-3">
+              <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+              <input type="email" title="Enter a valid email" class="form-control" id="email" required>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">Describe Yourself <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="description" rows="4" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+              <input type="password" class="form-control" id="password" required
+                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&-_])[A-Za-z\d@$!%*?&-_ ]{16,}$"
+                title="Must be at least 16 characters, one uppercase, one lowercase, one digit, and one special character (@$!%*?&-_). Consider using a passphrase like 'block-curious-sunny-leaves'">
+            </div>
+            <div class="mb-3">
+              <label for="picture" class="form-label">Profile Picture (Optional, .jpg/.png, .WEBP)</label>
+              <input type="file" class="form-control" id="picture" accept="image/jpeg,image/png,image/webp">
+            </div>
+            <div class="mb-3">
+              <label for="why-join" class="form-label">Why do you want to join? <span
+                  class="text-danger">*</span></label>
+              <textarea class="form-control" id="why-join" rows="4" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="cv" class="form-label">CV (Optional, .pdf)</label>
+              <input type="file" class="form-control" id="cv" accept="application/pdf">
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Application</button>
+            <div id="join-spinner" class="spinner-border text-primary ms-2" role="status"
+              style="display: none; width: 1.5rem; height: 1.5rem;">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </form>
+        </div>
       </main>
     </div>
   </div>

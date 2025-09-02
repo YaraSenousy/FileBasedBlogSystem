@@ -2073,6 +2073,14 @@ input[type="datetime-local"]:focus {
     color: #E2CEF0;
 }
 
+.join-container {
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    border: 0.1rem solid #5A407F;
+    padding-top: 2rem;
+    width: 70%;
+}
+
 /* Dark Theme */
 [data-theme="dark"] {
     body {

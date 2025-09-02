@@ -16,7 +16,7 @@ RUN dotnet publish "FileBlogSystem.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-COPY content /app/content
+# COPY content /app/content
 ENTRYPOINT ["dotnet", "FileBlogSystem.dll"]
 
 

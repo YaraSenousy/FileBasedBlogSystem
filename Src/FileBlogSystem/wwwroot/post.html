@@ -195,13 +195,13 @@
                   <button id="tts-play" class="btn btn-outline-secondary btn-sm w-100 mb-2">
                     <i class="fas fa-play"></i> Play
                   </button>
-                  <button id="tts-pause" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+                  <button id="tts-pause" class="btn btn-outline-secondary btn-sm w-100 mb-2" style="display: none">
                     <i class="fas fa-pause"></i> Pause
                   </button>
-                  <button id="tts-resume" class="btn btn-outline-secondary btn-sm w-100 mb-2">
-                    <i class="fas fa-redo"></i> Resume
+                  <button id="tts-resume" class="btn btn-outline-secondary btn-sm w-100 mb-2" style="display: none">
+                    <i class="fas fa-play"></i> Resume
                   </button>
-                  <button id="tts-stop" class="btn btn-outline-secondary btn-sm w-100">
+                  <button id="tts-stop" class="btn btn-outline-secondary btn-sm w-100" disabled>
                     <i class="fas fa-stop"></i> Stop
                   </button>
                 </div>
@@ -223,6 +223,7 @@
         `;
 
         document.getElementById("post-container").innerHTML = html;
+        preparePostForHighlighting();
 
         if (post.mediaUrls && Array.isArray(post.mediaUrls) && post.mediaUrls.length > 0) {
           let mediaHtml = '';
@@ -301,6 +302,7 @@
     let currentUtterance = null;
     let voices = [];
     let wordsCache = [];
+    let currentWordIndex = 0;
 
     // --- Wrap words for highlighting while preserving HTML structure ---
     function wrapTextNodes(node) {
@@ -332,31 +334,29 @@
 
     function preparePostForHighlighting() {
       const contentEl = document.querySelector(".post-content");
-      if (!contentEl) return [];
+      if (!contentEl) return;
 
       wordsCache = [];
       const wrapped = wrapTextNodes(contentEl);
       contentEl.innerHTML = "";
       contentEl.appendChild(wrapped);
-      return wordsCache;
     }
 
     // --- Clear highlights ---
     function clearHighlights() {
-      document.querySelectorAll(".tts-word").forEach(el => {
-        el.classList.remove("tts-highlight");
-      });
+      document.querySelectorAll(".tts-word").forEach(el =>
+        el.classList.remove("tts-highlight")
+      );
     }
 
     // --- Speak from word index ---
     function speakFromIndex(startIndex = 0) {
-      if (!wordsCache.length) preparePostForHighlighting();
-
+      currentWordIndex = startIndex;
       speechSynthesis.cancel();
       clearHighlights();
 
-      const remainingText = wordsCache.slice(startIndex).join(" ");
-      currentUtterance = new SpeechSynthesisUtterance(remainingText);
+      const text = wordsCache.slice(startIndex).join(" ");
+      currentUtterance = new SpeechSynthesisUtterance(text);
       currentUtterance.lang = "en-US";
 
       const selectedVoiceName = document.getElementById("tts-voice").value;
@@ -420,18 +420,40 @@
     // --- Controls ---
     document.addEventListener("click", e => {
       if (e.target.id === "tts-play") {
-        preparePostForHighlighting();
+        speechSynthesis.cancel();
+        clearHighlights();
+        currentWordIndex = 0;
         speakFromIndex(0);
+        e.target.innerHTML = '<i class="fas fa-redo"></i> Restart';
+        //document.getElementById("tts-pause").disabled = false;
+        document.getElementById("tts-pause").style.display = "block";
+        document.getElementById("tts-stop").disabled = false;
+
       }
       if (e.target.id === "tts-pause" && speechSynthesis.speaking && !speechSynthesis.paused) {
         speechSynthesis.pause();
+        //e.target.disabled = true;
+        //document.getElementById("tts-resume").disabled = false;
+        e.target.style.display = "none";
+        document.getElementById("tts-resume").style.display = "block";
       }
-      if (e.target.id === "tts-resume" && speechSynthesis.paused) {
+      if (e.target.id === "tts-resume") {
         speechSynthesis.resume();
+        //e.target.disabled = true;
+        //document.getElementById("tts-pause").disabled = false;
+        e.target.style.display = "none";
+        document.getElementById("tts-pause").style.display = "block";
       }
       if (e.target.id === "tts-stop") {
         speechSynthesis.cancel();
         clearHighlights();
+        currentWordIndex = 0;
+        e.target.disabled = true;
+        //document.getElementById("tts-pause").disabled = true;
+        //document.getElementById("tts-resume").disabled = true;
+        document.getElementById("tts-pause").style.display = "none";
+        document.getElementById("tts-resume").style.display = "none";
+        document.getElementById("tts-play").innerHTML = '<i class="fas fa-play"></i> Play';
       }
       if (e.target.classList.contains("tts-word")) {
         const index = parseInt(e.target.dataset.index, 10);

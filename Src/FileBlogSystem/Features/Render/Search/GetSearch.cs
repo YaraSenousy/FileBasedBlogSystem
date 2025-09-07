@@ -38,7 +38,26 @@ public static class GetSearch
         var searcher = new IndexSearcher(reader);
         var analyzer = new EnglishAnalyzer(AppLuceneVersion);
 
-        var parser = new MultiFieldQueryParser(AppLuceneVersion, new[] { "Title", "Description", "Content", "Author" }, analyzer);
+        // Field boosts (Title = highest importance, Content = lowest)
+        var boosts = new Dictionary<string, float>
+        {
+            { "Title", 3.0f },        // Title matches count more
+            { "Description", 2.0f },  // Description matches count medium
+            { "Content", 1.0f },      // Content matches baseline
+            { "Author", 1.5f }        // Author is slightly boosted
+        };
+
+        var parser = new MultiFieldQueryParser(
+            AppLuceneVersion,
+            [.. boosts.Keys],
+            analyzer,
+            boosts
+        )
+        {
+            DefaultOperator = Operator.AND
+        };
+
+
         Query query;
         try
         {

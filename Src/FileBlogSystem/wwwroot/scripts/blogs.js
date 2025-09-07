@@ -197,12 +197,23 @@ function loadPosts() {
  */
 async function onSearch() {
   const term = document.getElementById("search-box").value.trim();
+
   if (term) {
+    // check if this is a new term or the same term as before
+    const isNewSearch = term !== searchTerm;
+
     searchTerm = term;
     activeTags = new Set();
-    setCurrentState(1, activeTags, "");
+
+    // reset page to 1 only on new search
+    if (isNewSearch) {
+      currentPage = 1;
+    }
+
+    setCurrentState(currentPage, activeTags, "");
     document.getElementById("tag-filter").style.display = "none";
     document.getElementById("category-filter").style.display = "none";
+
     const dropdown = document.getElementById("category-dropdown");
     dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
       item.classList.remove("active")
@@ -212,6 +223,7 @@ async function onSearch() {
     selectedCategoryName = "All Categories";
     selectedCategory = "";
     updateActiveNav();
+
     try {
       const response = await fetchData(
         `/search?q=${encodeURIComponent(term)}&page=${currentPage}&limit=${limit}`,
@@ -220,7 +232,7 @@ async function onSearch() {
       totalPages = Math.ceil(response.totalItems / limit) || 1;
       renderPosts(response.data, "posts-container");
       renderPagination(currentPage, totalPages, loadPosts, activeTags, selectedCategory, setCurrentState);
-      await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory); // Re-render tags to sync with activeTags
+      await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory);
     } catch (err) {
       console.error("Search failed:", err.message);
       showToast("Search failed. Please try again.", "danger");
@@ -231,6 +243,7 @@ async function onSearch() {
     clearSearch();
   }
 }
+
 
 /**
  * Clears the search term and resets to the default published posts view.

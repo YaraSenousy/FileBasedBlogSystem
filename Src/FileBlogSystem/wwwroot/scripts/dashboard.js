@@ -400,20 +400,32 @@ async function saveAsDraft(slug) {
  */
 async function onSearch() {
   const term = document.getElementById("search-box").value.trim();
+
   if (term) {
+    const isNewSearch = term !== searchTerm; // check if new search term
     searchTerm = term;
     activeTags = new Set();
-    setCurrentState(1, activeTags, "");
+
+    // reset page only if it's a new search
+    if (isNewSearch) {
+      currentPage = 1;
+    }
+
+    setCurrentState(currentPage, activeTags, "");
     document.getElementById("tag-filter").style.display = "none";
     document.getElementById("category-filter").style.display = "none";
+
     const dropdown = document.getElementById("category-dropdown");
-    dropdown.querySelectorAll(".dropdown-item").forEach((item) => item.classList.remove("active"));
+    dropdown.querySelectorAll(".dropdown-item").forEach((item) =>
+      item.classList.remove("active")
+    );
     dropdown.querySelector("[data-value='']").classList.add("active");
     document.getElementById("category-dropdown-button").textContent = "All Categories";
     selectedCategoryName = "All Categories";
     selectedCategory = "";
     currentView = "published";
     updateActiveNav();
+
     try {
       const response = await fetchData(
         `/search?q=${encodeURIComponent(searchTerm)}&page=${currentPage}&limit=${limit}`,

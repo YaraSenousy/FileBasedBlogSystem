@@ -2081,6 +2081,30 @@ input[type="datetime-local"]:focus {
     width: 70%;
 }
 
+#linkedinShareBtn {
+    color: white;
+    background-color: #0e76a8;
+    border-color: #0e76a8;
+}
+
+#linkedinShareBtn:hover,
+#linkedinShareBtn:focus {
+    background-color: #08415c;
+    border-color: #08415c;
+}
+
+#facebookShareBtn {
+    color: white;
+    background-color: #3b5998;
+    border-color: #3b5998;
+}
+
+#facebookShareBtn:hover,
+#facebookShareBtn:focus {
+    background-color: #2d4373;
+    border-color: #2d4373;
+}
+
 /* Dark Theme */
 [data-theme="dark"] {
     body {
@@ -2534,10 +2558,13 @@ input[type="datetime-local"]:focus {
     align-items: center;
 }
 
-#tts-controls > * {
-  width: 100%;          /* choose a width you like */
-  margin-bottom: 8px;    /* spacing between controls */
-  text-align: center;    /* center text inside */
+#tts-controls>* {
+    width: 100%;
+    /* choose a width you like */
+    margin-bottom: 8px;
+    /* spacing between controls */
+    text-align: center;
+    /* center text inside */
 }
 
 #tts-controls:hover {
@@ -2566,24 +2593,30 @@ input[type="datetime-local"]:focus {
 }
 
 #tts-voice {
-  appearance: none;          /* remove native select styles */
-  -webkit-appearance: none;
-  -moz-appearance: none;
+    appearance: none;
+    /* remove native select styles */
+    -webkit-appearance: none;
+    -moz-appearance: none;
 
-  background-color: transparent;
-  border: 1px solid #5A407F; /* same as .btn-outline-secondary */
-  border-radius: 0.25rem;    /* same as buttons */
-  padding: 0.375rem 0.75rem; /* same as .btn-sm */
-  font-size: 0.875rem;       /* match small button text */
-  color: #5A407F;
-  text-align: center;
-  cursor: pointer;
+    background-color: transparent;
+    border: 1px solid #5A407F;
+    /* same as .btn-outline-secondary */
+    border-radius: 0.25rem;
+    /* same as buttons */
+    padding: 0.375rem 0.75rem;
+    /* same as .btn-sm */
+    font-size: 0.875rem;
+    /* match small button text */
+    color: #5A407F;
+    text-align: center;
+    cursor: pointer;
 }
 
 #tts-voice:focus {
-  outline: none;
+    outline: none;
 }
 
 #tts-voice option {
-  color: #212529; /* normal text inside dropdown */
+    color: #212529;
+    /* normal text inside dropdown */
 }

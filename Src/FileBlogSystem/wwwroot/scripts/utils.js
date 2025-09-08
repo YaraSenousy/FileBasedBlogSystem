@@ -340,10 +340,26 @@ function shareActions() {
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <input type="text" aria-label="Post link" id="shareLink" class="form-control" readonly>
+              <div class="input-group">
+                <input type="text" aria-label="Post link" id="shareLink" class="form-control" readonly>
+                <button class="btn btn-outline-secondary" type="button" id="copyLinkBtn" title="Copy">
+                  <i class="bi bi-copy"></i>
+                </button>
+              </div>
             </div>
-            <div class="modal-footer">
-              <button id="copyLinkBtn" class="btn btn-primary">Copy Link</button>
+            <div class="modal-footer d-flex flex-wrap gap-2">
+              <button id="whatsappShareBtn" class="btn btn-success" title="WhatsApp">
+                <i class="bi bi-whatsapp"></i> WhatsApp
+              </button>
+              <button id="linkedinShareBtn" class="btn" title="LinkedIn">
+                <i class="bi bi-linkedin"></i> LinkedIn
+              </button>
+              <button id="facebookShareBtn" class="btn" title="Facebook">
+                <i class="bi bi-facebook"></i> Facebook
+              </button>
+              <button id="emailShareBtn" class="btn btn-dark" title="Email">
+                <i class="bi bi-envelope-fill"></i> Email
+              </button>
             </div>
           </div>
         </div>
@@ -352,18 +368,53 @@ function shareActions() {
     document.body.insertAdjacentHTML("beforeend", modalHtml);
   }
 
-  // Attach event for Copy button
-  const copyBtn = document.getElementById("copyLinkBtn");
-  if (copyBtn) {
-    copyBtn.addEventListener("click", () => {
-      const linkInput = document.getElementById("shareLink");
-      linkInput.select();
-      linkInput.setSelectionRange(0, 99999); // mobile fix
-      navigator.clipboard.writeText(linkInput.value).then(() => {
-        showToast("Link copied to clipboard!", "success");
-      });
+  const getUrl = () => encodeURIComponent(document.getElementById("shareLink").value);
+  const getRawUrl = () => document.getElementById("shareLink").value;
+
+  // Copy
+  document.getElementById("copyLinkBtn")?.addEventListener("click", () => {
+    const linkInput = document.getElementById("shareLink");
+    linkInput.select();
+    linkInput.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(linkInput.value).then(() => {
+      showToast("Link copied to clipboard!", "success");
     });
-  }
+  });
+
+  // WhatsApp
+  document.getElementById("whatsappShareBtn")?.addEventListener("click", () => {
+    window.open(`https://wa.me/?text=${getUrl()}`, "_blank");
+  });
+
+  // Messenger (mobile app or fallback to web dialog)
+  document.getElementById("messengerShareBtn")?.addEventListener("click", () => {
+    const url = getUrl();
+    const appUrl = `fb-messenger://share?link=${url}`;
+    const webUrl = `https://www.facebook.com/dialog/send?link=${url}&app_id=1234567890&redirect_uri=${url}`;
+    const win = window.open(appUrl);
+    setTimeout(() => {
+      if (!win || win.closed || typeof win.closed === "undefined") {
+        window.open(webUrl, "_blank");
+      }
+    }, 500);
+  });
+
+  // LinkedIn
+  document.getElementById("linkedinShareBtn")?.addEventListener("click", () => {
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${getUrl()}`, "_blank");
+  });
+
+  // Facebook (fixed)
+  document.getElementById("facebookShareBtn")?.addEventListener("click", () => {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${getUrl()}`, "_blank");
+  });
+
+  // Email
+  document.getElementById("emailShareBtn")?.addEventListener("click", () => {
+    const subject = encodeURIComponent("Check out this post!");
+    const body = encodeURIComponent(`I thought you might like this:\n\n${getRawUrl()}`);
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  });
 }
 
 /**

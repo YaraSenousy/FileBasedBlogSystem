@@ -38,13 +38,13 @@ public static class GetSearch
         var searcher = new IndexSearcher(reader);
         var analyzer = new EnglishAnalyzer(AppLuceneVersion);
 
-        // Field boosts (Title = highest importance, Content = lowest)
-        var boosts = new Dictionary<string, float>
+        // Field boosts
+            var boosts = new Dictionary<string, float>
         {
-            { "Title", 3.0f },        // Title matches count more
-            { "Description", 2.0f },  // Description matches count medium
-            { "Content", 1.0f },      // Content matches baseline
-            { "Author", 1.5f }        // Author is slightly boosted
+            { "Title", 3.0f },
+            { "Description", 2.0f },
+            { "Content", 1.0f },
+            { "Author", 1.5f }
         };
 
         var parser = new MultiFieldQueryParser(
@@ -57,18 +57,27 @@ public static class GetSearch
             DefaultOperator = Operator.AND
         };
 
-
-        Query query;
+        Query userQuery;
         try
         {
-            query = parser.Parse(q);
+            userQuery = parser.Parse(q);
         }
         catch (ParseException)
         {
             return Results.BadRequest("Invalid search query");
         }
 
-        var hits = searcher.Search(query, page * limit);
+        // Require Status = published
+        var publishedQuery = new TermQuery(new Term("Status", "published"));
+
+        // Combine (published AND userQuery)
+        var finalQuery = new BooleanQuery
+    {
+        { publishedQuery, Occur.MUST },
+        { userQuery, Occur.MUST }
+    };
+
+        var hits = searcher.Search(finalQuery, page * limit);
         var totalItems = hits.TotalHits;
         var pagedHits = hits.ScoreDocs.Skip((page - 1) * limit).Take(limit);
 

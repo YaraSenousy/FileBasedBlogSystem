@@ -349,16 +349,16 @@ function shareActions() {
             </div>
             <div class="modal-footer d-flex flex-wrap gap-2">
               <button id="whatsappShareBtn" class="btn btn-success" title="WhatsApp">
-                <i class="bi bi-whatsapp"></i> WhatsApp
+                <i class="bi bi-whatsapp"></i>
               </button>
               <button id="linkedinShareBtn" class="btn" title="LinkedIn">
-                <i class="bi bi-linkedin"></i> LinkedIn
+                <i class="bi bi-linkedin"></i>
               </button>
               <button id="facebookShareBtn" class="btn" title="Facebook">
-                <i class="bi bi-facebook"></i> Facebook
+                <i class="bi bi-facebook"></i>
               </button>
               <button id="emailShareBtn" class="btn btn-dark" title="Email">
-                <i class="bi bi-envelope-fill"></i> Email
+                <i class="bi bi-envelope-fill"></i>
               </button>
             </div>
           </div>

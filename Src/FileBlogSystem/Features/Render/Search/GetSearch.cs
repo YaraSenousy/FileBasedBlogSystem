@@ -72,10 +72,10 @@ public static class GetSearch
 
         // Combine (published AND userQuery)
         var finalQuery = new BooleanQuery
-    {
-        { publishedQuery, Occur.MUST },
-        { userQuery, Occur.MUST }
-    };
+        {
+            { publishedQuery, Occur.MUST },
+            { userQuery, Occur.MUST }
+        };
 
         var hits = searcher.Search(finalQuery, page * limit);
         var totalItems = hits.TotalHits;

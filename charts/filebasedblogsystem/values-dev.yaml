@@ -2,4 +2,4 @@ replicaCount: 1
 image:
   repository: registry.arc-center.run/silverkeytech/filebasedblogsystem/mariam
   pullPolicy: IfNotPresent
-  tag: 9972b2
+  tag: a62cb2

@@ -92,14 +92,21 @@ async function loadPublishedPosts() {
   document.getElementById("search-box").value = "";
   updateActiveNav();
 
-  const response = await fetchData(
-    `/published?page=${currentPage}&limit=${limit}${getTagFilterParam(activeTags)}`,
-    true
-  );
-  totalPages = Math.ceil(response.totalItems / limit) || 1;
-  renderPosts(response.data, "posts-container");
-  renderPagination(currentPage, totalPages, loadPosts, activeTags, selectedCategory, setCurrentState);
-  await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory); // Re-render tags to sync with activeTags
+  const spinner = document.getElementById("posts-spinner");
+  spinner.style.display = "inline-block";
+  try {
+  const response = 
+    await fetchData(
+      `/published?page=${currentPage}&limit=${limit}${getTagFilterParam(activeTags)}`,
+      true
+    );
+    totalPages = Math.ceil(response.totalItems / limit) || 1;
+    renderPosts(response.data, "posts-container");
+    renderPagination(currentPage, totalPages, loadPosts, activeTags, selectedCategory, setCurrentState);
+    await loadTags(setCurrentState, activeTags, loadPosts, selectedCategory); // Re-render tags to sync with activeTags
+  } finally {
+    spinner.style.display = "none";
+  }
 }
 
 /**
@@ -117,6 +124,8 @@ async function loadPostsByCategory(slug, name) {
   searchTerm = "";
   document.getElementById("search-box").value = "";
 
+  const spinner = document.getElementById("posts-spinner");
+  spinner.style.display = "inline-block";
   try {
     const response = await fetchData(
       `/categories/${slug}?page=${currentPage}&limit=${limit}${getTagFilterParam(activeTags)}`,
@@ -130,6 +139,8 @@ async function loadPostsByCategory(slug, name) {
     console.error("Failed to load posts:", err.message);
     document.getElementById("posts-container").innerHTML = "<h4>Failed to load posts</h4>";
     showToast("Failed to load posts", "danger");
+  } finally {
+    spinner.style.display = "none";
   }
 }
 
@@ -223,7 +234,8 @@ async function onSearch() {
     selectedCategoryName = "All Categories";
     selectedCategory = "";
     updateActiveNav();
-
+    const spinner = document.getElementById("posts-spinner");
+    spinner.style.display = "inline-block";
     try {
       const response = await fetchData(
         `/search?q=${encodeURIComponent(term)}&page=${currentPage}&limit=${limit}`,
@@ -238,6 +250,8 @@ async function onSearch() {
       showToast("Search failed. Please try again.", "danger");
       document.getElementById("posts-container").innerHTML =
         "<h4>Search failed. Please try again.</h4>";
+    } finally {
+      spinner.style.display = "none";
     }
   } else {
     clearSearch();

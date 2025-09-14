@@ -1,6 +1,6 @@
 {
   "title": "File Blog",
-  "baseUrl": "https://letsblog.switzerlandnorth.cloudapp.azure.com",
+  "baseUrl": "https://filebasedblogsystem-mariam-dev.arc-center.run",
   "description": "Latest blog posts from FileBlogSystem",
   "schedulerIntervalSeconds": "60"
 }

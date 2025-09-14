@@ -317,6 +317,8 @@ function renderPosts(posts, containerId, role = null, name = null) {
         const postUrl = `${window.location.origin}/post/${slug}`;
         const shareLinkInput = document.getElementById("shareLink");
         shareLinkInput.value = postUrl;
+        const title = post.title || "Check out this post!";
+        shareLinkInput.setAttribute("data-title", title);
 
         const modal = new bootstrap.Modal(
           document.getElementById("shareModal")
@@ -357,6 +359,15 @@ function shareActions() {
               <button id="facebookShareBtn" class="btn" title="Facebook">
                 <i class="bi bi-facebook"></i>
               </button>
+              <button id="twitterShareBtn" class="btn" style="background-color: #1da1f2; color: white;" title="Twitter/X">
+                <i class="bi bi-twitter-x"></i>
+              </button>
+              <button id="redditShareBtn" class="btn" style="background-color: #ff4500; color: white;" title="Reddit">
+                <i class="bi bi-reddit"></i>
+              </button>
+              <button id="telegramShareBtn" class="btn" style="background-color: #0088cc; color: white;" title="Telegram">
+                <i class="bi bi-telegram"></i>
+              </button>
               <button id="emailShareBtn" class="btn btn-dark" title="Email">
                 <i class="bi bi-envelope-fill"></i>
               </button>
@@ -370,6 +381,7 @@ function shareActions() {
 
   const getUrl = () => encodeURIComponent(document.getElementById("shareLink").value);
   const getRawUrl = () => document.getElementById("shareLink").value;
+  const getTitle = () => encodeURIComponent(document.getElementById("shareLink").getAttribute("data-title") || "Check out this post!");
 
   // Copy
   document.getElementById("copyLinkBtn")?.addEventListener("click", () => {
@@ -386,35 +398,62 @@ function shareActions() {
     window.open(`https://wa.me/?text=${getUrl()}`, "_blank");
   });
 
-  // Messenger (mobile app or fallback to web dialog)
-  document.getElementById("messengerShareBtn")?.addEventListener("click", () => {
-    const url = getUrl();
-    const appUrl = `fb-messenger://share?link=${url}`;
-    const webUrl = `https://www.facebook.com/dialog/send?link=${url}&app_id=1234567890&redirect_uri=${url}`;
-    const win = window.open(appUrl);
-    setTimeout(() => {
-      if (!win || win.closed || typeof win.closed === "undefined") {
-        window.open(webUrl, "_blank");
-      }
-    }, 500);
-  });
-
-  // LinkedIn
+  // LinkedIn - Fixed with title parameter
   document.getElementById("linkedinShareBtn")?.addEventListener("click", () => {
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${getUrl()}`, "_blank");
+    const url = getRawUrl();
+    const title = getTitle();
+    window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${title}%20${getUrl()}`, "_blank");
   });
 
-  // Facebook (fixed)
+  // Facebook
   document.getElementById("facebookShareBtn")?.addEventListener("click", () => {
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${getUrl()}`, "_blank");
   });
 
+  // Twitter/X
+  document.getElementById("twitterShareBtn")?.addEventListener("click", () => {
+    const text = getTitle();
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${getUrl()}`, "_blank");
+  });
+
+  // Reddit
+  document.getElementById("redditShareBtn")?.addEventListener("click", () => {
+    const title = getTitle();
+    window.open(`https://reddit.com/submit?url=${getUrl()}&title=${title}`, "_blank");
+  });
+
+  // Telegram
+  document.getElementById("telegramShareBtn")?.addEventListener("click", () => {
+    const text = getTitle();
+    window.open(`https://t.me/share/url?url=${getUrl()}&text=${text}`, "_blank");
+  });
+
   // Email
   document.getElementById("emailShareBtn")?.addEventListener("click", () => {
-    const subject = encodeURIComponent("Check out this post!");
+    const subject = getTitle();
     const body = encodeURIComponent(`I thought you might like this:\n\n${getRawUrl()}`);
     window.location.href = `mailto:?subject=${subject}&body=${body}`;
   });
+
+  // Native Web Share API (if available) - bonus feature
+  if (navigator.share) {
+    const nativeShareBtn = document.createElement("button");
+    nativeShareBtn.className = "btn btn-primary";
+    nativeShareBtn.title = "Share";
+    nativeShareBtn.innerHTML = '<i class="bi bi-share"></i>';
+    nativeShareBtn.addEventListener("click", () => {
+      navigator.share({
+        title: document.title,
+        url: getRawUrl()
+      }).catch(console.error);
+    });
+    
+    // Add native share button to modal footer
+    const modalFooter = document.querySelector("#shareModal .modal-footer");
+    if (modalFooter) {
+      modalFooter.appendChild(nativeShareBtn);
+    }
+  }
 }
 
 /**

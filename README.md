@@ -2,9 +2,7 @@
 
 A lightweight file-based blogging system built using **ASP.NET Core**, Markdown for content, and a folder-based content model.
 
-The website is deployed on an Azure Virtual Machine (VM) running a Linux-based systemd service (`fileblogsystem.service`). 
-
- - The site is live at: **https://letsblog.switzerlandnorth.cloudapp.azure.com**
+ - The site is live at: **https://filebasedblogsystem-mariam-dev.arc-center.run**
 
 ---
 
@@ -31,6 +29,8 @@ The website is deployed on an Azure Virtual Machine (VM) running a Linux-based s
 - **Bookmark Functionality**: Unlogged-in users can bookmark posts, stored in `localStorage`, and view them on a dedicated `/saved` page
 - **Join Us**: Users can submit join requests to become authors, which admins can approve or reject on the `/admin/requests` page
 - **Editor-Author Assignment**: Editors are assigned to specific authors and can only view and edit their assigned author’s drafts and scheduled posts
+- **Sharing blogs:** Allowing users to share any blog on Facebook, WhatsApp, LinkedIn, X, Reddit, Telegram, Email, and others
+- **Text to speach:** Allowing users to listen to the blog
 
 ---
 
